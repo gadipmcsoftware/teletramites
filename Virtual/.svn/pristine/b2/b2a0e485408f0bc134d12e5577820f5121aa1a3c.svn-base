@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Registro de Profesionales</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->
+	<link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/iconic/css/material-design-iconic-font.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/noui/nouislider.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="css/util.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+<!--===============================================================================================-->
+<!-- DATE-PICKER -->
+	<link rel="stylesheet" href="vendor/date-picker/css/datepicker.min.css">
+  <script src="//code.tidio.co/hmc50vup1wwdiaeigjsgkkqo6jfxkm3s.js" async></script>
+</head>
+<!--<body -->
+<?php include 'menu.php';?>
+	<div class="container-contact100">
+		<div class="wrap-contact100">
+			<form class="contact100-form validate-form" id="Frm_Register">
+				<span class="contact100-form-title">
+					<h1 class="h3 mb-0 text-gray-800">Registro de Usuarios</h1>
+				</span>                                  
+<!--                                        <div class="form-group row">-->
+                                            <div class="col-sm-12 mb-3 mb-sm-0">
+                                                <div class="col-sm-12 mb-3 mb-sm-0">
+                                                            <div class="container-contact100-form-btn">
+                                                                <a href="#" class="btn btn-outline-danger btn-user btn-block" data-toggle="modal" data-target="#Frm_anuncio"  id="Btn_agrega">
+                                                                         <i class="fas fa-exclamation-triangle"></i> ¿Qué Tipo de Usuario Escoger ?
+                                                                </a>
+                                                             </div>
+
+
+                                                     </div> 
+                                            </div>
+                                                    
+                                        <!--</div>-->  
+                                        
+                                            <div class="col-sm-12 mb-3 mb-sm-0">
+                                                    <div class="col-sm-12 mb-3 mb-sm-0">
+                                                        <div class="wrap-input100 validate-input bg1" data-validate="Por favor Ingrese Cedula">
+                                                            <span class="label-input100">Nro. Cedula o Ruc<span class="text-danger">*</span></span>
+                                                            <input class="input100" type="text" name="Txt_IngCed" id="Txt_IngCed" placeholder="CEDULA O RUC">
+                                                        </div>  
+                                                     </div>     
+                                            </div>
+                                          <div class="col-sm-6 mb-3 mb-sm-0">
+                                            <div class="wrap-input100 validate-input bg1" data-validate="Por Favor Ingrese su Título">
+                                                      <span class="label-input100">Nombres<span class="text-danger">*</span></span>
+                                                      <input class="input100" type="text" name="Txt_IngNom" id="Txt_IngNom" placeholder="INGRESE SU NOMBRE">
+                                            </div>                                             
+                                          </div>                                                                         
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                           <div class="wrap-input100 validate-input bg1" data-validate="Por favor Ingrese Nombres">
+                                                     <span class="label-input100">Apellidos<span class="text-danger">*</span></span>
+                                                     <input class="input100" type="text" name="Txt_IngApelli" id="Txt_IngApelli" placeholder="NOMBRES Y APELLDOS COMPLETOS">
+                                           </div>      
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8">        
+                                            <div class="wrap-input100 input100-select bg1" data-validate="Seleccione una Opción">
+                                                <span class="label-input100">Provincia de Domicilio <span class="text-danger">*</span></span>
+                                                <div>
+                                                        <select class="js-select2"  name="Cmb_Provi" id="Cmb_Provi">
+                                                                <option>Seleccione una Opción</option>
+                                                        </select>
+                                                        <div class="dropDownSelect2"></div>
+                                                </div>
+                                            </div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8">        
+                                            <div class="wrap-input100 input100-select bg1" data-validate="Seleccione una Opción">
+                                                <span class="label-input100">Cantón de Domicilio <span class="text-danger">*</span></span>
+                                                <div>
+                                                        <select class="js-select2"  name="Cmb_Canton" id="Cmb_Canton">
+                                                                <option>Seleccione una Opción</option>
+                                                        </select>
+                                                        <div class="dropDownSelect2"></div>
+                                                </div>
+                                            </div>
+                                    </div>
+                                     <div class="col-xl-6 col-lg-8">        
+                                            <div class="wrap-input100 input100-select bg1" data-validate="Seleccione una Opción">
+                                                <span class="label-input100">Parroquia de Domicilio <span class="text-danger">*</span></span>
+                                                <div>
+                                                        <select class="js-select2"  name="Cmb_Parro" id="Cmb_Parro">
+                                                                <option>Seleccione una Opción</option>
+                                                        </select>
+                                                        <div class="dropDownSelect2"></div>
+                                                </div>
+                                            </div>
+                                    </div>
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <div class="wrap-input100 validate-input bg1" data-validate="Por Favor Ingrese Dirección">
+                                                  <span class="label-input100">Dirección<span class="text-danger">*</span></span>
+                                                  <input class="input100" type="text" name="Txt_IngDir" id="Txt_IngDir" placeholder="DIRECCIÓN COMPLETA ">
+                                        </div>      
+                                    </div>
+
+				<div class="col-sm-6 mb-3 mb-sm-0">
+                                        <div class="wrap-input100 bg1" >
+                                                  <span class="label-input100">Telefono</span>
+                                                  <input class="input100" type="text" name="Txt_IngTel" id="Txt_IngTel" placeholder="TELÉFONO">
+                                        </div>      
+                                </div>
+
+				<div class="col-sm-6 mb-3 mb-sm-0">
+                                        <div class="wrap-input100 validate-input bg1" data-validate="Por Favor Ingrese Dirección">
+                                                  <span class="label-input100">Correo Electrónico<span class="text-danger">*</span></span>
+                                                  <input class="input100" type="email" name="Txt_IngEmail" id="Txt_IngEmail" placeholder="EMAIL PROFESIONAL">
+                                        </div>      
+                                </div>
+                             <div class="col-xl-6 col-lg-8">        
+                                            <div class="wrap-input100 input100-select bg1" data-validate="Seleccione una Opción">
+                                                <span class="label-input100">Personeria <span class="text-danger">*</span></span>
+                                                <div>
+                                                        <select class="js-select2"  name="Cmb_Personeria" id="Cmb_Personeria">
+                                                                <option>Seleccione una Opción</option>
+                                                        </select>
+                                                        <div class="dropDownSelect2"></div>
+                                                </div>
+                                            </div>
+                             </div>
+                              <div class="col-xl-6 col-lg-8">        
+                                    <div class="wrap-input100 input100-select bg1" data-validate="Seleccione una Opción">
+					<span class="label-input100">Tipo de Usuario <span class="text-danger">*</span></span>
+					<div>
+						<select class="js-select2"  name="Cmb_TipUsr" id="Cmb_TipUsr">
+							<option>Seleccione una Opción</option>
+						</select>
+						<div class="dropDownSelect2"></div>
+					</div>
+                                    </div>
+                            </div>
+
+                                 <div class="col-sm-6 mb-3 mb-sm-0">
+                                     <div class="wrap-input100  validate-input bg1" style="display: none" id="div_tit_aca" data-validate="Por Favor Ingrese Titulo">
+                                                  <span class="label-input100">Titulo <span class="text-danger">*</span></span>
+                                                  <input class="input100" type="text" name="Txt_tit" id="Txt_tit" placeholder="TITULO ACADEMICO">
+                                    </div>      
+                                </div>
+                                 <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <div class="wrap-input100 validate-input bg1"  id="div_snsyt" data-validate="Ingrese Registro de Senescyt" style="display:none">
+                                               <span class="label-input100">Número Senescyt<span class="text-danger">*</span></span>
+                                                  <input class="input100" type="text" name="Txt_snsit" id="Txt_snsit" placeholder="REGISTRO DE SENESCYT">
+                                        </div>      
+                                </div>
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                     <div class="wrap-input100  validate-input bg1"  id="div_tit_aca" data-validate="Por Favor Ingrese Titulo">
+                                                  <span class="label-input100">Fecha de Nacimiento <span class="text-danger">*</span></span>
+                                                   <i class="zmdi zmdi-calendar "></i>
+                                                  <input type="text"class="input100  datepicker-here pl-85" data-language='es' data-date-format="dd-mm-yyyy" id="fech_nac" >                
+                                    </div> 
+                                    <div class="form-group row row justify-content-center h-100">
+                            
+                       
+                    </div>
+                                </div>
+                                <div class="col-xl-12 col-lg-8">
+                                    <div class="card shadow mb-4">
+                                        <!-- Card Header - Dropdown -->
+                                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                          <h6 id="lbl_varan" class="m-0 font-weight-bold text-primary">Aceptación de Servicios Electrónicos</h6>
+                                          <div class="dropdown no-arrow">
+                                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                              <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                            </a>
+                                          </div>
+                                        </div>
+                                      <!-- Card Body -->
+                                      <div class="card-body">
+                                          <div class="form-group row">
+                                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                                            <div class="custom-control custom-checkbox small">
+                                                                <input type="checkbox" class="custom-control-input" id="Chk_Noti" >
+                                                                 <label class="custom-control-label text-info" for="Chk_Noti" align="justify">Acepto Recibir Notificaciones por Correo electrónico </label>
+                                                            </div>
+                                                </div>
+                                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                                            <div class="custom-control custom-checkbox small">
+                                                                <input type="checkbox" class="custom-control-input" id="Chk_Decla" >
+                                                                 <label class="custom-control-label text-info" for="Chk_Decla" align="justify">Declaro que toda la información proporcionada es verdadera, completa, correcta, y puede ser verificada.</label>
+                                                            </div>
+                                                </div>
+                                           </div>
+                                          <div class="form-group row">
+                                              <div class="col-sm-11 mb-3 mb-sm-0">
+                                                <h8 id="lbl_varan" class="m-0 font-weight-bold text-danger" >La información consignada en el presente Registro de Usuarios será verificada por el GADIP Municipio de Cayambe de ser correcta la contraseña de acceso a la Plataforma se enviará al email registrado, misma que es personal e intransferible</h8>   
+                                              </div>
+                                          </div>
+                                      </div>
+                                    </div>
+                                </div>
+				
+                            
+				 <div class="col-xl-12 col-lg-8">
+                                        <div class="container-contact100-form-btn">
+                                            <button type="button" class="contact100-form-btn btn btn-primary" id="Btn_GuaProExt">
+                                                <span>
+							Enviar
+							<i class="fas fa-paper-plane" aria-hidden="true"></i>
+						</span>
+                                            </button>
+                                        </div>
+                                </div>                              
+			</form>
+                      <?php  include 'PienPagina.php';?>
+		</div>
+	</div>
+<div class="modal fade" id="Frm_anuncio" role="dialog" style="overflow-y: scroll;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                 
+                <h8 class="modal-title" id="myModalLabel"> <i class="fas fa-exclamation-triangle"></i>  AVISO IMPORTANTE</h8>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                    <span class="sr-only">Close</span>
+                </button>
+               
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body" >
+                <div class="container">
+                    <div align="center">
+                        <img src="imagenes/cyber-security.jpg" width="400" height="200">
+                    </div>
+                    <div class="row">
+                        <p align="justify"><h8 id="lbl_varan" class="m-0 font-weight-bold text-gray-700"><u class='text-primary'>Profesional. -</u>Estos usuarios podrán relazar Tramites Catastrales o de Rentas de Terceras Personas, se requieren tener un título avalado por el Senecyt. La información que será validada por los Funcionarios de GADIP Municipio de Cayambe para poder Transaccional en la plataforma.<br><br><u class='text-primary'>Contribuyentes. -</u>Son usuarios que poseen Predios, Patentes o Activos en el Cantón Cayambe, podrán realizar solo trámites personales y se le enviara su clave de acceso al correo electrónico automáticamente, no requiere validación de los Funcionarios de GADIP Municipio de Cayambe.<br><br><u class='text-primary'>Ambos. -</u>Son Usuarios que poseen Predios, Patentes o Activos en el Cantón Cayambe, estos usuarios podrán relazar Tramites Catastrales o de Rentas de Terceras Personas; requieren tener un título avalado por el Senecyt, información que será validada por los Funcionarios de GADIP Municipio de Cayambe para poder Transaccional en la plataforma.</h8></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--===============================================================================================-->
+
+        <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+            <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>-->
+<!--===============================================================================================-->
+	<script src="vendor/animsition/js/animsition.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/select2/select2.min.js"></script>
+	<script>
+		$(".js-select2").each(function(){
+			$(this).select2({
+				minimumResultsForSearch: 20,
+				dropdownParent: $(this).next('.dropDownSelect2')
+			});
+
+
+			$(".js-select2").each(function(){
+				$(this).on('select2:close', function (e){
+					if($(this).val() == "Please chooses") {
+						$('.js-show-service').slideUp();
+					}
+					else {
+						$('.js-show-service').slideUp();
+						$('.js-show-service').slideDown();
+					}
+				});
+			});
+		})
+	</script>
+<!--===============================================================================================-->
+	<script src="vendor/daterangepicker/moment.min.js"></script>
+	<script src="vendor/daterangepicker/daterangepicker.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/countdowntime/countdowntime.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/noui/nouislider.min.js"></script>
+	<script>
+	    var filterBar = document.getElementById('filter-bar');
+
+	    noUiSlider.create(filterBar, {
+	        start: [ 1500, 3900 ],
+	        connect: true,
+	        range: {
+	            'min': 1500,
+	            'max': 7500
+	        }
+	    });
+
+	    var skipValues = [
+	    document.getElementById('value-lower'),
+	    document.getElementById('value-upper')
+	    ];
+
+	    filterBar.noUiSlider.on('update', function( values, handle ) {
+	        skipValues[handle].innerHTML = Math.round(values[handle]);
+	        $('.contact100-form-range-value input[name="from-value"]').val($('#value-lower').html());
+	        $('.contact100-form-range-value input[name="to-value"]').val($('#value-upper').html());
+	    });
+	</script>
+<!--===============================================================================================-->
+	<script src="js/main.js"></script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-23581568-13');
+</script>
+
+
+
+  <!-- Core plugin JavaScript-->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+  <!-- Custom scripts for all pages-->
+  <script src="js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script type="text/javascript" src="js/global/jquery.validate.js"></script>
+  <script src="http://code.jquery.com/jquery-migrate-1.0.0.js"></script>
+  <script type="text/javascript" src="js/global/jquery-ui-1.8.11.custom.min.js"></script>
+  <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+   <script src="js/jquery-3.3.1.min.js"></script>
+   <script>
+   
+   </script>
+  <script src="vendor/date-picker/js/datepicker.js"></script>
+ <script src="vendor/date-picker/js/datepicker.en.js"></script>
+  <!-- Page level custom scripts -->
+
+  <script src = 'js/bootbox.js'></script>
+  <script src="js/regitramite.js?%=Guid.NewGuid()%"></script>
+</html>

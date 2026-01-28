@@ -1,0 +1,322 @@
+var Data_SetProfe;
+var Data_Seterror;
+var tbl_profesionales;
+$(document).ready(function() {
+       try {
+           var Usr=parseInt(sessionStorage.getItem('Usr_Ext'));
+                if(Usr==0){
+                    var id=sessionStorage.getItem('Name');
+                }
+                else{
+                     if(Usr==1){
+                        var id=sessionStorage.getItem('CED_PROFE');
+                    }
+                    else{
+                         window.location.href = "http://172.23.25.6/Virtual/error.php";
+                    }
+                }
+             tbl_profesionales = $('#Tbl_Profesionales').DataTable({
+                                                                         language: {
+                                                                         "decimal": "",
+                                                                         "emptyTable": "No Tiene Notificaciones Pendientes",
+                                                                         "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                                                                         "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                                                                         "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                                                                         "infoPostFix": "",
+                                                                         "thousands": ",",
+                                                                         "lengthMenu": "Mostrar _MENU_ Entradas",
+                                                                         "loadingRecords": "Cargando...",
+                                                                         "processing": "Procesando...",
+                                                                         "search": "Buscar:",
+                                                                         "zeroRecords": "Sin resultados encontrados",
+                                                                         "paginate": {
+                                                                             "first": "Primero",
+                                                                             "last": "Ultimo",
+                                                                             "next": "Siguiente",
+                                                                             "previous": "Anterior"
+                                                                         }
+                                                                     }
+                                                                     
+
+                                                                 });
+                 CargarProfe();
+                     $('#Tbl_Profesionales tbody').on( 'click', 'a', function () {
+                          try{
+                               if($(this).attr('id')=="Btn_vali"){
+                              var rowDataProfesional = tbl_profesionales.row( $(this).parents('tr') ).data();
+                              var clave=randomico();
+                              var valida=ValidarProfe(rowDataProfesional[0],clave);
+                              if(valida){
+                                   EnviarEmail(rowDataProfesional[3],'Clave de Ingreso A Plataforma de Teletramites','Estimad(o) :'+rowDataProfesional[1]+' \n\
+Se a registrado sus datos en la plataforma virtual de Teletramites\n\
+para ingresar a la plataforma debe hacerlo a la direccion electronica : http://impuestos.gadipmc.gob.ec/Virtual/Login.php\n\
+su Usuario es su cedula de Identidad  \n\
+su clave es: '+clave+' \n\
+Recuerde que en esta plataforma puede dar seguimiento a sus tramites Municipales.');
+                     tbl_profesionales.clear();
+                    CargarProfe();
+                     window.location.href = "http://172.23.25.6/Virtual/ValidaProfe.php";
+                              }
+                          }
+                                 if($(this).attr('id')=="Btn_rech"){
+                                     var rowDataProfesional = tbl_profesionales.row( $(this).parents('tr') ).data();
+                                     var id=sessionStorage.getItem('Name');
+                                     var recha=RechaProfe(rowDataProfesional[0],id);
+                                     if(recha){
+                                         EnviarEmail(rowDataProfesional[3],'Solicitud de Ingreso A Plataforma de Teletramites','Estimad(o) :'+rowDataProfesional[1]+' \n\
+Su Solicitud de Ingreso a la Plataforma de Teletramites a sido negada\n\
+para mayor Informacion comuniquese al GADIP Mumicipio de Cayambe a los siguientes Contactos:\n\
+info@gadipmc.gob.ec o al \n\
+(02) 236-1591');
+                                            tbl_profesionales.clear();
+                                            CargarProfe();
+                                            window.location.href = "http://172.23.25.6/Virtual/ValidaProfe.php";
+                                        }
+                                 }
+                          } catch (e) {
+                                alert("error"+e);
+                          }
+                          
+                     });
+        } catch (e) {
+               alert("error"+e);
+        }
+});
+function Profesionales(id){
+   
+   var ex=0; 
+     try {
+                
+                              var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.25.6/Virtual/logica/TraerProfesional.php",
+                                        data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                              Data_SetProfe=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+
+function ValidarProfe(identificacion,clave){    
+
+    var ex=0;    
+    try {
+           
+                                        var id=identificacion;
+                                        var claveing=clave;
+                                        var parametros={
+                                                "ced_profe":id,
+                                                "clave":claveing
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.25.6/Virtual/logica/ValidarProfe.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_Seterror=response.row;
+                                                        } else {
+                                                                ex=0;
+                                                                alert(response.message);
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+                                        if(Data_Seterror.length==0){
+                                            bootbox.dialog({
+                                                
+                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                title: "Registro Validado Correctamente",
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            });
+                                                 
+                                             return true;
+                                               
+                                        }
+                                        else{
+                                            alert("Fallo al Actualizar Registro");
+                                            alert(Data_Seterror);
+                                            return false;
+                                        }
+                                      
+
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function RechaProfe(identificacion,name){    
+
+    var ex=0;    
+    try {
+           
+                                        var id=identificacion;
+                                        var claveing=name;
+                                        var parametros={
+                                                "ced_profe":id,
+                                                "name":claveing
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.25.6/Virtual/logica/Rechazar.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_Seterror=response.row;
+                                                        } else {
+                                                                ex=0;
+                                                                alert(response.message);
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+                                        if(Data_Seterror.length==0){
+                                            bootbox.dialog({
+                                                
+                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                title: "Registro Validado Correctamente",
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            });
+                                                 
+                                             return true;
+                                               
+                                        }
+                                        else{
+                                            alert("Fallo al Actualizar Registro");
+                                            alert(Data_Seterror);
+                                            return false;
+                                        }
+                                      
+
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function randomico() {
+    var caracteres = "abcdefghijkmnpqrtuvwxyzABCDEFGHJKMNPQRTUVWXYZ2346789";
+       var contraseña = "";
+       for (i=0; i<5; i++) contraseña +=caracteres.charAt(Math.floor(Math.random()*caracteres.length));
+       return contraseña;
+}
+function EnviarEmail(AddAddress,Subject,Body){    
+
+    var ex=0;    
+    try {
+           
+                                        
+                                        var parametros={
+                                                "email":AddAddress,
+                                                "subject":Subject,
+                                                "message":Body
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.25.6/Virtual/logica/Send.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               
+                                                        } else {
+                                                                ex=false;
+                                                               
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+                                        if(ex==false){
+                                             bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-warning btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "No se encontro la direccion de correo electronico por favor informe al profesional su clave de acceso la clave es: "+clave,
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            });
+                                        }
+                                        
+//                                       bootbox.alert(Data_Seterror);
+                                      
+
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function CargarProfe(){ 
+      Profesionales(0);
+                  for(var i=0; i<Data_SetProfe.length; i++){
+                              tbl_profesionales.row.add([
+                                                     Data_SetProfe[i][0],
+                                                     Data_SetProfe[i][1],
+                                                     Data_SetProfe[i][2],
+                                                     Data_SetProfe[i][3],
+                                                     Data_SetProfe[i][4],
+                                                     Data_SetProfe[i][6],
+                                                     "<a id='Btn_vali' href='#' class='btn btn-success btn-circle'><i class='far fa-check-circle'></i><a id='Btn_rech' href='#' class='btn btn-danger btn-circle'><i class='fas fa-user-times'></i>",
+
+                                                   ]).draw();
+                                                 
+                         }
+    
+}

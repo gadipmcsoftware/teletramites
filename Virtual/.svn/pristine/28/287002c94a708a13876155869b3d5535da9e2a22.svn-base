@@ -1,0 +1,669 @@
+// Set new default font family and font color to mimic Bootstrap's default styling
+var bandas =  new Array();
+var valores =  new Array();
+var currentTime = new Date;
+var totales;
+var Data_SetAnio;
+Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#858796';
+
+function number_format(number, decimals, dec_point, thousands_sep) {
+  // *     example: number_format(1234.56, 2, ',', ' ');
+  // *     return: '1 234,56'
+  number = (number + '').replace(',', '').replace(' ', '');
+  var n = !isFinite(+number) ? 0 : +number,
+    prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+    sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+    dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+    s = '',
+    toFixedFix = function(n, prec) {
+      var k = Math.pow(10, prec);
+      return '' + Math.round(n * k) / k;
+    };
+  // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+  s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+  if (s[0].length > 3) {
+    s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+  }
+  if ((s[1] || '').length < prec) {
+    s[1] = s[1] || '';
+    s[1] += new Array(prec - s[1].length + 1).join('0');
+  }
+  return s.join(dec);
+}
+var year = currentTime.getFullYear();
+Totales(parseInt(year)+1,'U');
+BarBand(1,parseInt(year)+1,'U');
+Cargar_Anio();
+// Bar Chart Example
+var ctx = document.getElementById("myBarChart");
+var myBarChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: bandas,
+    datasets: [{
+      label: "Predios",
+      backgroundColor: "#4e73df",
+      hoverBackgroundColor: "#2e59d9",
+      borderColor: "#4e73df",
+      data: valores,
+    }],
+  },
+  options: {
+    maintainAspectRatio: false,
+    layout: {
+      padding: {
+        left: 10,
+        right: 25,
+        top: 25,
+        bottom: 0
+      }
+    },
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'month'
+        },
+        gridLines: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          maxTicksLimit: 10
+        },
+        maxBarThickness: 25,
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: 20000,
+          maxTicksLimit: 10,
+          padding: 10,
+          // Include a dollar sign in the ticks
+          callback: function(value, index, values) {
+            return  number_format(value);
+          }
+        },
+        gridLines: {
+          color: "rgb(234, 236, 244)",
+          zeroLineColor: "rgb(234, 236, 244)",
+          drawBorder: false,
+          borderDash: [2],
+          zeroLineBorderDash: [2]
+        }
+      }],
+    },
+    legend: {
+      display: false
+    },
+    tooltips: {
+      titleMarginBottom: 10,
+      titleFontColor: '#6e707e',
+      titleFontSize: 14,
+      backgroundColor: "rgb(255,255,255)",
+      bodyFontColor: "#858796",
+      borderColor: '#dddfeb',
+      borderWidth: 1,
+      xPadding: 15,
+      yPadding: 15,
+      displayColors: false,
+      caretPadding: 10,
+      callbacks: {
+        label: function(tooltipItem, chart) {
+          var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+          return datasetLabel + ':' + number_format(tooltipItem.yLabel);
+        }
+      }
+    },
+  }
+});
+GrafExo(1,'U',parseInt(year)+1)
+$(document).ready(function() {
+    
+    try {
+//         $('#dataTable').DataTable();
+          var formatter = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+
+                // These options are needed to round to whole numbers if that's what you want.
+                //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+                //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+            });
+        $("#arecaudar").append(formatter.format(totales[0][0]));
+        $("#ancianato").append(totales[0][2]);
+        $("#discapacidad").append(totales[0][3]);
+         $("#Frm_CharR").validate();
+         $("#Mbx_Valor").click(function(){
+            $("#divBarBand2").css("display", "block");
+            $("#divBarBand").css("display", "none");
+            $("#divBarBandR").css("display", "none");
+            $("#lbl_Impac").text("Impacto Impositivo Valores");
+//            alert("paso")
+                    var anio=$("#cmb_AnioSimula").val();
+                    var tip_impu=$("#cmb_impuesto").val();
+                    if(anio!='Simulacion Actual')
+                    {
+                         Totales(anio,tip_impu);
+                         document.getElementById("arecaudar").innerHTML= formatter.format(totales[0][0]);
+                         document.getElementById("ancianato").innerHTML= totales[0][2];
+                         document.getElementById("discapacidad").innerHTML= totales[0][3];
+                         BarBandValores(2,anio,tip_impu);
+                    }
+                    else{
+                        var year = currentTime.getFullYear();
+                        Totales(parseInt(year)+1,'T');
+                         document.getElementById("arecaudar").innerHTML= formatter.format(totales[0][1]);
+                         document.getElementById("ancianato").innerHTML= totales[0][2];
+                         document.getElementById("discapacidad").innerHTML= totales[0][3];
+                         BarBandValores(2,parseInt(year)+1,tip_impu);
+                    }
+          });
+          $("#Mbx_predio").click(function(){
+                $("#lbl_Impac").text("Impacto Impositivo Predios");
+                       var anio=$("#cmb_AnioSimula").val();
+                       var tip_impu=$("#cmb_impuesto").val();
+                       if(anio!='Simulacion Actual')
+                        {
+                             BarBandPre(1,anio,tip_impu);
+                        }
+                        else{
+                            var year = currentTime.getFullYear();
+                            BarBandPre(1,parseInt(year)+1,tip_impu);
+                        }
+                        
+//                      Distribucion_rural();
+          });
+            $("#Mbx_Valorex").click(function(){
+                    var anio=$("#cmb_AnioSimula").val();
+                    var tip_impu=$("#cmb_impuesto").val();
+                    if(anio!='Simulacion Actual')
+                    {
+                         GrafExo(2,tip_impu,anio);
+                    }
+                    else{
+                        var year = currentTime.getFullYear();
+
+                         GrafExo(2,'U',parseInt(year)+1)
+                    }
+          });
+          $("#Mbx_predioex").click(function(){
+                   var anio=$("#cmb_AnioSimula").val();
+                    var tip_impu=$("#cmb_impuesto").val();
+                    if(anio!='Simulacion Actual')
+                    {
+                         GrafExo(1,tip_impu,anio);
+                    }
+                    else{
+                        var year = currentTime.getFullYear();
+
+                         GrafExo(1,'U',parseInt(year)+1)
+                    }
+          });
+          $("#Btn_versimula").click(function(){
+                    var anio=$("#cmb_AnioSimula").val();
+                    var tip_impu=$("#cmb_impuesto").val();
+                    if(anio!='Simulacion Actual')
+                    {
+                         Totales(anio,tip_impu);
+                         document.getElementById("arecaudar").innerHTML= formatter.format(totales[0][0]);
+                         document.getElementById("ancianato").innerHTML= totales[0][2];
+                         document.getElementById("discapacidad").innerHTML= totales[0][3];
+//                         alert(tip_impu);
+                         BarBandPre(1,anio,tip_impu);
+                         GrafExo(1,tip_impu,anio);
+                    }
+                    else{
+                        var year = currentTime.getFullYear();
+                        Totales(parseInt(year)+1,'T');
+                         document.getElementById("arecaudar").innerHTML= formatter.format(totales[0][1]);
+                         document.getElementById("ancianato").innerHTML= totales[0][2];
+                         document.getElementById("discapacidad").innerHTML= totales[0][3];
+//                         alert(tip_impu);
+                         BarBandPre(1,parseInt(year)+1,tip_impu);
+                         GrafExo(1,'U',parseInt(year)+1)
+                    }
+           
+          });
+         
+    } catch (e) {
+        alert(e);
+    }
+});
+function BarBand(id,anio,tip_impu){
+    
+    valores=[];
+   var ex=0; 
+     try {
+                    
+                    var idcons=id;
+                    
+//                    var ind_form = $("#Frm_CharR").valid();
+//                        if(ind_form){
+                              var parametros={
+                                "id":idcons,
+                                "anio":anio,
+                                "tip_impu":tip_impu
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/CosBarBanImp.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind;
+                                                               row=response.row;
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+//                     alert(row);
+//                      }
+               for(var i=0; i<=row.length-1; i++){
+                    bandas.push (row[i][0].toString());
+                   valores.push (row[i][1].toString());
+               }
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Cargar_Anio() {
+TraeAnios();
+  for(var i in Data_SetAnio)
+            { 
+               
+                    document.getElementById("cmb_AnioSimula").innerHTML += "<option value='"+Data_SetAnio[i][0]+"'>"+Data_SetAnio[i][0]+"</option>"; 
+
+            }
+ 
+}
+function TraeAnios(){
+   
+   var ex=0; 
+     try {
+
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/Treaniosimula.php",
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_SetAnio=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function BarBandValores(id,anio,tip_impue){
+bandas=[];
+valores=[];
+
+    // Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#858796';
+if(tip_impue=='U')
+{
+    var grafico='myBarChart2';
+    $("#divBarBand").css("display", "none");
+    $("#divBarBand2").css("display", "none");
+    $("#divBarBandR").css("display", "none");
+    $("#divBarBand2").css("display", "block");
+}
+else{
+    var grafico='myBarChartR2';
+    $("#divBarBandR").css("display", "none");
+    $("#divBarBand2").css("display", "none");
+    $("#divBarBand").css("display", "none");
+    $("#divBarBand2").css("display", "block");
+
+}
+
+BarBand(id,anio,tip_impue)
+// Bar Chart Example
+var ctx = document.getElementById(grafico);
+var myBarChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: bandas,
+    datasets: [{
+      label: "Revenue",
+      backgroundColor: "#4e73df",
+      hoverBackgroundColor: "#2e59d9",
+      borderColor: "#4e73df",
+      data: valores,
+    }],
+  },
+  options: {
+    maintainAspectRatio: false,
+    layout: {
+      padding: {
+        left: 10,
+        right: 25,
+        top: 25,
+        bottom: 0
+      }
+    },
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'month'
+        },
+        gridLines: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          maxTicksLimit: 10
+        },
+        maxBarThickness: 25,
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: 800000,
+          maxTicksLimit: 10,
+          padding: 10,
+          // Include a dollar sign in the ticks
+          callback: function(value, index, values) {
+            return '$' + number_format(value);
+          }
+        },
+        gridLines: {
+          color: "rgb(234, 236, 244)",
+          zeroLineColor: "rgb(234, 236, 244)",
+          drawBorder: false,
+          borderDash: [2],
+          zeroLineBorderDash: [2]
+        }
+      }],
+    },
+    legend: {
+      display: false
+    },
+    tooltips: {
+      titleMarginBottom: 10,
+      titleFontColor: '#6e707e',
+      titleFontSize: 14,
+      backgroundColor: "rgb(255,255,255)",
+      bodyFontColor: "#858796",
+      borderColor: '#dddfeb',
+      borderWidth: 1,
+      xPadding: 15,
+      yPadding: 15,
+      displayColors: false,
+      caretPadding: 10,
+      callbacks: {
+        label: function(tooltipItem, chart) {
+          var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+          return datasetLabel + ': $' + number_format(tooltipItem.yLabel);
+        }
+      }
+    },
+  }
+});
+}
+function Totales(anio,tip_bus){
+ 
+    var ex=0; 
+     try {
+                              var parametros={
+                                "anio":anio,
+                                "tip_bus":tip_bus
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraeDatosTotales.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               totales=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+ }
+function BarBandPre(id,anio,tip_impue){
+bandas=[];
+valores=[];
+
+    // Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#858796';
+// Bar Chart Example
+//    alert(id+","+anio+","+tip_impue
+if(tip_impue=='U')
+{
+    var grafico='myBarChart';
+    $("#divBarBand").css("display", "block");
+    $("#divBarBand2").css("display", "none");
+    $("#divBarBandR").css("display", "none");
+}
+else{
+    var grafico='myBarChartR';
+    $("#divBarBandR").css("display", "block");
+    $("#divBarBand2").css("display", "none");
+    $("#divBarBand").css("display", "none");
+
+}
+BarBand(id,anio,tip_impue)
+// Bar Chart Example
+GrafExo(1,tip_impue,anio);
+var ctx = document.getElementById(grafico);
+var myBarChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: bandas,
+    datasets: [{
+      label: "Predios",
+      backgroundColor: "#4e73df",
+      hoverBackgroundColor: "#2e59d9",
+      borderColor: "#4e73df",
+      data: valores,
+    }],
+  },
+  options: {
+    maintainAspectRatio: false,
+    layout: {
+      padding: {
+        left: 10,
+        right: 25,
+        top: 25,
+        bottom: 0
+      }
+    },
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'month'
+        },
+        gridLines: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          maxTicksLimit: 6
+        },
+        maxBarThickness: 25,
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: 20000,
+          maxTicksLimit: 5,
+          padding: 10,
+          // Include a dollar sign in the ticks
+          callback: function(value, index, values) {
+            return  number_format(value);
+          }
+        },
+        gridLines: {
+          color: "rgb(234, 236, 244)",
+          zeroLineColor: "rgb(234, 236, 244)",
+          drawBorder: false,
+          borderDash: [2],
+          zeroLineBorderDash: [2]
+        }
+      }],
+    },
+    legend: {
+      display: false
+    },
+    tooltips: {
+      titleMarginBottom: 10,
+      titleFontColor: '#6e707e',
+      titleFontSize: 14,
+      backgroundColor: "rgb(255,255,255)",
+      bodyFontColor: "#858796",
+      borderColor: '#dddfeb',
+      borderWidth: 1,
+      xPadding: 15,
+      yPadding: 15,
+      displayColors: false,
+      caretPadding: 10,
+      callbacks: {
+        label: function(tooltipItem, chart) {
+          var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+          return datasetLabel + ':' + number_format(tooltipItem.yLabel);
+        }
+      }
+    },
+  }
+});
+}
+function GrafExo(id,tip_impues,anio){
+//    alert(id+","+tip_impues+","+anio)
+     var ex=0; 
+     var exocien;
+     var exocincuenta;
+     var exocero;
+     var exotro;
+     var total=0;
+     var porcecien;
+     var porcincuenta;
+     var porcero;
+     var porotro;
+     var medida;
+     try {
+                    
+                    var idcons=id;
+//                    var ind_form = $("#Frm_CharR").valid();
+//                        if(ind_form){
+                              var parametros={
+                                "id":idcons,
+                                "tip_impue":tip_impues,
+                                "anio":anio
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/ConsExo.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind;
+                                                               row2=response.row;
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+//                     alert(row2);
+//                      }
+        if(id==1){
+            medida="Predios";
+        }
+        else{
+             medida="";
+        }
+        for(var i=0; i<=row2.length-1; i++){
+                    exocien=row2[i][0].toString()+" "+medida;
+                    exocincuenta=row2[i][1].toString()+" "+medida;
+                    exocero=row2[i][2].toString()+" "+medida;
+                    exotro=row2[i][3].toString()+" "+medida;
+                    total=row2[i][4];
+               }
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+    if(id==4){
+        document.getElementById('Spn_Exo100').innerHTML = "$"+number_format(exocien,2);
+        document.getElementById('Spn_Exo50').innerHTML = "$"+number_format(exocincuenta,2);
+        document.getElementById('Spn_Exo0').innerHTML = "$"+number_format(exocero,2);
+        document.getElementById('Spn_Exot').innerHTML = "$"+number_format(exotro,2);  
+    }
+    else{
+         document.getElementById('Spn_Exo100').innerHTML = exocien;
+        document.getElementById('Spn_Exo50').innerHTML = exocincuenta;
+        document.getElementById('Spn_Exo0').innerHTML = exocero;
+        document.getElementById('Spn_Exot').innerHTML = exotro;
+    }
+   
+    porcecien=(parseInt(exocien)*100)/total;
+    porcincuenta=(parseInt(exocincuenta)*100)/total;
+    porcero=(parseInt(exocero)*100)/total;
+    porotro=(parseInt(exotro)*100)/total;
+    $('#Pgb_exo100').width(porcecien.toString()+'%');
+    $('#Pgb_exo50').width(porcincuenta.toString()+'%');
+    $('#Pgb_exo0').width(porcero.toString()+'%');
+    $('#Pgb_exot').width(porotro.toString()+'%');
+    
+}

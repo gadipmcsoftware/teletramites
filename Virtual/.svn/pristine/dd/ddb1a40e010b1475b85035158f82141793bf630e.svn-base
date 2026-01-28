@@ -1,0 +1,19 @@
+<?php
+        
+            //FUNCION QUE PERMITE CONECTARSE A BD SQL SERVER
+	function conectarse(){
+//            $serverName = "DESKTOP-2PRDIH5\SQLEXPRESS"; //serverName\instanceName
+            $serverName = "172.23.5.5"; //serverName\instanceName
+            $connectionInfo = array( "Database"=>"sim2001", "UID"=>"sim2001", "PWD"=>"cayambe","CharacterSet"=>"UTF-8");
+            $conn = sqlsrv_connect( $serverName, $connectionInfo);
+
+            if( $conn ) {
+            //     echo "Conexión establecida.<br />";
+                return $conn; 
+            }else{
+            //     echo "Conexión no se pudo establecer.<br />";
+            //    die( print_r( sqlsrv_errors(), true));
+                header("Location: http://172.23.5.5/Simulacion/error.php");
+            }
+         }
+?>

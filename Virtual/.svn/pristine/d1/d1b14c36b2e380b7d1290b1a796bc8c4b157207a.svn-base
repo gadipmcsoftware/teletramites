@@ -1,0 +1,589 @@
+// Call the dataTables jQuery plugin
+var rowDatau=[];
+var rowDatar=[];
+var error ="";
+var query1="";
+var Data_SetBienio;
+ var Data_SetBandas;
+ var fechaActual = new Date();
+ var accion=0;
+ var respuesta;
+ var maximo
+$(document).ready(function() {
+    
+    try {
+        Cargar_Bienio();
+          var tableu = $('#TBL_BANDASU').DataTable( {
+                    "paging":   false,
+                    "ordering": false,
+                    "info":     false,
+                    "searching": false
+           });
+           var tabler = $('#TBL_BANDASR').DataTable( {
+                    "paging":   false,
+                    "ordering": false,
+                    "info":     false,
+                    "searching": false
+           });
+          $('#TBL_BANDASU tbody').on( 'click', 'a', function () {
+              respuesta=null;
+                     var rowDatau = tableu.row( $(this).parents('tr') ).data();
+                      if($(this).attr('id')=="Btn_edit"){
+                          accion=2;
+                            var nuevaData = [
+                                                rowDatau[0],
+                                                "<div class='form-group'><input type='text' class='form-control' id='Txtdesde"+rowDatau[0]+"' name='Empresa' value='"+rowDatau[1]+"'/></div>",
+                                                "<div class='form-group'><input type='text' class='form-control' id='TxtHasta"+rowDatau[0]+"' name='Empresa' value='"+rowDatau[2]+"'/></div>",
+                                                "<div class='form-group'><input type='text' class='form-control' id='TxtBanda"+rowDatau[0]+"' name='Empresa' value='"+rowDatau[3]+"'/></div>",
+                                                "<a id='Btn_edit' href='#' class='btn btn-success'><i class='fas fa-pen-alt'></i>",
+                                                "<a id='Btn_gaur' href='#' class='btn btn-primary'><i class='fas fa-save'></i>",
+                                                "<a id='Btn_eliminar' href='#' class='btn btn-danger'><i class='fas fa-backspace'></i>"
+                            ];
+                            tableu.row($(this).parents('tr') ).data(nuevaData).draw();
+                      }
+                      else if($(this).attr('id')=="Btn_gaur")
+                      {
+                            var txt_desde="#Txtdesde"+rowDatau[0];
+                            var cod_rango=parseInt(rowDatau[0]);
+                            txt_desde=$(txt_desde).val();
+                            var banda_desde=parseFloat(txt_desde);
+                            if(isNaN(banda_desde)){
+                                bootbox.alert("El Valor Ingresado en el campo banda desde "+rowDatau[0]+" debe ser Numerico");
+                            }
+                            else{
+                                var txt_hasta="#TxtHasta"+rowDatau[0];
+                                txt_hasta=$(txt_hasta).val();
+                                if (txt_hasta=='' || parseFloat(txt_hasta)==0)
+                                {
+                                    var banda_hasta=parseFloat(9999999999999.00);
+                                }
+                                else{
+                                    var banda_hasta=parseFloat(txt_hasta);
+                                }
+                                if(isNaN(banda_hasta)){
+                                        bootbox.alert("El Valor Ingresado en el campo banda hasta "+rowDatau[0]+" debe ser Numerico");
+                                }
+                                else{
+                                    var txt_banda="#TxtBanda"+rowDatau[0];
+                                    txt_banda=$(txt_banda).val();
+                                    var banda_impo=parseFloat(txt_banda);
+                                    if(isNaN(banda_impo)){
+                                        bootbox.alert("El Valor Ingresado en el campo banda impositiva"+rowDatau[0]+" debe ser Numerico");
+//                                        alert(banda_impo)
+                                    }
+                                    else
+                                    {
+                                        var cod_bienio=$("#cmb_Bienio").val();
+                                        var Usuario=sessionStorage.getItem('Name');
+//                                        alert(accion+','+cod_rango+','+banda_desde+','+banda_hasta+','+banda_impo+',U,'+cod_bienio+','+Usuario)
+                                        GuardarBanda(accion,cod_rango,banda_desde,banda_hasta,banda_impo,'U',cod_bienio,Usuario)
+//                                        alert(respuesta);
+                                        if(respuesta=='OK'){
+                                            bootbox.dialog({
+                                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                                title: "Registro Guardado Correctamente",
+                                                                                onEscape: function() {
+                                                                                
+                                                                                }
+                                            });
+                                             txt_hasta="#TxtHasta"+rowDatau[0];
+                                             txt_hasta=$(txt_hasta).val();
+                                             if (txt_hasta=='' || parseFloat(txt_hasta)==0)
+                                             {
+                                                 txt_hasta='En Adelante'
+                                             }
+                                             txt_desde="#Txtdesde"+rowDatau[0];
+                                             txt_desde=$(txt_desde).val();
+                                             txt_banda="#TxtBanda"+rowDatau[0];
+                                             txt_banda=$(txt_banda).val();
+                                             nuevaData = [
+                                                                cod_rango,
+                                                                txt_desde,
+                                                                txt_hasta,
+                                                                txt_banda,
+                                                                "<a id='Btn_edit' href='#' class='btn btn-success'><i class='fas fa-pen-alt'></i>",
+                                                                "<a id='Btn_gaur' href='#' class='btn btn-primary'><i class='fas fa-save'></i>",
+                                                                "<a id='Btn_eliminar' href='#' class='btn btn-danger'><i class='fas fa-backspace'></i>"
+                                                         ];
+                                            tableu.row($(this).parents('tr') ).data(nuevaData).draw();             
+                                        }
+                                        else{
+                                                                      bootbox.dialog({
+                                                                                title: '<a href="#" class="btn btn-danger btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                                message: "Erro! "+respuesta,
+                                                                                onEscape: function() {
+
+                                                                                }
+                                                                            });
+                                        }
+                                        
+                                    }
+                                }
+                            }
+//                            alert(txt_desde);
+                      }
+                      else if($(this).attr('id')=="Btn_eliminar")
+                      {
+                            accion=3;
+                            var cod_rango=parseInt(rowDatau[0]);
+                            var banda_desde=rowDatau[1];
+                            var banda_hasta=rowDatau[2];
+                            if(banda_hasta=='En Adelante')
+                            {
+                                var banda_hasta=parseFloat(9999999999999.00);
+                            }
+                            var banda_impo=rowDatau[3];
+                            var cod_bienio=$("#cmb_Bienio").val();
+                            var Usuario=sessionStorage.getItem('Name');
+                            GuardarBanda(accion,cod_rango,banda_desde,banda_hasta,banda_impo,'U',cod_bienio,Usuario);
+                            if(respuesta=='OK'){
+                                            bootbox.dialog({
+                                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                                title: "Registro Eliminado Correctamente",
+                                                                                onEscape: function() {
+                                                                                
+                                                                                }
+                                            });
+                                tableu.row($(this).parents('tr')).remove().draw();            
+                            }
+                            else{
+                                        bootbox.dialog({
+                                                        title: '<a href="#" class="btn btn-danger btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                        message: "Erro! "+respuesta,
+                                                        onEscape: function() {
+
+                                                                             }
+                                                        });
+                                }
+                            
+                      }
+           });
+           $('#TBL_BANDASR tbody').on( 'click', 'a', function () {
+                     var rowDataR = tabler.row( $(this).parents('tr') ).data();
+//                     alert($(this).attr('id'));
+                     if($(this).attr('id')=="Btn_edit"){
+                          accion=2;
+                            var nuevaData = [
+                                                rowDataR[0],
+                                                "<div class='form-group'><input type='text' class='form-control' id='TxtdesdeR"+rowDataR[0]+"' name='Empresa' value='"+rowDataR[1]+"'/></div>",
+                                                "<div class='form-group'><input type='text' class='form-control' id='TxtHastaR"+rowDataR[0]+"' name='Empresa' value='"+rowDataR[2]+"'/></div>",
+                                                "<div class='form-group'><input type='text' class='form-control' id='TxtBandaR"+rowDataR[0]+"' name='Empresa' value='"+rowDataR[3]+"'/></div>",
+                                                "<a id='Btn_edit' href='#' class='btn btn-success'><i class='fas fa-pen-alt'></i>",
+                                                "<a id='Btn_gaur' href='#' class='btn btn-primary'><i class='fas fa-save'></i>",
+                                                "<a id='Btn_eliminar' href='#' class='btn btn-danger'><i class='fas fa-backspace'></i>"
+                            ];
+                            tabler.row($(this).parents('tr') ).data(nuevaData).draw();
+                      }
+                      else if($(this).attr('id')=="Btn_gaur")
+                      {
+                            var txt_desder="#TxtdesdeR"+rowDataR[0];
+                            var cod_rango=parseInt(rowDataR[0]);
+                            txt_desder=$(txt_desder).val();
+                            var banda_desde=parseFloat(txt_desder);
+                            if(isNaN(banda_desde)){
+                                bootbox.alert("El Valor Ingresado en el campo banda desde "+rowDataR[0]+" debe ser Numerico");
+                            }
+                            else{
+                                var txt_hastar="#TxtHastaR"+rowDataR[0];
+                                txt_hastar=$(txt_hastar).val();
+                                if (txt_hastar=='' || parseFloat(txt_hastar)==0)
+                                {
+                                    var banda_hasta=parseFloat(9999999999999.00);
+                                }
+                                else{
+                                    var banda_hasta=parseFloat(txt_hastar);
+                                }
+                                if(isNaN(banda_hasta)){
+                                        bootbox.alert("El Valor Ingresado en el campo banda hasta "+rowDataR[0]+" debe ser Numerico");
+                                }
+                                 else{
+                                    var txt_bandar="#TxtBandaR"+rowDataR[0];
+                                    txt_bandar=$(txt_bandar).val();
+                                    var banda_impo=parseFloat(txt_bandar);
+                                    if(isNaN(banda_impo)){
+                                        bootbox.alert("El Valor Ingresado en el campo banda impositiva"+rowDataR[0]+" debe ser Numerico");
+//                                        alert(banda_impo)
+                                    }
+                                    else
+                                    {
+                                        var cod_bienio=$("#cmb_Bienio").val();
+                                        var Usuario=sessionStorage.getItem('Name');
+//                                        alert(accion+','+cod_rango+','+banda_desde+','+banda_hasta+','+banda_impo+',U,'+cod_bienio+','+Usuario)
+                                        GuardarBanda(accion,cod_rango,banda_desde,banda_hasta,banda_impo,'R',cod_bienio,Usuario)
+                                        if(respuesta='OK'){
+                                            bootbox.dialog({
+                                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                                title: "Registro Guardado Correctamente",
+                                                                                onEscape: function() {
+                                                                                
+                                                                                }
+                                            });
+                                             txt_hastar="#TxtHastaR"+rowDataR[0];
+                                             txt_hastar=$(txt_hastar).val();
+                                             if (txt_hastar=='' || parseFloat(txt_hastar)==0)
+                                             {
+                                                 txt_hastar='En Adelante'
+                                             }
+                                             txt_desder="#TxtdesdeR"+rowDataR[0];
+                                             txt_desder=$(txt_desder).val();
+                                             txt_bandar="#TxtBandaR"+rowDataR[0];
+                                             txt_bandar=$(txt_bandar).val();
+                                             nuevaData = [
+                                                                cod_rango,
+                                                                txt_desder,
+                                                                txt_hastar,
+                                                                txt_bandar,
+                                                                "<a id='Btn_edit' href='#' class='btn btn-success'><i class='fas fa-pen-alt'></i>",
+                                                                "<a id='Btn_gaur' href='#' class='btn btn-primary'><i class='fas fa-save'></i>",
+                                                                "<a id='Btn_eliminar' href='#' class='btn btn-danger'><i class='fas fa-backspace'></i>"
+                                                         ];
+                                            tabler.row($(this).parents('tr') ).data(nuevaData).draw();             
+                                        }
+                                        else{
+                                                                      bootbox.dialog({
+                                                                                title: '<a href="#" class="btn btn-danger btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                                message: "Erro! "+respuesta,
+                                                                                onEscape: function() {
+
+                                                                                }
+                                                                            });
+                                        }
+                                        
+                                    }
+                                 }
+                            }
+                      }
+                     else if($(this).attr('id')=="Btn_eliminar")
+                      {
+                            accion=3;
+                            var cod_rango=parseInt(rowDataR[0]);
+                            var banda_desde=rowDataR[1];
+                            var banda_hasta=rowDataR[2];
+                            if(banda_hasta=='En Adelante')
+                            {
+                                var banda_hasta=parseFloat(9999999999999.00);
+                            }
+                            var banda_impo=rowDataR[3];
+                            var cod_bienio=$("#cmb_Bienio").val();
+                            var Usuario=sessionStorage.getItem('Name');
+//                             alert(accion+','+cod_rango+','+banda_desde+','+banda_hasta+','+banda_impo+',R,'+cod_bienio+','+Usuario)
+                            GuardarBanda(accion,cod_rango,banda_desde,banda_hasta,banda_impo,'R',cod_bienio,Usuario)
+//                            alert(respuesta);
+                            if(respuesta=='OK'){
+                                            bootbox.dialog({
+                                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                                title: "Registro Eliminado Correctamente",
+                                                                                onEscape: function() {
+                                                                                
+                                                                                }
+                                            });
+                                     tabler.row($(this).parents('tr')).remove().draw();       
+                            }
+                            else{
+                                        bootbox.dialog({
+                                                        title: '<a href="#" class="btn btn-danger btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                        message: "Erro! "+respuesta,
+                                                        onEscape: function() {
+
+                                                                             }
+                                                        });
+                                }
+                            }
+                     
+           });
+            $('#Btn_buscar').click(function() {
+                accion=1;
+                try {
+                        tableu.clear().draw();
+                        tabler.clear().draw();
+//                        Data_SetBandas = [];
+                        var añoActual = fechaActual.getFullYear()+1;
+                        var mesActual = fechaActual.getMonth()+1;
+                        var cod_bienio=$("#cmb_Bienio").val();
+//                        alert(cod_bienio)
+                        CargaTablas(cod_bienio);
+//                        alert(Data_SetBandas);
+                        
+                        var contedit="Sin Accion"
+                        var contguar="Sin Accion"
+                        var contelim="Sin Accion"
+                        
+ 
+//                        alert()
+//                        alert(Data_SetBienio[cod_bienio-1][1])
+                        if(añoActual>=Data_SetBienio[cod_bienio-1][1]&&añoActual<=Data_SetBienio[cod_bienio-1][2]&&mesActual>=10)
+                         {
+                            contedit="<a id='Btn_edit' href='#' class='btn btn-success'><i class='fas fa-pen-alt'></i>"
+                            contguar="<a id='Btn_gaur' href='#' class='btn btn-primary'><i class='fas fa-save'></i>"
+                            contelim="<a id='Btn_eliminar' href='#' class='btn btn-danger'><i class='fas fa-backspace'></i>"
+                         }
+//                        alert(cod_bienio)
+
+//                        alert(Data_SetBandas);
+                                for(var i=0; i<Data_SetBandas.length; i++){
+//                                    alert(Data_SetBandas[i][0])
+                                    var enadela=""
+                                    if (Data_SetBandas[i][2].toString()=='9999999999999.00') {
+                                          enadela="En Adelante"  
+                                    }
+                                    else
+                                    {
+                                        
+                                            enadela=Data_SetBandas[i][2].toString();
+                                    }
+                                    if (Data_SetBandas[i][4]=='U')
+                                    {
+                                                tableu.row.add([
+                                                             parseFloat(Data_SetBandas[i][0]),
+                                                             Data_SetBandas[i][1],
+                                                             enadela,
+                                                             Data_SetBandas[i][3],
+                                                             contedit,
+                                                             contguar,
+                                                             contelim
+                                                           ]).draw();
+                                    }
+                                    else if (Data_SetBandas[i][4]=='R')
+                                    {
+                                                  
+                                                tabler.row.add([
+                                                             Data_SetBandas[i][0],
+                                                             Data_SetBandas[i][1],
+                                                             enadela,
+                                                             Data_SetBandas[i][3],
+                                                              contedit,
+                                                              contguar,
+                                                              contelim
+                                                           ]).draw();
+                                    }
+                                    
+ 
+
+                                 }
+
+
+
+                    } catch (e) {
+                            alert("!Error "+e);
+                    }        
+            }); 
+            $('#AñadiU').click(function() {
+                        var añoActual = fechaActual.getFullYear()+1;
+                        var mesActual = fechaActual.getMonth()+1;
+                        var cod_bienio=$("#cmb_Bienio").val();
+                        TraeMaximos('Tbl_Band_impo','Cod_rango');
+                        var cod_ban=parseInt(maximo)+1
+//                         alert(Data_SetBienio[cod_bienio-1][1]);
+                        if(añoActual>=Data_SetBienio[cod_bienio-1][1]&&añoActual<=Data_SetBienio[cod_bienio-1][2]&&mesActual>=10)
+                         {
+                                tableu.row.add([
+                                                             cod_ban,
+                                                             "<div class='form-group'><input type='text' class='form-control' id='Txtdesde"+cod_ban+"' name='Empresa' value='0'/></div>",
+                                                             "<div class='form-group'><input type='text' class='form-control' id='TxtHasta"+cod_ban+"' name='Empresa' value='0'/></div>",
+                                                             "<div class='form-group'><input type='text' class='form-control' id='TxtBanda"+cod_ban+"' name='Empresa' value='0'/></div>",
+                                                             "<a id='Btn_edit' href='#' class='btn btn-success'><i class='fas fa-pen-alt'></i>",
+                                                             "<a id='Btn_gaur' href='#' class='btn btn-primary'><i class='fas fa-save'></i>",
+                                                             "<a id='Btn_eliminar' href='#' class='btn btn-danger'><i class='fas fa-backspace'></i>"
+                                           ]).draw();
+                         }  
+
+                                     
+            });
+            $('#AñadiR').click(function() {
+                        var añoActual = fechaActual.getFullYear()+1;
+                        var mesActual = fechaActual.getMonth()+1;
+                        var cod_bienio=$("#cmb_Bienio").val();
+                         TraeMaximos('Tbl_Band_impo','Cod_rango');
+                         var cod_ban=parseInt(maximo)+1;
+                         if(añoActual>=Data_SetBienio[cod_bienio-1][1]&&añoActual<=Data_SetBienio[cod_bienio-1][2]&&mesActual>=10)
+                         {
+                                   
+                                    tabler.row.add([
+                                                             cod_ban,
+                                                             "<div class='form-group'><input type='text' class='form-control' id='TxtdesdeR"+cod_ban+"' name='Empresa' value='0'/></div>",
+                                                             "<div class='form-group'><input type='text' class='form-control' id='TxtHastaR"+cod_ban+"' name='Empresa' value='0'/></div>",
+                                                             "<div class='form-group'><input type='text' class='form-control' id='TxtBandaR"+cod_ban+"' name='Empresa' value='0'/></div>",
+                                                             "<a id='Btn_edit' href='#' class='btn btn-success'><i class='fas fa-pen-alt'></i>",
+                                                             "<a id='Btn_gaur' href='#' class='btn btn-primary'><i class='fas fa-save'></i>",
+                                                             "<a id='Btn_eliminar' href='#' class='btn btn-danger'><i class='fas fa-backspace'></i>"
+                                    ]).draw();
+                         }
+
+            });
+    } catch (e) {
+        alert("error"+e);
+    }
+});
+function GuardarBanda(accion,cod_rango,banda_desde,banda_hasta,banda_impo,cod_tip_pre,cod_bienio,usuario){    
+ var ex=0;    
+    try {
+                                        var parametros={
+                                                "accion":accion,
+                                                "cod_rango":cod_rango,
+                                                "banda_desde":banda_desde,
+                                                "banda_hasta":banda_hasta,
+                                                "banda_impo":banda_impo,
+                                                "cod_tip_pre":cod_tip_pre,
+                                                "cod_bienio":cod_bienio,
+                                                "usuario":usuario
+                                                
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.25.15/Virtual/logica/GuardaBandas.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind;
+                                                               respuesta=response.row;
+
+                                                        } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+
+
+//                    } 
+    } catch (e) {
+        alert("!Error "+e);
+    }
+ }
+ function Cargar_Bienio() {
+TraeBienio();
+  for(var i in Data_SetBienio)
+            { 
+               
+                    document.getElementById("cmb_Bienio").innerHTML += "<option value='"+Data_SetBienio[i][0]+"'>"+Data_SetBienio[i][3]+"</option>"; 
+
+            }
+ 
+}
+ function TraeBienio(){
+   
+   var ex=0; 
+     try {
+
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.25.15/Virtual/logica/ConsultaBienio.php",
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_SetBienio=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function CargaTablas(cod_bienio){
+ var ex=0;
+// var Data_SetBandas=[];
+    try {
+//        alert(cod_bienio);
+                                        var parametros={
+                                                "cod_bienio":cod_bienio
+                                        }
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.25.15/Virtual/logica/ConsultaBandasImpositivas.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                           if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_SetBandas= response.row; 
+                                                               
+
+                                                        } else {
+                                                                ex=0;
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);
+       
+       
+  
+                                      
+
+    } catch (e) {
+        alert(e);
+    }
+
+}
+function TraeMaximos(tabla,cod_tabla){    
+ var ex=0;    
+    try {
+                                        var parametros={
+                                                "tabla":tabla,
+                                                "cod_tabla":cod_tabla
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.25.15/Virtual/logica/TraeMaximos.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind;
+                                                               maximo=response.row;
+
+                                                        } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+
+
+//                    } 
+    } catch (e) {
+        alert("!Error "+e);
+    }
+ }
+ 
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+

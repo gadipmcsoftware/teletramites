@@ -1,0 +1,311 @@
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+var error ="";
+var query1="";
+var Data_Tramites;
+var DataSetRecorrido;
+var tbl_recorrido;
+$(document).ready(function() {
+    var UsrExt=parseInt(sessionStorage.getItem('Usr_Ext'));
+    if(UsrExt==0){
+            
+           var Name=sessionStorage.getItem('Name');
+           var descripcion=sessionStorage.getItem('Descrpcion');
+           Reporte(Name,UsrExt);
+            document.getElementById('lbl_user').innerHTML = descripcion;
+          $("#opt_configuracion").css('display','block');
+          $("#opt_rectra").css('display','block');
+          $("#opt_soltra").css('display','none');
+          $("#MenReporte").css('display','block');
+          var validapro=parseInt(sessionStorage.getItem('PER_VALIDA'));
+                if (validapro==1) {
+                     $("#optval_profe").css('display','block');
+                }
+    }
+    else{
+            if(UsrExt==1){
+                  var Name=sessionStorage.getItem('NOM_PROFE');
+                  var cedula=sessionStorage.getItem('CED_PROFE');
+                  Reporte(cedula,UsrExt);
+                  document.getElementById('lbl_user').innerHTML = Name;
+                   $("#opt_configuracion").css('display','none');
+                   $("#opt_rectra").css('display','none');
+                   $("#opt_soltra").css('display','block');
+                   $("#MenReporte").css('display','none');
+            }
+            else{
+                    if(isNaN(UsrExt)){
+                         window.location.href = "http://172.23.25.6/Virtual/error.php";
+                        $("#opt_configuracion").css('display','none');
+                        $("#opt_rectra").css('display','none');
+                        $("#opt_soltra").css('display','none');
+                        $("#opt_dash").css('display','none');
+                        $("#MenReporte").css('display','none');
+                    }
+            }
+           
+    }
+    tbl_bandasu = $('#Tbl_repo').DataTable({
+//                                                        data:Data_Tramites,
+                                                        language: {
+                                                            "decimal": "",
+                                                            "emptyTable": "No hay información",
+                                                            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                                                            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                                                            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                                                            "infoPostFix": "",
+                                                            "thousands": ",",
+                                                            "lengthMenu": "Mostrar _MENU_ Entradas",
+                                                            "loadingRecords": "Cargando...",
+                                                            "processing": "Procesando...",
+                                                            "search": "Buscar:",
+                                                            "zeroRecords": "Sin resultados encontrados",
+                                                            "paginate": {
+                                                                "first": "Primero",
+                                                                "last": "Ultimo",
+                                                                "next": "Siguiente",
+                                                                "previous": "Anterior"
+                                                            }
+                                                        },
+                                                                     "columnDefs": [
+                                                                                     {
+                                                                                         "targets": [ 11 ],
+                                                                                         "visible": false,
+                                                                                         "searchable": false
+                                                                                     }
+            
+                                                                                  ]
+
+
+                                                    });
+               tbl_recorrido = $('#Tbl_recor').DataTable({
+                                                                         language: {
+                                                                         "decimal": "",
+                                                                         "emptyTable": "No Tiene Recorrido",
+                                                                         "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                                                                         "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                                                                         "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                                                                         "infoPostFix": "",
+                                                                         "thousands": ",",
+                                                                         "lengthMenu": "Mostrar _MENU_ Entradas",
+                                                                         "loadingRecords": "Cargando...",
+                                                                         "processing": "Procesando...",
+                                                                         "search": "Buscar:",
+                                                                         "zeroRecords": "Sin resultados encontrados",
+                                                                         "paginate": {
+                                                                             "first": "Primero",
+                                                                             "last": "Ultimo",
+                                                                             "next": "Siguiente",
+                                                                             "previous": "Anterior"
+                                                                         }
+                                                                     },
+
+                                                                 });
+         for(var i=0; i<Data_Tramites.length; i++){
+              tbl_bandasu.row.add([
+                                    Data_Tramites[i][0],
+                                    Data_Tramites[i][1],
+                                    Data_Tramites[i][2],
+                                    Data_Tramites[i][3],
+                                    Data_Tramites[i][4],
+                                    Data_Tramites[i][5],
+                                    Data_Tramites[i][6],
+                                    Data_Tramites[i][7],
+                                    Data_Tramites[i][8],
+                                     "<a id='Btn_recori' href='#' class='btn btn-primary btn-circle'><i class='fa fa-eye'></i>",
+                                     "<a id='Btn_desarch' href='#' class='btn btn-danger btn-circle'><i class='fas fa-allergies'></i>",
+                                    Data_Tramites[i][9],
+                                  ]).draw();
+         }
+              $('#Tbl_repo tbody').on( 'click', 'a', function () {
+                  if($(this).attr('id')=="Btn_recori"){
+                        var rowDataNotif = tbl_bandasu.row( $(this).parents('tr') ).data();
+                                    DatosRecorrido(rowDataNotif[0]);
+                                    tbl_recorrido.clear(); 
+                                    for(var i=0; i<DataSetRecorrido.length; i++){
+                                         tbl_recorrido.row.add([
+                                                     DataSetRecorrido[i][1],
+                                                     DataSetRecorrido[i][2],
+                                                     DataSetRecorrido[i][3],
+                                                     DataSetRecorrido[i][4],
+                                                   ]).column('2:visible').order('desc').draw();
+                                    }
+//                               
+                                    $('#Form_Recorrido').modal('show');
+                    }
+                    else if($(this).attr('id')=="Btn_desarch"){
+                        var rowDataNotif = tbl_bandasu.row( $(this).parents('tr') ).data();
+                        var reply = window.prompt("Razon por la que Desarchiva el Tramite?");
+                        if(reply==undefined)
+                        {
+                           window.location.href ="http://172.23.25.6/Virtual/Archivados.php";
+                        }else if(reply==""){
+                             alert("Debe colocar una observación");
+                        }else{
+                                               
+//                                             alert(rowDataNotif[11]+" "+rowDataNotif[0]+" "+reply)   
+                                            ArchivaTramite(rowDataNotif[11],rowDataNotif[0],reply,0);
+                                            window.location.href ="http://172.23.25.6/Virtual/Archivados.php";
+                        }
+                    }
+              });
+    $("#Btn_Generar").click(function(){
+               if(tbl_bandasu.rows().count()>0){
+                   window.location.href = "http://172.23.25.6/Virtual/logica/ExelSimulacion.php?id="+Name;
+               }
+               else{
+                    bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-warning btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "No hay Datos que Exportar ",
+                                                                onEscape: function() {
+                                                               
+                                                                }
+                                                            });
+               }
+            
+        
+    });
+});
+function Reporte(id,UsrExt){
+   
+   var ex=0; 
+     try {
+                              var idcons=id;
+                              var parametros={
+                                "id":idcons,
+                                "UsrExt":UsrExt
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.25.6/Virtual/logica/TraerArchivados.php",
+                                        data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                              Data_Tramites=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function DatosRecorrido(id){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.25.6/Virtual/logica/TraerRecorrido.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               DataSetRecorrido=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function ArchivaTramite(cod_notifi,num_trami,mjs,acc_notifi){    
+ var Data_Seterror,ex;    
+    try {
+           
+                                       
+                                        var parametros={
+                                                "cod_notifi":cod_notifi,
+                                                "num_trami":num_trami,
+                                                "mjs":mjs,
+                                                "acc_notifi":acc_notifi
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.25.6/Virtual/logica/ArchivaTramite.php",
+                                                data: parametros,
+                                                 success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_Seterror=response.row;
+                                                        } else {
+                                                                ex=0;
+                                                                alert(response.message);
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);
+                                       if(Data_Seterror.length==0){
+                                                
+                                                
+                                                  return true;
+                                             
+                                               
+                                        }
+                                        else{
+                                            alert("Fallo al Guardar Tramite");
+                                            alert(Data_Seterror);
+                                             return false;
+                                        }
+                                      
+           
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}

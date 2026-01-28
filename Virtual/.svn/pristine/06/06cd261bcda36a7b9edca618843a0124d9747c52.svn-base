@@ -1,0 +1,470 @@
+// Set new default font family and font color to mimic Bootstrap's default styling
+var bandas =  new Array();
+var valores =  new Array();
+Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#858796';
+
+function number_format(number, decimals, dec_point, thousands_sep) {
+  // *     example: number_format(1234.56, 2, ',', ' ');
+  // *     return: '1 234,56'
+  number = (number + '').replace(',', '').replace(' ', '');
+  var n = !isFinite(+number) ? 0 : +number,
+    prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+    sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+    dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+    s = '',
+    toFixedFix = function(n, prec) {
+      var k = Math.pow(10, prec);
+      return '' + Math.round(n * k) / k;
+    };
+  // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+  s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+  if (s[0].length > 3) {
+    s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+  }
+  if ((s[1] || '').length < prec) {
+    s[1] = s[1] || '';
+    s[1] += new Array(prec - s[1].length + 1).join('0');
+  }
+  return s.join(dec);
+}
+BarBand(1)
+// Bar Chart Example
+var ctx = document.getElementById("myBarChart");
+var myBarChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: bandas,
+    datasets: [{
+      label: "Predios",
+      backgroundColor: "#4e73df",
+      hoverBackgroundColor: "#2e59d9",
+      borderColor: "#4e73df",
+      data: valores,
+    }],
+  },
+  options: {
+    maintainAspectRatio: false,
+    layout: {
+      padding: {
+        left: 10,
+        right: 25,
+        top: 25,
+        bottom: 0
+      }
+    },
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'month'
+        },
+        gridLines: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          maxTicksLimit: 10
+        },
+        maxBarThickness: 25,
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: 15000,
+          maxTicksLimit: 10,
+          padding: 10,
+          // Include a dollar sign in the ticks
+          callback: function(value, index, values) {
+            return  number_format(value);
+          }
+        },
+        gridLines: {
+          color: "rgb(234, 236, 244)",
+          zeroLineColor: "rgb(234, 236, 244)",
+          drawBorder: false,
+          borderDash: [2],
+          zeroLineBorderDash: [2]
+        }
+      }],
+    },
+    legend: {
+      display: false
+    },
+    tooltips: {
+      titleMarginBottom: 10,
+      titleFontColor: '#6e707e',
+      titleFontSize: 14,
+      backgroundColor: "rgb(255,255,255)",
+      bodyFontColor: "#858796",
+      borderColor: '#dddfeb',
+      borderWidth: 1,
+      xPadding: 15,
+      yPadding: 15,
+      displayColors: false,
+      caretPadding: 10,
+      callbacks: {
+        label: function(tooltipItem, chart) {
+          var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+          return datasetLabel + ':' + number_format(tooltipItem.yLabel);
+        }
+      }
+    },
+  }
+});
+ GrafExo(1);
+$(document).ready(function() {
+    
+    try {
+          
+//         $('#dataTable').DataTable();
+         $("#Frm_CharU").validate();
+         $("#Mbx_Valor").click(function(){
+            $("#divBarBand2").css("display", "block");
+            $("#divBarBand").css("display", "none");
+            $("#lbl_Impac").text("Impacto Impositivo Valores");
+//            alert("paso")
+                    BarBandValores()
+          });
+          $("#Mbx_predio").click(function(){
+                $("#divBarBand").css("display", "block");
+                $("#divBarBand2").css("display", "none");
+//                $("#divPie2").css("display", "none");
+                $("#lbl_Impac").text("Impacto Impositivo Predios");
+                      BarBandPre()
+//                      Distribucion_rural();
+          });
+          $("#Mbx_Valorex").click(function(){
+           
+//            alert("paso");
+                   GrafExo(3);
+          });
+          $("#Mbx_predioex").click(function(){
+           
+//            alert("paso");
+                   GrafExo(1);
+          });
+          
+         
+    } catch (e) {
+        alert(e);
+    }
+});
+function BarBand(id){
+    
+    valores=[];
+   var ex=0; 
+     try {
+                    
+                    var idcons=id;
+                    var ind_form = $("#Frm_CharU").valid();
+                        if(ind_form){
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Simulacion/logica/ConsBarBan.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind;
+                                                               row=response.row;
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+//                     alert(row);
+                      }
+               for(var i=0; i<=row.length-1; i++){
+                    bandas.push (row[i][0].toString());
+                   valores.push (row[i][1].toString());
+               }
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function BarBandValores(){
+bandas=[];
+valores=[];
+
+    // Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#858796';
+
+
+BarBand(2)
+// Bar Chart Example
+var ctx = document.getElementById("myBarChart2");
+var myBarChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: bandas,
+    datasets: [{
+      label: "Revenue",
+      backgroundColor: "#4e73df",
+      hoverBackgroundColor: "#2e59d9",
+      borderColor: "#4e73df",
+      data: valores,
+    }],
+  },
+  options: {
+    maintainAspectRatio: false,
+    layout: {
+      padding: {
+        left: 10,
+        right: 25,
+        top: 25,
+        bottom: 0
+      }
+    },
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'month'
+        },
+        gridLines: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          maxTicksLimit: 10
+        },
+        maxBarThickness: 25,
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: 800000,
+          maxTicksLimit: 10,
+          padding: 10,
+          // Include a dollar sign in the ticks
+          callback: function(value, index, values) {
+            return '$' + number_format(value);
+          }
+        },
+        gridLines: {
+          color: "rgb(234, 236, 244)",
+          zeroLineColor: "rgb(234, 236, 244)",
+          drawBorder: false,
+          borderDash: [2],
+          zeroLineBorderDash: [2]
+        }
+      }],
+    },
+    legend: {
+      display: false
+    },
+    tooltips: {
+      titleMarginBottom: 10,
+      titleFontColor: '#6e707e',
+      titleFontSize: 14,
+      backgroundColor: "rgb(255,255,255)",
+      bodyFontColor: "#858796",
+      borderColor: '#dddfeb',
+      borderWidth: 1,
+      xPadding: 15,
+      yPadding: 15,
+      displayColors: false,
+      caretPadding: 10,
+      callbacks: {
+        label: function(tooltipItem, chart) {
+          var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+          return datasetLabel + ': $' + number_format(tooltipItem.yLabel);
+        }
+      }
+    },
+  }
+});
+}
+function BarBandPre(){
+bandas=[];
+valores=[];
+
+    // Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#858796';
+// Bar Chart Example
+BarBand(1)
+// Bar Chart Example
+var ctx = document.getElementById("myBarChart");
+var myBarChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: bandas,
+    datasets: [{
+      label: "Predios",
+      backgroundColor: "#4e73df",
+      hoverBackgroundColor: "#2e59d9",
+      borderColor: "#4e73df",
+      data: valores,
+    }],
+  },
+  options: {
+    maintainAspectRatio: false,
+    layout: {
+      padding: {
+        left: 10,
+        right: 25,
+        top: 25,
+        bottom: 0
+      }
+    },
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'month'
+        },
+        gridLines: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          maxTicksLimit: 6
+        },
+        maxBarThickness: 25,
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: 15000,
+          maxTicksLimit: 5,
+          padding: 10,
+          // Include a dollar sign in the ticks
+          callback: function(value, index, values) {
+            return  number_format(value);
+          }
+        },
+        gridLines: {
+          color: "rgb(234, 236, 244)",
+          zeroLineColor: "rgb(234, 236, 244)",
+          drawBorder: false,
+          borderDash: [2],
+          zeroLineBorderDash: [2]
+        }
+      }],
+    },
+    legend: {
+      display: false
+    },
+    tooltips: {
+      titleMarginBottom: 10,
+      titleFontColor: '#6e707e',
+      titleFontSize: 14,
+      backgroundColor: "rgb(255,255,255)",
+      bodyFontColor: "#858796",
+      borderColor: '#dddfeb',
+      borderWidth: 1,
+      xPadding: 15,
+      yPadding: 15,
+      displayColors: false,
+      caretPadding: 10,
+      callbacks: {
+        label: function(tooltipItem, chart) {
+          var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+          return datasetLabel + ':' + number_format(tooltipItem.yLabel);
+        }
+      }
+    },
+  }
+});
+}
+function GrafExo(id){
+     var ex=0; 
+     var exocien;
+     var exocincuenta;
+     var exocero;
+     var exotro;
+     var total=0;
+     var porcecien;
+     var porcincuenta;
+     var porcero;
+     var porotro;
+     var medida;
+     try {
+                    
+                    var idcons=id;
+                    var ind_form = $("#Frm_CharU").valid();
+                        if(ind_form){
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Simulacion/logica/ConsExo.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind;
+                                                               row2=response.row;
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+//                     alert(row);
+                      }
+        if(id==1){
+            medida="Predios";
+        }
+        else{
+             medida="";
+        }
+        for(var i=0; i<=row2.length-1; i++){
+                    exocien=row2[i][0].toString()+" "+medida;
+                    exocincuenta=row2[i][1].toString()+" "+medida;
+                    exocero=row2[i][2].toString()+" "+medida;
+                    exotro=row2[i][3].toString()+" "+medida;
+                    total=row2[i][4];
+               }
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+    if(id==3){
+        document.getElementById('Spn_Exo100').innerHTML = "$"+number_format(exocien,2);
+        document.getElementById('Spn_Exo50').innerHTML = "$"+number_format(exocincuenta,2);
+        document.getElementById('Spn_Exo0').innerHTML = "$"+number_format(exocero,2);
+        document.getElementById('Spn_Exot').innerHTML = "$"+number_format(exotro,2);  
+    }
+    else{
+         document.getElementById('Spn_Exo100').innerHTML = exocien;
+        document.getElementById('Spn_Exo50').innerHTML = exocincuenta;
+        document.getElementById('Spn_Exo0').innerHTML = exocero;
+        document.getElementById('Spn_Exot').innerHTML = exotro;
+    }
+   
+    porcecien=(parseInt(exocien)*100)/total;
+    porcincuenta=(parseInt(exocincuenta)*100)/total;
+    porcero=(parseInt(exocero)*100)/total;
+    porotro=(parseInt(exotro)*100)/total;
+    $('#Pgb_exo100').width(porcecien.toString()+'%');
+    $('#Pgb_exo50').width(porcincuenta.toString()+'%');
+    $('#Pgb_exo0').width(porcero.toString()+'%');
+    $('#Pgb_exot').width(porotro.toString()+'%');
+    
+}

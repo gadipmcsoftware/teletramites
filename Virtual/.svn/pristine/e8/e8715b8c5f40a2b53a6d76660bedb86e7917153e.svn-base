@@ -1,0 +1,50 @@
+<?php
+ 
+//librerias
+  require '../PHPMailer/PHPMailerAutoload.php';
+ $enviado=false;
+//Create a new PHPMailer instance
+$mail = new PHPMailer();
+$mail->IsSMTP();
+
+//Configuracion servidor mail
+$mail->From = "notificaciones.mc@gadipmc.gob.ec"; //remitente
+$mail->FromName="GADIP Municipio de Cayambe";
+$mail->SMTPAuth = true;
+$mail->SMTPSecure = 'tls'; //seguridad
+$mail->Host = "gadipmc.gob.ec"; // servidor smtp
+$mail->Port = 26; //puerto
+$mail->Username ='notificaciones.mc@gadipmc.gob.ec'; //nombre usuario
+$mail->Password = 'Cerveza181285*'; //contraseña
+////Cargar archivo html   
+ $shtml = file_get_contents('plantilla.html');
+ $cuerpo = str_replace('<p id="mensaje"></p>',$_REQUEST["message"],$shtml);
+//Agregar destinatario
+ // Le indicamos que nuestro Email está en Html
+$mail->IsHTML(true);
+$mail->CharSet = 'UTF-8';
+$mail->AddAddress($_REQUEST["email"]);
+$mail->AddEmbeddedImage("../imagenes/logoretina-01.png",'logo');
+$mail->AddEmbeddedImage("../imagenes/bg-01.jpg",'fondo');
+$mail->AddEmbeddedImage("../imagenes/seguimiento.jpg",'segimiento');
+$mail->AddEmbeddedImage("../imagenes/seguro.jpg",'seguro');
+$mail->AddEmbeddedImage("../imagenes/comodo.jpg",'comodo');
+$mail->Subject = $_REQUEST["subject"];
+$mail->Body = $cuerpo;
+ 
+//Avisar si fue enviado o no y dirigir al index
+if ($mail->Send()) {
+//    echo'<script type="text/javascript">
+//           alert("Enviado Correctamente");
+//        </script>';
+        $enviado=true;
+      
+} else {
+//    echo'<script type="text/javascript">
+//           alert("NO ENVIADO, intentar de nuevo");
+//        </script>';
+     $enviado= false;
+}
+$json_data["ind"] = $enviado;
+echo json_encode($json_data);
+?>

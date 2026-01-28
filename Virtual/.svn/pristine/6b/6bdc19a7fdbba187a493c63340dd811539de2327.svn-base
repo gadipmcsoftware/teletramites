@@ -1,0 +1,288 @@
+// Call the dataTables jQuery plugin
+var rowData=[];
+var error ="";
+var sel=1;
+var row;
+var error ="";
+var query1="";
+var tip_pred;
+var idconsult;
+var rowData=[];
+var DataSetRecorrido;
+var tbl_recorrido;
+$(document).ready(function() {
+    
+    try {
+const formatter = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0
+    })
+    var UsrExt=parseInt(sessionStorage.getItem('Usr_Ext'));
+    if(isNaN(UsrExt)){
+          $("#opt_configuracion").css('visibility', 'hidden');
+          $("#opt_rectra").css('visibility', 'hidden');
+          $("#opt_soltra").css('visibility', 'hidden');
+    }
+        $("#Frm_Consulta").validate();
+         var table = $('#Tbl_Consulta').DataTable({
+                                                        language: {
+                                                            "decimal": "",
+                                                            "emptyTable": "No hay información",
+                                                            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                                                            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                                                            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                                                            "infoPostFix": "",
+                                                            "thousands": ",",
+                                                            "lengthMenu": "Mostrar _MENU_ Entradas",
+                                                            "loadingRecords": "Cargando...",
+                                                            "processing": "Procesando...",
+                                                            "search": "Buscar:",
+                                                            "zeroRecords": "Sin resultados encontrados",
+                                                            "paginate": {
+                                                                "first": "Primero",
+                                                                "last": "Ultimo",
+                                                                "next": "Siguiente",
+                                                                "previous": "Anterior"
+                                                            }
+                                                        }
+                                                       
+
+                                                    });
+               tbl_recorrido = $('#Tbl_recor').DataTable({
+                                                                         language: {
+                                                                         "decimal": "",
+                                                                         "emptyTable": "No Tiene Recorrido",
+                                                                         "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                                                                         "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                                                                         "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                                                                         "infoPostFix": "",
+                                                                         "thousands": ",",
+                                                                         "lengthMenu": "Mostrar _MENU_ Entradas",
+                                                                         "loadingRecords": "Cargando...",
+                                                                         "processing": "Procesando...",
+                                                                         "search": "Buscar:",
+                                                                         "zeroRecords": "Sin resultados encontrados",
+                                                                         "paginate": {
+                                                                             "first": "Primero",
+                                                                             "last": "Ultimo",
+                                                                             "next": "Siguiente",
+                                                                             "previous": "Anterior"
+                                                                         }
+                                                                     },
+
+                                                                 });
+        $('#Btn_cedu').click(function() { 
+               
+                    var select=1;
+                    sel=select;       
+//                   $("#Cmb_bus").val("Cédula del Propietario");
+                   $("#Txt_Ced1").attr("placeholder", "Cédula Propietario");
+                   $("#Txt_Ced2").attr("placeholder", "Cédula Propietario");
+                  
+        });
+        $('#Btn_ceduProfe').click(function() { 
+                var select=2;
+                 sel=select;    
+                
+//                $("#Cmb_bus").val("Cédula del Profesional");
+                $("#Txt_Ced1").attr("placeholder", "Cédula del Profesional");
+                $("#Txt_Ced2").attr("placeholder", "Cédula del Profesional");
+               
+               
+        });  
+         $('#Btn_ClavCas').click(function() { 
+                   var select=3;
+                    sel=select;   
+//                   $("#Cmb_bus").val("Clave Catastral");
+                   $("#Txt_Ced1").attr("placeholder", "Clave Catastral");
+                   $("#Txt_Ced2").attr("placeholder", "Clave Catastral");
+                  
+               
+        });
+        $('#Btn_NumTra').click(function() { 
+                   var select=4;
+                    sel=select;   
+                   $("#Cmb_bus").val("Número de Tramite");
+                   $("#Txt_Ced1").attr("placeholder", "Número de Tramite");
+                   $("#Txt_Ced2").attr("placeholder", "Número de Tramite");
+                  
+               
+        });
+         
+          $('#Btn_buscar').click(function() { 
+                  table.clear().draw();
+                   idconsult=$("#Txt_Ced1").val();
+//                    alert(idconsult);
+                
+                   buscar(idconsult,sel);
+              for(var i=0; i<=row.length; i++){     
+                    $("#dv_consulta").css('visibility', 'visible');
+                    table.row.add([
+                                    row[i][0],
+                                    row[i][1],
+                                    row[i][2],
+                                    row[i][3],
+                                    row[i][4],
+                                    row[i][5],
+                                    row[i][6],
+                                     "<a id='Btn_recori' href='#' class='btn btn-primary btn-circle'><i class='fa fa-eye'></i>",
+                                  ]).draw();
+                              }
+             
+//               alert(idconsult+" PASOOOO NORMAL");
+
+            });
+        $('#Btn_buscar1').click(function() { 
+                table.clear().draw();
+                   idconsult=$("#Txt_Ced2").val();
+//                    alert(idconsult);
+                
+                   buscar(idconsult,sel);
+              for(var i=0; i<=row.length; i++){     
+                    $("#dv_consulta").css('visibility', 'visible');
+                    table.row.add([
+                                    row[i][0],
+                                    row[i][1],
+                                    row[i][2],
+                                    row[i][3],
+                                    row[i][4],
+                                    row[i][5],
+                                    row[i][6]
+                                  ]).draw();
+                              }               
+            });
+              $('#Tbl_Consulta tbody').on( 'click', 'a', function () {
+                    if($(this).attr('id')=="Btn_recori"){
+                        var rowDataNotif = table.row( $(this).parents('tr') ).data();
+                                    DatosRecorrido(rowDataNotif[0]);
+                                    tbl_recorrido.clear();
+                                    
+                                    for(var i=0; i<DataSetRecorrido.length; i++){
+                                         tbl_recorrido.row.add([
+                                                     DataSetRecorrido[i][1],
+                                                     DataSetRecorrido[i][2],
+                                                     DataSetRecorrido[i][3],
+                                                     DataSetRecorrido[i][4],
+                                                   ]).column('3:visible').order('desc').draw();
+                                    }
+//                               
+                                    $('#Form_Recorrido').modal('show');
+                    }                 
+              });
+//     
+try{
+    var DataSetNotifi=JSON.parse(sessionStorage.getItem('Notificaciones'));
+       if(DataSetNotifi.length>0)
+       {
+            for(var i=0; i<DataSetNotifi.length; i++){
+                  $("#Frm_alertCenter").append("<a class='dropdown-item d-flex align-items-center' href='#'>\n\
+                                                   <div class='mr-3'>\n\
+                                                       <div class='icon-circle bg-primary'>\n\
+                                                           <i class='fas fa-file-alt text-white'></i>\n\
+                                                       </div>\n\
+                                                   </div>\n\
+                                                   <div><div class='small text-gray-500'>\n\
+                                                       <span>"+DataSetNotifi[i][6]+"</span>\n\
+                                                   </div>\n\
+                                                   <span class='font-weight-bold'>"+DataSetNotifi[i][5]+" Tramite: "+DataSetNotifi[i][0]+"</span>\n\
+                                                   </div></a>");
+            }
+            $("#Num_Noti").append(DataSetNotifi[0][8]+"+");
+       }
+}
+catch (e) {
+      
+}
+    } catch (e) {
+        alert("error"+e);
+    }
+});
+function buscar(id,tip){
+    var ex=0; 
+     try {
+                    var idcons=id;
+                    var Tipo_cons=tip;
+                    var ind_form = $("#Frm_Consulta").valid();
+                        if(ind_form){
+                                 
+                                var parametros={
+                                "id":idcons,
+                                "tip_con":Tipo_cons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/ConsultaTramite.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind;
+                                                               row=response.row;
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+//                     alert(row);
+                      }
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+   }
+ function DatosRecorrido(id){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerRecorrido.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               DataSetRecorrido=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}

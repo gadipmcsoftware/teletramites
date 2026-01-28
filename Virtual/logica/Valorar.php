@@ -1,0 +1,29 @@
+<?php 
+       
+     
+//ESTABLECE CONEXION
+	 include './Conexion.php';
+         $link =  conectarse();
+								                      
+//LLAMA STORE PROCEDURE
+	$query1 = "EXEC SP_SIMULACIONV3";
+	$stmt = sqlsrv_prepare($link, $query1);
+	if (!sqlsrv_execute($stmt)) {
+           $json_data["ind"] = false;
+//          $json_data["sql"] =$query1;
+            echo json_encode($json_data);
+        }
+        else {
+             $json_data["ind"] = true;
+//          $json_data["sql"] =$query1;
+            echo json_encode($json_data);
+        }
+//       $json_data["ind"] = true;
+       
+        function formateaFecha($fecha){
+		$dia = substr($fecha, 0,2);
+		$mes = substr($fecha, 3, 2);
+		$anio = substr($fecha, 6, 4);
+		return $anio."/".$mes."/".$dia;
+	}
+?>

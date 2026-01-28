@@ -1,0 +1,59 @@
+<?php
+$consulta = array();
+//ESTABLECE CONEXION
+	 include './Conexion.php';
+         $link =  conectarse();
+//PARAMETROS WEB_SERVICE
+$NUM_TRAMI       = $_REQUEST["num_trami"];
+$NAME            = $_REQUEST["name"];
+$CLAVE_CATASTRAL = $_REQUEST["clave_catastral"];
+$OBSE_TRAMITE    = $_REQUEST["obse_tramite"];
+$NUM_NOTIFI      = $_REQUEST["num_notifi"];
+$COD_SUB_TRA     = $_REQUEST["cod_sub_tra"];
+//PARAMETROS SP
+
+$params = array(   
+                 $NUM_TRAMI ,     
+                 $NAME,
+                 $CLAVE_CATASTRAL,
+                 $OBSE_TRAMITE,
+                 $NUM_NOTIFI,
+                 $COD_SUB_TRA
+               ); 
+////LLAMA STORE PROCEDURE
+
+$query1 = "{call SP_REASIGNA( ?,?,?,?,?,?)}";
+$result1=sqlsrv_query($link, $query1, $params);
+if( $result1 === false) {
+    if( ($errors = sqlsrv_errors() ) != null)  
+            {  
+               foreach( $errors as $error)  
+               {  
+                   $json_data["SQLSTATE"] =$error['SQLSTATE'];
+                   $json_data["code"] =$error['code'];
+                   $json_data["message"] =$error['message'];
+                  
+               }  
+            }  
+          $json_data["ind"] = false;
+          echo json_encode($json_data);
+   
+//    die( print_r( sqlsrv_errors(), true) );
+}
+        else {
+            
+             
+                while ( $row = sqlsrv_fetch_array( $result1, SQLSRV_FETCH_ASSOC))
+                {                                                                                                                            
+                      array_push($consulta, array($row["errNumber"],$row["errSeverity"],$row["errState"],$row["errProcedure"],$row["errLine"],$row["errMessage"]));
+//                        echo $row["clave_catastral"];
+                }
+            
+            
+            $json_data["ind"] = true;
+            $json_data["row"] = $consulta;
+            echo json_encode($json_data);
+        }
+       
+       
+?>

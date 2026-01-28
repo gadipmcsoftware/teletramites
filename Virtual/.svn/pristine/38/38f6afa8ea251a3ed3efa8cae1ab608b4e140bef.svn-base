@@ -1,0 +1,1508 @@
+var error;
+var control;
+var row;
+var rowProfe;
+var rowMensaje;
+var rowAcciones;
+var select;
+var cod_pro;
+var familiar;
+var procedencia;
+var coorX;
+var evento;
+
+(function ($) {
+    "use strict";
+    /*==================================================================
+    [ Validate after type ]*/
+    $('.input100-select .js-select2').each(function(){
+         $(this).on('change', function(){
+             control=$(this).attr('id');
+            
+             if(control=='Cmb_Predio')
+                {
+                    var indise = document.getElementById("Cmb_Predio");
+                    var pre = indise.options[indise.selectedIndex].value;
+                    var DataSetPre=JSON.parse(sessionStorage.getItem('Predios'));
+                    $("#Txt_Direc").val(DataSetPre[pre][1]);
+                    $("#Txt_TipPre").val(DataSetPre[pre][2]);
+                    sessionStorage.setItem('SigTra',DataSetPre[pre][3]);
+                    var Sectra=parseInt(sessionStorage.getItem('Sectra'))+1;
+                    var Inicial=sessionStorage.getItem('Intra');
+                    var Siglas=sessionStorage.getItem('SigTra');
+                    var NumTra=Inicial+Siglas+zfill(Sectra,5).toString();
+                     $("#Txt_Tramite").val(NumTra);
+                 
+                    
+                }
+                if(control=='cmb_TipTramite')
+                {
+                     var persTram=sessionStorage.getItem('PER_TRAM');
+                     if(persTram==1){
+                                       var id = $("#Txt_identicacionCiu").val();
+                                       DatosCotacto(id);
+                                       DatosPredio(row[0][0]);
+                                       $("#prodId").val(row[0][0]);
+                                }
+                    var index = document.getElementById("cmb_TipTramite");
+                    var indice=parseInt(index.selectedIndex)-1;
+                    var tra = index.options[index.selectedIndex].value;
+                    var Ext=sessionStorage.getItem('Usr_Ext');
+                    if(Ext==1){
+                        TraeMensaje(parseInt(tra));
+                        if(rowMensaje.length>0){  
+                              for(var i=0; i<rowMensaje.length; i++){
+                                  
+                                   bootbox.dialog({
+                                                                                message: '<div class="container">\n\
+                                                                                            <div align="center">\n\
+                                                                                                 <img src="imagenes/'+rowMensaje[i][4]+'" width="200" height="200">\n\
+                                                                                            </div>\n\
+                                                                                            <div class="row">\n\
+                                                                                                 <p align="justify"><h8 id="lbl_varan" class="m-0 font-weight-bold text-gray-700">'+rowMensaje[i][1]+'</h8></p>\n\
+                                                                                            </div>\n\
+                                                                                          </div>',
+                                                                                title: rowMensaje[i][3],
+                                                                                onEscape: function() {                                                           
+                                                                                }
+                                                                            });
+                                   if(rowMensaje[i][2]==1){
+                                       $("#Btn_enviar").attr('disabled', true);
+                                       $("#Btn_agrega").css('visibility', 'hidden');
+                                   }
+                                   else
+                                   {
+                                        $("#Btn_enviar").attr('disabled', false);
+                                        $("#Btn_agrega").css('visibility', 'visible');
+                                   }
+                                                                            
+                              }
+                              
+                        }
+                        else{
+                            $("#Btn_enviar").attr('disabled', false);
+                            $("#Btn_agrega").css('visibility', 'visible');
+                        }
+                        var DataSetTipTra=JSON.parse(sessionStorage.getItem('Tip_tramites'));
+                        var index = document.getElementById("cmb_TipTramite");
+                        var indice=parseInt(index.selectedIndex)-1;
+                        var sub_traobl=DataSetTipTra[indice][8];
+                        if(sub_traobl==0){
+                            var cod_tip_tra=$("#cmb_TipTramite").val();
+                            var cod_est_tra=$("#Cmb_Estado").val();
+                            TraeAcciones(cod_tip_tra,cod_est_tra);
+                            sessionStorage.setItem('GenerarAcciones',JSON.stringify(rowAcciones));
+                            GenerarAcciones();
+                        }
+                         
+                         
+                    }
+                   
+                    var DataSetTipTra=JSON.parse(sessionStorage.getItem('Tip_tramites'));
+                    sessionStorage.setItem('Intra',DataSetTipTra[indice][2]);
+                    sessionStorage.setItem('Sectra',DataSetTipTra[indice][3]);
+                    var perfil=sessionStorage.getItem('COD_PERFIL');
+                    var area=$("#area").val();
+                    var tip_tra=$("#cmb_TipTramite").val();
+                    var Accion=parseInt(sessionStorage.getItem('Accion'));
+                    TraerSubTramite(perfil,Ext,area,tip_tra,Accion);
+                    var DataSubTramite=JSON.parse(sessionStorage.getItem('Sub_tramites'));
+                    if (Ext==0&&DataSubTramite.length>0)
+                    {
+                        $("#div_subtra").css('visibility', 'visible');
+                        $("#cmb_SubTramite").empty();
+                        document.getElementById("cmb_SubTramite").innerHTML += "<option value='0'>Seleccione una Opción</option>";
+                        Cargar_SubTramites();
+                    }
+                    else if (Ext==1&&DataSubTramite.length>0&&DataSetTipTra[indice][8]==1){
+                        $("#div_subtra").css('visibility', 'visible');
+                         $("#cmb_SubTramite").empty();
+                        document.getElementById("cmb_SubTramite").innerHTML += "<option value='0'>Seleccione una Opción</option>";
+                        Cargar_SubTramites();
+                    }
+                    if (DataSetTipTra[indice][8]==0&&DataSetTipTra[indice][5]==1){
+                        $("#div_cmb_clave").css('visibility', 'visible');
+                        $("#div_claves").append("<div class='col-xl-8 col-lg-8' id='div_Direc'>\n\
+                                                        <div class='wrap-input100 bg1'>\n\
+                                                                <span class='label-input100'>Dirección Predio:<span class='text-danger'>*</span></span>\n\
+                                                                 <input class='input100' type='text' name='Txt_Direc' id='Txt_Direc' readonly='readonly'>\n\
+                                                        </div>\n\
+                                                </div>\n\
+                                                <div class='col-xl-4 col-lg-8' id='div_TipPre'>\n\
+                                                            <div class='wrap-input100 bg1'>\n\
+                                                                    <span class='label-input100'>Tipo de Predio:<span class='text-danger'>*</span></span>\n\
+                                                                    <input class='input100' type='text'   name='Txt_TipPre' id='Txt_TipPre' readonly='readonly'>\n\
+                                                            </div>\n\
+                                                </div>");
+                     var persTram=sessionStorage.getItem('PER_TRAM');
+                    
+                    }
+                    else if(DataSetTipTra[indice][8]==0&&DataSetTipTra[indice][5]==0) {
+                         $("#div_cmb_clave").css('visibility', 'hidden'); 
+                            $("#div_Direc").remove();
+                            $("#div_TipPre").remove();
+                        var NumTra=DataSetTipTra[indice][2]+zfill(DataSetTipTra[indice][3],5).toString();
+                        $("#Txt_Tramite").val(NumTra);
+                    }
+                    var persTram=sessionStorage.getItem('PER_TRAM');
+                    if(persTram==0&&DataSetTipTra[indice][8]==0&&DataSetTipTra[indice][9]==0){
+                        $("#Txt_identicacionCiu").attr('readonly', false);
+                        $("#Txt_NombreCiu").attr('readonly', false);
+                        $("#Txt_TelefonoCiu").attr('readonly', false);
+                        $("#Txt_emailCui").attr('readonly', false); 
+                        CrearCamposProfe(Ext);
+                    }
+                    else if(persTram==0&&DataSetTipTra[indice][8]==0&&DataSetTipTra[indice][9]==1){
+                                $("#div_profecional").remove();
+                                $("#Txt_identicacionCiu").attr('readonly', true);
+                                $("#Txt_NombreCiu").attr('readonly', true);
+                                $("#Txt_TelefonoCiu").attr('readonly', true);
+                                $("#Txt_emailCui").attr('readonly', true);
+                                $("#Txt_identicacionCiu").val(sessionStorage.getItem('CED_PROFE'));
+                                $("#Txt_NombreCiu").val(sessionStorage.getItem('NOM_PROFE'));
+                                $("#Txt_TelefonoCiu").val(sessionStorage.getItem('TELEF_PROFE'));
+                                $("#Txt_emailCui").val(sessionStorage.getItem('EMAIL_PROFE'));
+                                var id = $("#Txt_identicacionCiu").val();
+                                DatosCotacto(id);
+                                DatosPredio(row[0][0]);
+                                $("#prodId").val(row[0][0]);
+                    }
+                    else if(Ext==0&&DataSetTipTra[indice][8]==0&&DataSetTipTra[indice][9]==1){
+                                $("#div_profecional").remove();
+                                
+                              
+                                
+                               
+                    }
+                    if(persTram==1){
+                            var id = $("#Txt_identicacionCiu").val();
+                            DatosCotacto(id);
+                            DatosPredio(row[0][0]);
+                            $("#prodId").val(row[0][0]);
+                     }
+                     
+                      Cargar_Predios();
+                     
+                }
+                 if(control=='Cmb_TipUsr')
+                {
+                     var index_usr = document.getElementById("Cmb_TipUsr");
+                     var indice_usr=parseInt(index_usr.selectedIndex)-1;
+                     var DataSetPerfil=JSON.parse(sessionStorage.getItem('Perfiles'));
+                     if (DataSetPerfil[indice_usr][3]==1){
+                         $("#div_tit_aca").css('display','block');
+                     }
+                     else{
+                          $("#div_tit_aca").css('display','none');
+                     }
+                     if (DataSetPerfil[indice_usr][4]==1){
+                          $("#div_snsyt").css('display','block');
+                     }
+                     else{
+                          $("#div_snsyt").css('display','none');
+                     }
+                }
+                 if(control=='Cmb_Provi')
+                {
+                     var provi = $("#Cmb_Provi").val();
+                     $("#Cmb_Canton").empty();
+                     document.getElementById("Cmb_Canton").innerHTML += "<option value='0'>Seleccione una Opción</option>";
+                      $("#Cmb_Parro").empty();
+                     document.getElementById("Cmb_Parro").innerHTML += "<option value='0'>Seleccione una Opción</option>";
+                     TraerCantones(provi);
+                     Cargar_Cantones();
+                }
+                if(control=='Cmb_Canton')
+                {
+                    var provi  = $("#Cmb_Provi").val();
+                     var canton = $("#Cmb_Canton").val();
+                     $("#Cmb_Parro").empty();
+                     document.getElementById("Cmb_Parro").innerHTML += "<option value='0'>Seleccione una Opción</option>";
+                     TraerParroquias(provi,canton);
+                     Cargar_Parroquia();
+                     
+                }
+                 if(control=='cmb_SubTramite')
+                {
+                        var persTram=sessionStorage.getItem('PER_TRAM');
+                        var Ext=sessionStorage.getItem('Usr_Ext');
+                        var DataSetTipTra=JSON.parse(sessionStorage.getItem('Tip_tramites'));
+                        var index_sub = document.getElementById("cmb_SubTramite");
+                        var indice_sub=parseInt(index_sub.selectedIndex)-1;
+                        var index = document.getElementById("cmb_TipTramite");
+                        var indice=parseInt(index.selectedIndex)-1;
+                        var sub_traobl=DataSetTipTra[indice][8];
+                        var req_clave_tra=DataSetTipTra[indice][5];
+                        var DataSubTramite=JSON.parse(sessionStorage.getItem('Sub_tramites'));
+                        var req_clave_sub=DataSubTramite[indice_sub][5];
+                        var sub_tra_perso=DataSubTramite[indice_sub][9];
+                        if(sub_traobl==1&&req_clave_sub==0){
+                            $("#div_cmb_clave").css('visibility', 'hidden'); 
+                            $("#div_Direc").remove();
+                            $("#div_TipPre").remove();
+                            var Sectra=parseInt(DataSubTramite[indice_sub][3])+1;
+                            var Inicial=sessionStorage.getItem('Intra');
+                            var Sutra=DataSubTramite[indice_sub][2];
+                            var NumTra=Inicial+Sutra+zfill(Sectra,5).toString();
+                            $("#Txt_Tramite").val(NumTra);
+                            if(Ext==1){
+                                    var cod_tip_tra=$("#cmb_SubTramite").val();
+                                    var cod_est_tra=$("#Cmb_Estado").val();
+                                    TraeAcciones(cod_tip_tra,cod_est_tra);
+                                    sessionStorage.setItem('GenerarAcciones',JSON.stringify(rowAcciones));
+                                    GenerarAcciones();
+                            }
+                            
+                         }
+                         else if(sub_traobl==1&&req_clave_sub==1){
+                                $("#div_cmb_clave").css('visibility', 'visible');
+                                $("#div_claves").append("<div class='col-xl-8 col-lg-8' id='div_Direc'>\n\
+                                                                <div class='wrap-input100 bg1'>\n\
+                                                                        <span class='label-input100'>Dirección Predio:<span class='text-danger'>*</span></span>\n\
+                                                                         <input class='input100' type='text' name='Txt_Direc' id='Txt_Direc' readonly='readonly'>\n\
+                                                                </div>\n\
+                                                        </div>\n\
+                                                        <div class='col-xl-4 col-lg-8' id='div_TipPre'>\n\
+                                                                    <div class='wrap-input100 bg1'>\n\
+                                                                            <span class='label-input100'>Tipo de Predio:<span class='text-danger'>*</span></span>\n\
+                                                                            <input class='input100' type='text'   name='Txt_TipPre' id='Txt_TipPre' readonly='readonly'>\n\
+                                                                    </div>\n\
+                                                        </div>");
+                               
+                                if(persTram==1){
+                                       var id = $("#Txt_identicacionCiu").val();
+                                      
+                                }
+                              Cargar_Predios();
+                                
+                         }
+                         if(persTram==0&&sub_tra_perso==0){
+                                    $("#Txt_identicacionCiu").attr('readonly', false);
+                                    $("#Txt_NombreCiu").attr('readonly', false);
+                                    $("#Txt_TelefonoCiu").attr('readonly', false);
+                                    $("#Txt_emailCui").attr('readonly', false);  
+                                    CrearCamposProfe(Ext);
+                         }
+                         else if(persTram==0&&sub_tra_perso==1){
+                                            $("#div_profecional").remove();
+                                            $("#Txt_identicacionCiu").attr('readonly', true);
+                                            $("#Txt_NombreCiu").attr('readonly', true);
+                                            $("#Txt_TelefonoCiu").attr('readonly', true);
+                                            $("#Txt_emailCui").attr('readonly', true);
+                                            $("#Txt_identicacionCiu").val(sessionStorage.getItem('CED_PROFE'));
+                                            $("#Txt_NombreCiu").val(sessionStorage.getItem('NOM_PROFE'));
+                                            $("#Txt_TelefonoCiu").val(sessionStorage.getItem('TELEF_PROFE'));
+                                            $("#Txt_emailCui").val(sessionStorage.getItem('EMAIL_PROFE'));
+                                            var id = $("#Txt_identicacionCiu").val();
+                                            DatosCotacto(id);
+                                            DatosPredio(row[0][0]);
+                                            $("#prodId").val(row[0][0]);
+                        }
+                         else if(Ext==0&&sub_tra_perso==1){
+                                            $("#div_profecional").remove();
+                                            
+                                           
+                                           
+                        }
+                }
+                if(control=='Cmb_Estado')
+                {
+                    var DataSetTipTra=JSON.parse(sessionStorage.getItem('Tip_tramites'));
+                    var index = document.getElementById("cmb_TipTramite");
+                    var indice=parseInt(index.selectedIndex)-1;
+                    var sub_traobl=DataSetTipTra[indice][8];
+                     if(sub_traobl==1){
+                         var cod_tip_tra=$("#cmb_SubTramite").val();
+                         var cod_est_tra=$("#Cmb_Estado").val();
+                         TraeAcciones(cod_tip_tra,cod_est_tra);
+                         sessionStorage.setItem('GenerarAcciones',JSON.stringify(rowAcciones));
+                         GenerarAcciones();
+                     }
+                     else{
+                         var cod_tip_tra=$("#cmb_TipTramite").val();
+                         var cod_est_tra=$("#Cmb_Estado").val();
+                         TraeAcciones(cod_tip_tra,cod_est_tra);
+                         sessionStorage.setItem('GenerarAcciones',JSON.stringify(rowAcciones));
+                         GenerarAcciones();
+
+                     }
+                    
+                }
+                 
+                 
+               
+         }) 
+        
+    })
+    $('.validate-input .input100').each(function(){
+        $(this).on('blur', function(){
+            evento='blur';
+            if(validate(this) == false){
+               
+                showValidate(this);
+            }
+            else {
+                control=$(this).attr('id');
+                if(control=='Txt_identicacionCiu')
+                {
+                      
+                    var id = $("#Txt_identicacionCiu").val();
+                     DatosCotacto(id);
+                     DatosPredio(row[0][0]);
+//                     Cargar_Predios();
+                     $("#prodId").val(row[0][0]);
+                     $("#Txt_NombreCiu").val(row[0][1]+" "+row[0][2]);
+                     if(row[0][3]!==null)
+                     {
+                          $("#Txt_TelefonoCiu").val(row[0][3]);
+                     }
+                    
+                     if(row[0][4]!==null)
+                     {
+                          $("#Txt_emailCui").val(row[0][4]);
+                     }
+
+                     
+                }
+                 if(control=='Txt_IngCed')
+                {
+                     var id = $("#Txt_IngCed").val();
+                     DatosCotacto(id);
+                     $("#Cmb_TipUsr").empty();
+                     document.getElementById("Cmb_TipUsr").innerHTML += "<option value='0'>Seleccione una Opción</option>";
+                     Cargar_Perfiles();
+                     Cargar_Provincias();
+                     Cargar_Personeria();
+                     if(row.length>0){
+                         sessionStorage.setItem('pro_codigo',row[0][0]);
+                        $("#Txt_IngNom").val(row[0][1]);
+                        $("#Txt_IngApelli").val(row[0][2]);
+                        $("#Txt_IngDir").val(row[0][5]);
+                        $("#Txt_IngTel").val(row[0][3]);
+                        $("#Txt_IngEmail").val(row[0][4]);
+                        $("#Cmb_Provi").val(row[0][6]);
+                        TraerCantones(row[0][6]);
+                        Cargar_Cantones();
+                        $("#Cmb_Canton").val(row[0][7]);
+                        TraerParroquias(row[0][6],row[0][7]);
+                        Cargar_Parroquia();
+                        $("#Cmb_Parro").val(row[0][8]);
+                        $("#Cmb_Personeria").val(row[0][9]);
+                        sessionStorage.setItem('Cod_ust',2);
+                        $("#div_tit").css('visibility', 'hidden');
+                        $("#div_snsit").css('visibility', 'hidden');
+                        $("#Cmb_TipUsr").attr('disabled', false);
+                     }
+                     else{                     
+                        sessionStorage.setItem('Cod_ust',1);
+
+                     }
+                     
+                }
+                 if(control=='Txt_identicacionProfe')
+                {
+                      
+                    var idpro = $("#Txt_identicacionProfe").val();
+                     DatosProfecional(idpro);
+//                     $("#prodId").val(rowProfe[0][0]);
+                     $("#Txt_NombreProfe").val(rowProfe[0][1]);
+                     if(rowProfe[0][2]!==null)
+                     {
+                          $("#Txt_TelefonoProfe").val(rowProfe[0][2]);
+                     }
+////                    
+                     if(rowProfe[0][3]!==null)
+                     {
+                          $("#Txt_emailProfe").val(rowProfe[0][3]);
+                     }
+                     
+                }
+               
+                $(this).parent().addClass('true-validate');
+               
+            }
+        })    
+    })
+  
+  
+    /*==================================================================
+    [ Validate ]*/
+    var input = $('.validate-input .input100');
+    
+    $('.validate-form').on('submit',function(){
+        evento='submit';
+       
+         var check = true;
+         var num_adj=parseInt(sessionStorage.getItem('num_adj'));
+         var Ext=sessionStorage.getItem('Usr_Ext');
+        if (num_adj==0&&Ext==1){
+            check=false;
+            $('.btn-primary').removeClass("btn-primary").addClass('btn-dark');
+             bootbox.dialog({
+                                                                                           title: '<a href="#" class="btn btn-danger btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                                           message: "Error. Se debe subir los requisitos necesarios para el trámite",
+                                                                                           onEscape: function() {
+
+                                                                                           }
+                                                                                       });
+        }
+        for(var i=0; i<input.length; i++) {
+            if(validate(input[i]) == false){
+                  control=$(input[i]).attr('id');
+//                       if(control=='Txt_IngCed'||control=='Txt_IngNom'||control=='Txt_IngDir'||control=='Txt_IngTel'||control=='Txt_IngEmail'||control=='Txt_IngNomAdj'||control=='Txt_IngNomAdj')
+//                       {
+//                           check=true;
+//                       }
+//                       else{
+                           if(control=='Txt_emailCui')
+                            {
+                              var correo = $("#Txt_emailCui").val();
+                            }
+                            if(correo!==''||correo!==null){
+                                showValidate(input[i]);
+                                check=false;
+                            }
+                            else{
+
+                                        showValidate(input[i]);
+                                        check=false;
+
+    //                     
+                            }
+//                       }
+                       
+                
+            }
+        }
+        error=check;
+//        alert(check);
+        return check;
+        
+    });
+$('.validate-form').on('submit',function(){
+    
+    if(error == true){
+         try{
+                var valida=0;
+                var chequear=true;
+                 var DataSetArchivos=JSON.parse(sessionStorage.getItem('Archivos'));
+                 var Accion=sessionStorage.getItem('Accion');
+                 var NumTram  = $("#Txt_Tramite").val();
+                 var CedProfe = $("#Txt_identicacionProfe").val();
+                 var Cod_tip_tra=parseInt($("#cmb_TipTramite").val());
+                 var Pro_Codigo = $("#prodId").val();
+                 var validaestado=$("#Cmb_Estado").val();
+                 if(validaestado=='Seleccione una Opción')
+                    {
+                       var chequear = false;
+                       alert("Debe Seleccionar un Estado");
+
+                    }
+                    else{
+                        var Cod_est_tra=parseInt($("#Cmb_Estado").val());
+                        var comboest = document.getElementById("Cmb_Estado");
+                        var estado = comboest.options[comboest.selectedIndex].text;
+                    }
+                 
+                 var Usr=sessionStorage.getItem('Name');
+                 var Ext=sessionStorage.getItem('Usr_Ext');
+//                 alert(Usr);
+                 var Obse_Tramite  = $("#Txt_detalle").val();
+                 var email = $("#Txt_emailProfe").val();
+                 var nombres = $("#Txt_NombreProfe").val();
+                 var notifi = $("#enviasn").val();
+                 var validatiptra=$("#cmb_TipTramite").val();
+                 if(validatiptra=='Seleccione una Opción')
+                    {
+                       var chequear = false;
+                       alert("Debe Seleccionar un Tipo de Tramite");
+
+                    }
+                    else{
+                          var comboTra = document.getElementById("cmb_TipTramite");
+                          var Tramite = comboTra.options[comboTra.selectedIndex].text;
+                    }
+                var validapredio=$("#Cmb_Predio").val();
+                if(validapredio=='Seleccione una Opción'||validapredio==-1||validapredio=='sin clave catastral')
+                    {
+                       var sub_tramite;
+                       var DataSetTipTra=JSON.parse(sessionStorage.getItem('Tip_tramites'));
+                       var index = document.getElementById("cmb_TipTramite");
+                       var indice=parseInt(index.selectedIndex)-1;
+                       var sub_traobl=DataSetTipTra[indice][8];
+                       var tra_personal=DataSetTipTra[indice][9];
+                       if (sub_traobl==0){
+                           var rec_clave=DataSetTipTra[indice][5];
+                           if(rec_clave==0){
+                                if (Accion==2)
+                                    {
+                                        var clave_catastral='sin clave catastral';
+                                        var persTram=sessionStorage.getItem('TRAM_PER_EDICION');
+                                        if(persTram==1&&Ext==1){
+                                            nombres=sessionStorage.getItem('NOM_PROFE');
+                                            CedProfe =sessionStorage.getItem('CED_PROFE');
+                                            email=sessionStorage.getItem('EMAIL_PROFE');
+                                        }
+                                         else if(tra_personal==1&&Ext==1){
+                                             nombres=sessionStorage.getItem('NOM_PROFE');
+                                             CedProfe =sessionStorage.getItem('CED_PROFE');
+                                             email=sessionStorage.getItem('EMAIL_PROFE');
+                                        }
+                                        else if(tra_personal==1&&Ext==0){
+                                              nombres=$("#Txt_NombreCiu").val();
+                                             CedProfe=$("#Txt_identicacionCiu").val();
+                                             email=$("#Txt_emailCui").val();
+                                             DatosProfecional(CedProfe);
+                                             var notifi=rowProfe[0][5];
+                                        }
+                                       
+                                        sub_tramite=0;
+                                       var num_notifi=parseInt(JSON.parse(sessionStorage.getItem('Notificacion')));
+                                    }
+                                    else{
+                                        var clave_catastral='sin clave catastral';
+                                        var persTram=sessionStorage.getItem('PER_TRAM');
+                                        if(persTram==1&&Ext==1){
+                                            nombres=sessionStorage.getItem('NOM_PROFE');
+                                            CedProfe =sessionStorage.getItem('CED_PROFE');
+                                            email=sessionStorage.getItem('EMAIL_PROFE');
+                                        }
+                                         else if(tra_personal==1&&Ext==1){
+                                             nombres=sessionStorage.getItem('NOM_PROFE');
+                                             CedProfe =sessionStorage.getItem('CED_PROFE');
+                                             email=sessionStorage.getItem('EMAIL_PROFE');
+                                        }
+                                        else if(tra_personal==1&&Ext==0){
+                                              nombres=$("#Txt_NombreCiu").val();
+                                             CedProfe=$("#Txt_identicacionCiu").val();
+                                             email=$("#Txt_emailCui").val();
+                                             DatosProfecional(CedProfe);
+                                             var notifi=rowProfe[0][5];
+                                        }
+                                       
+                                        sub_tramite=0;
+                                        var num_notifi=0;
+                                    }
+                                
+                           }
+                           else{
+                                var chequear = false;
+                                alert("Debe Seleccionar una Calve Catastral");
+                           }
+                       }
+                       else{
+                            
+                            var DataSubTramite=JSON.parse(sessionStorage.getItem('Sub_tramites'));
+                            var index_sub = document.getElementById("cmb_SubTramite");
+                            var indice_sub=parseInt(index_sub.selectedIndex)-1;
+                            var req_clave_sub=DataSubTramite[indice_sub][5];
+                            var sub_tra_personal=DataSubTramite[indice_sub][9];
+                            if(req_clave_sub==0){
+                                if (Accion==2)
+                                    {
+                                       var clave_catastral='sin clave catastral';
+                                       var persTram=sessionStorage.getItem('PER_TRAM');
+                                        if(persTram==1&&Ext==1){
+                                            nombres=sessionStorage.getItem('NOM_PROFE');
+                                            CedProfe =sessionStorage.getItem('CED_PROFE');
+                                            email=sessionStorage.getItem('EMAIL_PROFE');
+                                        }
+                                         else if(sub_tra_personal==1&&Ext==1){
+                                             nombres=sessionStorage.getItem('NOM_PROFE');
+                                             CedProfe =sessionStorage.getItem('CED_PROFE');
+                                             email=sessionStorage.getItem('EMAIL_PROFE');
+                                        }
+                                        else if(sub_tra_personal==1&&Ext==0){
+                                              nombres=$("#Txt_NombreCiu").val();
+                                             CedProfe=$("#Txt_identicacionCiu").val();
+                                             email=$("#Txt_emailCui").val();
+                                             DatosProfecional(CedProfe);
+                                             var notifi=rowProfe[0][5];
+                                        }
+                                       
+                                        sub_tramite=0;
+                                       var num_notifi=parseInt(JSON.parse(sessionStorage.getItem('Notificacion')));
+                                    }
+                                    else{
+                                        var clave_catastral='sin clave catastral';
+                                        var persTram=sessionStorage.getItem('PER_TRAM');
+                                        if(persTram==1&&Ext==1){
+                                            nombres=sessionStorage.getItem('NOM_PROFE');
+                                            CedProfe =sessionStorage.getItem('CED_PROFE');
+                                            email=sessionStorage.getItem('EMAIL_PROFE');
+                                        }
+                                        else if(sub_tra_personal==1&&Ext==1){
+                                             nombres=sessionStorage.getItem('NOM_PROFE');
+                                             CedProfe =sessionStorage.getItem('CED_PROFE');
+                                             email=sessionStorage.getItem('EMAIL_PROFE');
+                                        }
+                                        else if(sub_tra_personal==1&&Ext==0){
+                                            nombres=$("#Txt_NombreCiu").val();
+                                            CedProfe=$("#Txt_identicacionCiu").val();
+                                            email=$("#Txt_emailCui").val();
+                                            DatosProfecional(CedProfe);
+                                            var notifi=rowProfe[0][5];
+                                        }
+                                        
+                                        Cod_tip_tra=parseInt($("#cmb_SubTramite").val());
+                                        sub_tramite=0;
+                                        var num_notifi=0;
+                                    }
+                                
+                            }
+                            else
+                            {
+                                var chequear = false;
+                                alert("Debe Seleccionar una Calve Catastral");
+                            }
+                       }
+                       
+
+                    }
+                    else{
+                         if (Accion==2)
+                            {
+                                
+                                var sub_tramite;
+                                var DataSetTipTra=JSON.parse(sessionStorage.getItem('Tip_tramites'));
+                                var index = document.getElementById("cmb_TipTramite");
+                                var indice=parseInt(index.selectedIndex)-1;
+                                var sub_traobl=DataSetTipTra[indice][8];
+                                var tra_personal=DataSetTipTra[indice][9];
+                                var DataSubTramite=JSON.parse(sessionStorage.getItem('Sub_tramites'));
+                                var per_tram_edi=sessionStorage.getItem('TRAM_PER_EDICION');
+                                if(sub_traobl==0){
+                                    var persTram=sessionStorage.getItem('PER_TRAM');
+                                    var tra_personal=DataSetTipTra[indice][9];
+                                    if(persTram==1&&Ext==1){
+                                            nombres=sessionStorage.getItem('NOM_PROFE');
+                                            CedProfe =sessionStorage.getItem('CED_PROFE');
+                                            email=sessionStorage.getItem('EMAIL_PROFE');
+                                     }
+                                     else if(tra_personal==1&&Ext==1){
+                                             nombres=sessionStorage.getItem('NOM_PROFE');
+                                             CedProfe =sessionStorage.getItem('CED_PROFE');
+                                             email=sessionStorage.getItem('EMAIL_PROFE');
+                                     }
+                                     else if (tra_personal==1&&Ext==0){
+                                              nombres=$("#Txt_NombreCiu").val(); 
+                                              CedProfe=$("#Txt_identicacionCiu").val();
+                                              email=$("#Txt_emailCui").val();
+                                              DatosProfecional(CedProfe);
+                                              if (rowProfe.length==0){
+                                                         var DataSetTramiteaux=JSON.parse(sessionStorage.getItem('Tramites'));
+                                                          if(DataSetTramiteaux[0][24]!=null){
+                                                               var DataSetTramite=JSON.parse(sessionStorage.getItem('TramitesPadre'));
+                                                          }
+                                                          else{
+                                                              var DataSetTramite=JSON.parse(sessionStorage.getItem('Tramites'));
+
+                                                          }
+                                                          email=DataSetTramite[0][9];
+                                                         CedProfe =DataSetTramite[0][6];
+      //                                                   alert(DataSetTramite[0][6])
+                                                         DatosProfecional(CedProfe);
+                                                          var notifi=rowProfe[0][5];
+                                                }
+                                                 else{
+                                                         var notifi=rowProfe[0][5];
+                                                }
+                                              
+                                      }
+                                      else if(per_tram_edi==1&&Ext==0){
+                                              nombres=$("#Txt_NombreCiu").val(); 
+                                              CedProfe=$("#Txt_identicacionCiu").val();
+                                              email=$("#Txt_emailCui").val();
+                                              DatosProfecional(CedProfe);
+                                                    if (rowProfe.length==0){
+                                                         var DataSetTramiteaux=JSON.parse(sessionStorage.getItem('Tramites'));
+                                                          if(DataSetTramiteaux[0][24]!=null){
+                                                               var DataSetTramite=JSON.parse(sessionStorage.getItem('TramitesPadre'));
+                                                          }
+                                                          else{
+                                                              var DataSetTramite=JSON.parse(sessionStorage.getItem('Tramites'));
+
+                                                          }
+                                                          email=DataSetTramite[0][9];
+                                                         CedProfe =DataSetTramite[0][6];
+      //                                                   alert(DataSetTramite[0][6])
+                                                         DatosProfecional(CedProfe);
+                                                          var notifi=rowProfe[0][5];
+                                                    }
+                                                    else{
+                                                         var notifi=rowProfe[0][5];
+                                                    }
+
+//                                          alert("paooooooooo")
+                                      }
+                                     if(DataSubTramite!=null){
+                                         if(DataSubTramite.length>0){
+                                                sub_tramite=$("#cmb_SubTramite").val();
+                                                if(sub_tramite=='Seleccione una Opción'||sub_tramite==''||sub_tramite==null){
+                                                     sub_tramite=0;
+
+                                                }
+                                            }
+                                            else{
+
+                                                    
+                                                    sub_tramite=0;
+                                            }
+                                     }
+                                     else{
+                                          sub_tramite=0;
+                                     }
+                                            
+                                }
+                                else{
+                                    var persTram=sessionStorage.getItem('PER_TRAM');
+                                    var tra_personal=DataSetTipTra[indice][9];
+                                    if(persTram==1&&Ext==1){
+                                            nombres=sessionStorage.getItem('NOM_PROFE');
+                                            CedProfe =sessionStorage.getItem('CED_PROFE');
+                                            email=sessionStorage.getItem('EMAIL_PROFE');
+                                     }
+                                     else if(tra_personal==1&&Ext==1){
+                                             nombres=sessionStorage.getItem('NOM_PROFE');
+                                             CedProfe =sessionStorage.getItem('CED_PROFE');
+                                             email=sessionStorage.getItem('EMAIL_PROFE');
+                                     }
+                                     else if (tra_personal==1&&Ext==0){
+                                              nombres=$("#Txt_NombreCiu").val(); 
+                                              CedProfe=$("#Txt_identicacionCiu").val();
+                                              email=$("#Txt_emailCui").val();
+                                              DatosProfecional(CedProfe);
+                                              var notifi=rowProfe[0][5];
+                                              
+                                      }
+                                      else if(per_tram_edi==1&&Ext==0){
+                                              nombres=$("#Txt_NombreCiu").val(); 
+                                              CedProfe=$("#Txt_identicacionCiu").val();
+                                              email=$("#Txt_emailCui").val();
+                                              DatosProfecional(CedProfe);
+                                              var notifi=rowProfe[0][5];
+                                      }
+                                      
+                                          sub_tramite=0;
+                                     
+                                }
+                                var clave_catastral=$("#Cmb_Predio").val();
+                                var num_notifi=parseInt(JSON.parse(sessionStorage.getItem('Notificacion')));
+                            }
+                            else
+                            {
+                                if(Accion==1){
+                                   var DataSetTipTra=JSON.parse(sessionStorage.getItem('Tip_tramites'));
+                                   var index = document.getElementById("cmb_TipTramite");
+                                   var indice=parseInt(index.selectedIndex)-1;
+                                   var sub_traobl=DataSetTipTra[indice][8];                             
+                                   var indise = document.getElementById("Cmb_Predio");
+                                   var pre = indise.options[indise.selectedIndex].value;
+                                   var DataSetPre=JSON.parse(sessionStorage.getItem('Predios'));
+                                   var clave_catastral=DataSetPre[pre][0].toString();
+                                   if (sub_traobl==0){  
+                                         sub_tramite=$("#cmb_SubTramite").val();
+                                         if(sub_tramite=='Seleccione una Opción'||sub_tramite==''){
+                                             sub_tramite=0;
+                                         }
+                                        var persTram=sessionStorage.getItem('PER_TRAM');
+                                        var tra_personal=DataSetTipTra[indice][9];
+                                        if(persTram==1&&Ext==1){
+                                            nombres=sessionStorage.getItem('NOM_PROFE');
+                                            CedProfe =sessionStorage.getItem('CED_PROFE');
+                                            email=sessionStorage.getItem('EMAIL_PROFE');
+                                         }
+                                         else if(tra_personal==1&&Ext==1){
+                                             nombres=sessionStorage.getItem('NOM_PROFE');
+                                             CedProfe =sessionStorage.getItem('CED_PROFE');
+                                             email=sessionStorage.getItem('EMAIL_PROFE');
+                                         }
+                                         else if (tra_personal==1&&Ext==0){
+                                              nombres=$("#Txt_NombreCiu").val(); 
+                                              CedProfe=$("#Txt_identicacionCiu").val();
+                                              email=$("#Txt_emailCui").val();
+                                              DatosProfecional(CedProfe);
+                                              var notifi=rowProfe[0][5];
+                                              
+                                         }
+                                   }
+                                   else{
+                                       
+                                       var DataSubTramite=JSON.parse(sessionStorage.getItem('Sub_tramites'));
+                                       var index_sub = document.getElementById("cmb_SubTramite");
+                                       var indice_sub=parseInt(index_sub.selectedIndex)-1;
+                                       var sub_tra_personal=DataSubTramite[indice_sub][9];
+                                       var persTram=sessionStorage.getItem('PER_TRAM');
+                                       if(persTram==1&&Ext==1){
+                                            nombres=sessionStorage.getItem('NOM_PROFE');
+                                            CedProfe =sessionStorage.getItem('CED_PROFE');
+                                            email=sessionStorage.getItem('EMAIL_PROFE');
+                                         }
+                                         else if(sub_tra_personal==1&&Ext==1){
+                                             nombres=sessionStorage.getItem('NOM_PROFE');
+                                             CedProfe =sessionStorage.getItem('CED_PROFE');
+                                             email=sessionStorage.getItem('EMAIL_PROFE');
+                                         }
+                                         else if(sub_tra_personal==1&&Ext==0){
+                                             nombres=$("#Txt_NombreCiu").val();
+                                             CedProfe=$("#Txt_identicacionCiu").val();
+                                             email=$("#Txt_emailCui").val();
+                                             DatosProfecional(CedProfe);
+                                             var notifi=rowProfe[0][5];
+                                         }
+                                       Cod_tip_tra=parseInt($("#cmb_SubTramite").val());
+                                       sub_tramite=0;
+                                   }
+                                   var num_notifi=0;
+                                }
+
+                            }
+                    }
+                    var validasubtramite=$("#cmb_SubTramite").val();
+                    var DataSetTipTra=JSON.parse(sessionStorage.getItem('Tip_tramites'));
+                    var index = document.getElementById("cmb_TipTramite");
+                    var indice=parseInt(index.selectedIndex)-1;
+                    var sub_traobl=DataSetTipTra[indice][8];
+                    if(validasubtramite=='Seleccione una Opción'||validasubtramite=='')
+                    {
+                         
+                         if (sub_traobl==1){
+                              var chequear = false;
+                               alert("Debe Seleccionar un Subtramite");
+                         }
+                       
+                        
+                         
+                    }
+                    else{
+                        if (sub_traobl==0&&Ext==0){
+                             var sub_tramite;
+                                var DataSetTipTra=JSON.parse(sessionStorage.getItem('Tip_tramites'));
+                                var index = document.getElementById("cmb_TipTramite");
+                                var indice=parseInt(index.selectedIndex)-1;
+                                var sub_traobl=DataSetTipTra[indice][8];
+                                var tra_personal=DataSetTipTra[indice][9];
+                                var DataSubTramite=JSON.parse(sessionStorage.getItem('Sub_tramites'));
+                                if(sub_traobl==0){
+                                    if(DataSubTramite.length>0){
+                                        sub_tramite=$("#cmb_SubTramite").val();
+                                        if(sub_tramite=='Seleccione una Opción'||sub_tramite==''||sub_tramite==null){
+                                                sub_tramite=0;
+                                        }
+                                    }
+                                    else{
+                                        sub_tramite=0;
+                                    }
+                                }
+                        }
+                    }
+                    var DataSetAcciones=JSON.parse(sessionStorage.getItem('GenerarAcciones'));
+                    if(DataSetAcciones!=null){
+                            if(DataSetAcciones.length>0){
+                                    for(var i=0; i<DataSetAcciones.length; i++){
+                                        var check=document.getElementById('chck_accion_'+DataSetAcciones[i][0]);
+                                        if (check.checked==false){
+                                            var chequear = false;
+                                            alert("Debe Completar todas las Acciones");
+                                        }
+                                    }
+                       }
+                    }
+                   
+//                    alert(notifi+","+Usr);
+//                 alert(Accion+","+NumTram+","+CedProfe+","+Cod_tip_tra+","+Pro_Codigo+","+Cod_est_tra+","+Usr+","+clave_catastral+","+Obse_Tramite+","+num_notifi);
+//                 alert(NumTram+","+Usr+","+Pro_Codigo+","+DataSetArchivos[0][0].toString()+","+DataSetArchivos[0][1].toString()+","+DataSetArchivos[0][3].toString())
+                  if(chequear==true)
+                    {
+//                            alert(Accion+","+NumTram+","+CedProfe+","+Cod_tip_tra+","+Pro_Codigo+","+Cod_est_tra+","+Usr+","+clave_catastral+","+Obse_Tramite+","+num_notifi+","+sub_tramite);
+//                           alert("Enviando Correo....."+email+","+notifi+","+Ext);
+                                    var ValGuarTra=GuardarTramite(Accion,NumTram,CedProfe,Cod_tip_tra,Pro_Codigo,Cod_est_tra,Usr,clave_catastral,Obse_Tramite,num_notifi,sub_tramite);
+                                    if(ValGuarTra){
+                                        for(var i=0; i<DataSetArchivos.length-1; i++){
+                                            var ValGuarAdj=GuardarAdjuntos(i,NumTram,Usr,Pro_Codigo,DataSetArchivos[i][0].toString(),DataSetArchivos[i][1].toString(),DataSetArchivos[i][3].toString());
+                                            if(!ValGuarAdj){                     
+                                               valida=valida+1;
+                                            }
+                                        }
+                                        if (valida==0){
+                   //                         alert("Registro Validado");
+                   //                           alert("Enviando Correo....."+email+","+notifi+","+Ext);
+                                               if(notifi==1&&Ext==0){
+
+                                            EnviarEmail(email,'Notificacion de Respuesta de Tele Tramites ','Estimad(o) :'+nombres+' <br> \n\
+                                                           Por medio de la presente se le informa que se ha '+estado+'\n\
+                                                           su tramite de: '+Tramite+' \n\
+                                                           Numero '+NumTram+' en la plataforma virtual de Teletramites \n\
+                                                           Recuerde que en esta plataforma puede dar seguimiento a sus tramites Municipales.');
+                   
+                                       }
+                                     sessionStorage.setItem('Accion',1);
+                                     alert("Tramite Guardado Correctamente");
+                                }   
+                            }
+                    }   
+              
+        
+        } catch (e) {
+                alert("error"+e);
+        }
+        
+    }
+        
+});
+
+    $('.validate-form .input100').each(function(){
+        $(this).focus(function(){
+           hideValidate(this);
+           $(this).parent().removeClass('true-validate');
+        });
+    });
+
+     function validate (input) {
+//         alert(evento);
+        if($(input).attr('type') == 'email' || $(input).attr('name') == 'email') {
+           if($(input).val().trim()!=='')
+           {
+                if($(input).val().trim().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{1,5}|[0-9]{1,3})(\]?)$/) == null) {
+                   return false;
+               }
+           }
+           else{
+              return true; 
+           }
+        }
+        else {
+            if($(input).val().trim() == ''){
+                
+                if($(input).attr('id')=='Txt_IngCed'||$(input).attr('id')=='Txt_IngNom'||$(input).attr('id')=='Txt_IngDir'||$(input).attr('id')=='Txt_IngTel'||$(input).attr('id')=='Txt_IngEmail'||$(input).attr('id')=='Txt_IngNomAdj'||$(input).attr('id')=='Txt_IngDesc')
+                       {
+                        
+                            if(evento=='submit'){
+                                 
+                                
+                                return true;
+                            }
+                            else{
+                                 return false;
+                            }
+                               
+                       }
+                       else{
+                            try{    
+//                                alert("campo en blanco" +$(input).attr('id'));
+                                var Tram_per_per=parseInt(sessionStorage.getItem('PER_TRAM'));
+                                var index = document.getElementById("cmb_TipTramite");
+                                var indice=parseInt(index.selectedIndex)-1;
+                                var index_sub = document.getElementById("cmb_SubTramite");
+                                var indice_sub=parseInt(index_sub.selectedIndex)-1;
+                                var DataSetTipTra=JSON.parse(sessionStorage.getItem('Tip_tramites'));
+                                var DataSubTramite=JSON.parse(sessionStorage.getItem('Sub_tramites'));
+                                var tra_per=DataSetTipTra[indice][9];
+                                var sub_traobl=DataSetTipTra[indice][8];
+//                                alert("Pregunto Sub Tramite vasio");
+                                if(DataSubTramite.length>0){
+                                    var sub_tra_per=DataSubTramite[indice_sub][9];
+                                }
+                                if (Tram_per_per==1){
+//                                    alert("Si es tramite Personal");
+                                    if($(input).attr('id')=='Txt_identicacionProfe'||$(input).attr('id')=='Txt_NombreProfe'){
+                                        return true;
+                                    }
+                                    else{
+                                        return false;
+                                    }
+                                }
+                                else{
+                                        
+                                        if(sub_traobl==1){
+                                            if(sub_tra_per==1){
+                                                if($(input).attr('id')=='Txt_identicacionProfe'||$(input).attr('id')=='Txt_NombreProfe'){
+                                                        return true;
+                                                    }
+                                                else{
+                                                    return false;
+                                                }
+                                            }
+                                            else{
+                                                return false;
+                                            }
+                                        }
+                                        else if(sub_traobl=0){
+                                            if(tra_per==1){
+                                                if($(input).attr('id')=='Txt_identicacionProfe'||$(input).attr('id')=='Txt_NombreProfe'){
+                                                        return true;
+                                                    }
+                                                else{
+                                                    return false;
+                                                }
+                                            }
+                                            else{
+                                                return false;
+                                            }
+                                        }
+                                        else{
+                                            return false;
+                                        }
+                                        
+                                        
+                                            
+                                }
+                            }
+                            catch (e) {
+                                     return false;
+                            }     
+                       }
+                
+            }
+            else{
+                if($(input).attr('id') == 'Txt_identicacionCiu'){
+                    var cedula=$(input).val().trim();
+//                     window.alert(cedula);
+                   return validarCedula(cedula,0);
+                }
+                if($(input).attr('id') == 'Txt_identicacionProfe'){
+                    var cedula=$(input).val().trim();
+//                     window.alert(cedula);
+                   return validarCedula(cedula,1);
+                }
+                if($(input).attr('id') == 'Txt_IngCed'){
+                    
+                     var cedula=$(input).val().trim();
+                    var valida=validarCedula(cedula,1);
+                    if(valida==false){
+                        $("#Txt_IngCed").val('');
+                    }
+//                     window.alert(cedula);
+                   return valida;
+                }
+            }
+            
+        }
+    }
+
+    function showValidate(input) {
+      
+        var thisAlert = $(input).parent();
+       
+        $(thisAlert).addClass('alert-validate');
+
+        $(thisAlert).append('<span class="btn-hide-validate">&#xf136;</span>')
+        $('.btn-hide-validate').each(function(){
+            $(this).on('click',function(){
+               hideValidate(this);
+            });
+        });
+    }
+
+    function hideValidate(input) {
+        var thisAlert = $(input).parent();
+        $(thisAlert).removeClass('alert-validate');
+        $(thisAlert).find('.btn-hide-validate').remove();
+    }
+ function  validarCedula(cedula,valida) {
+       
+        var cad = cedula;
+        var total = 0;
+        var longitud = cad.length;
+        var longcheck = longitud - 1;
+
+        if ((cad !== "" && longitud === 10)||(cad !== ""&&valida==1)){
+            if(longitud==10){
+                for(var i=0;i<longcheck; i++){
+
+                    if (i%2 === 0) {
+                     var aux = cad.charAt(i) * 2;
+                     if (aux > 9) aux -= 9;
+                     total += aux;
+                   } else {
+                     total += parseInt(cad.charAt(i)); // parseInt o concatenará en lugar de sumar
+                   }
+                 }
+
+                 total = total % 10 ? 10 - total % 10 : 0;
+
+                 if (cad.charAt(longitud-1) == total) {
+                   return true;
+                 }else{
+                    return false;
+                 }
+             }
+             else{
+                    if(longitud==13){
+                         return true;
+                    }
+                    else{
+                        return false;
+                    }
+                   
+             }
+        }
+        else{
+            
+            return true;
+        }
+      }
+    
+function DatosCotacto(id){ 
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/ConsPropie.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               row=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+ function zfill(number, width) {
+    var numberOutput = Math.abs(number); /* Valor absoluto del número */
+    var length = number.toString().length; /* Largo del número */ 
+    var zero = "0"; /* String de cero */  
+    
+    if (width <= length) {
+        if (number < 0) {
+             return ("-" + numberOutput.toString()); 
+        } else {
+             return numberOutput.toString(); 
+        }
+    } else {
+        if (number < 0) {
+            return ("-" + (zero.repeat(width - length)) + numberOutput.toString()); 
+        } else {
+            return ((zero.repeat(width - length)) + numberOutput.toString()); 
+        }
+    }
+}
+//function GuardarTramite(Accion,NumTram,CedProfe,Cod_tip_tra,Pro_Codigo,Cod_est_tra,Usr,clave_catastral,Obse_Tramite){    
+// var Data_Seterror,ex;    
+//    try {
+//           
+//                                       
+//                                        var parametros={
+//                                                "accion":Accion,
+//                                                "num_trami":NumTram,
+//                                                "ced_profe":CedProfe,
+//                                                "cod_tip_tra":Cod_tip_tra,
+//                                                "pro_codigo":Pro_Codigo,
+//                                                "cod_est_tra":Cod_est_tra,
+//                                                "name":Usr,
+//                                                "clave_catastral":clave_catastral,
+//                                                "obse_tramite":Obse_Tramite
+//                                            }    
+//        //                                   
+//                                        $.ajax({
+//                                                type: "POST",
+//                                                dataType: "json",
+//                                                async: false,
+//                                                cache: false,
+//                                                url: "http://172.23.5.5/Virtual/logica/GrabarTramite.php",
+//                                                data: parametros,
+//                                                 success: function(response){                                           
+//                                                        if(JSON.parse(response.ind)){
+//                                                               ex=response.ind; 
+//                                                               Data_Seterror=response.row;
+//                                                        } else {
+//                                                                ex=0;
+//                                                                alert(response.message);
+//                                                                 
+//                                                        }
+//                                                },
+//                                                error: function(xhr, textStatus, errorMessage) {
+//                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+//                                                }
+//                                        });
+////                                       bootbox.alert(ex);
+//                                       if(Data_Seterror.length==0){
+//                                                
+//                                                 alert("Tramite Guardado Correctamente");
+//                                                  return true;
+//                                             
+//                                               
+//                                        }
+//                                        else{
+//                                            alert("Fallo al Guardar Tramite");
+//                                            alert(Data_Seterror);
+//                                             return false;
+//                                        }
+//                                      
+//
+//                 
+//    } catch (e) {
+//        alert(e);
+//    }            
+//}
+function GuardarTramite(Accion,NumTram,CedProfe,Cod_tip_tra,Pro_Codigo,Cod_est_tra,Usr,clave_catastral,Obse_Tramite,num_notifi,cod_subtra){    
+ var Data_Seterror,ex;    
+    try {
+           
+                                       
+                                        var parametros={
+                                                "accion":Accion,
+                                                "num_trami":NumTram,
+                                                "ced_profe":CedProfe,
+                                                "cod_tip_tra":Cod_tip_tra,
+                                                "pro_codigo":Pro_Codigo,
+                                                "cod_est_tra":Cod_est_tra,
+                                                "name":Usr,
+                                                "clave_catastral":clave_catastral,
+                                                "obse_tramite":Obse_Tramite,
+                                                "num_notifi":num_notifi,
+                                                "cod_sub_tra":cod_subtra
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Virtual/logica/GrabarTramite.php",
+                                                data: parametros,
+                                                 success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_Seterror=response.row;
+                                                        } else {
+                                                                ex=0;
+                                                                alert(response.message);
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);
+                                       if(Data_Seterror.length==0){
+                                                
+                                                
+                                                  return true;
+                                             
+                                               
+                                        }
+                                        else{
+                                            alert("Fallo al Guardar Tramite");
+                                            alert(Data_Seterror);
+                                             return false;
+                                        }
+                                      
+           
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function GuardarAdjuntos(Indice,NumTram,Usr,Pro_Codigo,Desc_adj,Mensaje,Archivo){    
+ var Data_Seterror,ex;    
+    try {
+           
+                                       
+                                        var parametros={
+                                                "indice":Indice,
+                                                "num_trami":NumTram,
+                                                "name":Usr,
+                                                "pro_codigo":Pro_Codigo,
+                                                "desc_adjunt":Desc_adj,
+                                                "mensaje":Mensaje,
+                                                "archivo":Archivo
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Virtual/logica/GrabarAdjuntos.php",
+                                                data: parametros,
+                                                 success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_Seterror=response.row;
+                                                        } else {
+                                                                ex=0;
+                                                                alert(response.message);
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);
+                                       if(Data_Seterror.length==0){
+                                                
+                                                 
+                                                  return true;
+                                             
+                                               
+                                        }
+                                        else{
+                                            alert("Fallo al Guardar Adjunto "+Desc_adj);
+                                            alert(Data_Seterror);
+                                             return false;
+                                        }
+                                      
+
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function DatosProfecional(id){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/ConsuProfe.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowProfe=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function TraeMensaje(id){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraeMensajes.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowMensaje=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function TraeAcciones(cod_tip_tra,cod_esta_tra){
+   
+   var ex=0; 
+     try {
+                              var parametros={
+                                "cod_esta_tra":cod_esta_tra,
+                                "cod_tip_tra":cod_tip_tra
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerAcciones.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowAcciones=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                       
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+
+})(jQuery);

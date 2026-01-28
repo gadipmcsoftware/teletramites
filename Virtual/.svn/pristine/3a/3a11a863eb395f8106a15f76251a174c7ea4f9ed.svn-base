@@ -1,0 +1,178 @@
+// Call the dataTables jQuery plugin
+var error ="";
+var query1="";
+$(document).ready(function() {
+    
+    try {
+         $('#dataTable').DataTable();
+         $("#Frm_Simular").validate();
+         $("#Btn_simular").click(function(){
+             bootbox.dialog({ message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Espere por favor...</div>' })
+             Simular();   
+             
+          });
+           $("#Btn_Valorar").click(function(){
+             bootbox.dialog({ message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Espere por favor...</div>' })
+             Valorar();   
+             
+          });
+           $("#Btn_Generar").click(function(){
+               window.location.href = "http://172.23.5.5/Simulacion/logica/ExelSimulacion.php";
+               bootbox.dialog({ message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Espere por favor...</div>' })
+               bootbox.hideAll();
+//             GenerarExcel();   
+             
+          });
+             $("#Btn_Emitir").click(function(){
+              
+              bootbox.dialog({
+                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                title: "Se Esta Ejecutando la Emisión del Impuesto Esta Operación Podrá tardar Varias Horas",
+                                                                onEscape: function() {
+                                                               
+                                                                }
+                                                            });
+          });
+    } catch (e) {
+        alert(e);
+    }
+});
+function Simular(){    
+ var ex=0;    
+    try {
+            var ind_form = $("#Frm_Simular").valid();
+                                if(ind_form){
+
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Simulacion/logica/Simular.php",
+//                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=1;
+
+                                                        } else {
+                                                                ex=0;
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);
+                                        if(ex==1){
+                                             bootbox.dialog({ message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Refrescando Datos...</div>' })
+                                             window.location.href = "http://172.23.5.5/Simulacion/tables.php";
+                                             bootbox.alert("Simulación Ejecutda Correctamente");
+                                        }
+                                        else{
+                                            bootbox.alert("Fallo al Ejecutar Simulación");
+                                        }
+                                      
+
+                    } 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function Valorar(){    
+ var ex=0;    
+    try {
+            var ind_form = $("#Frm_Simular").valid();
+                                if(ind_form){         
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Simulacion/logica/Valorar.php",
+//                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(response.ind){
+                                                               ex=1;
+
+                                                        } else {
+                                                                ex=0;
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);
+                                        if(ex==1){
+                                             bootbox.dialog({ message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Refrescando Datos...</div>' })
+                                             window.location.href = "http://172.23.5.5/Simulacion/tables.php";
+                                              bootbox.alert("Valoración Ejecutda Correctamente");
+                                        }
+                                        else{
+                                            bootbox.alert("Fallo al Ejecutar Valoración");
+                                        }
+                                      
+
+                    } 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function GenerarExcel(){    
+ var ex=0;    
+    try {
+            var ind_form = $("#Frm_Simular").valid();
+                                if(ind_form){
+                                        
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Simulacion/logica/ExelSimulacion.php",
+//                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind;
+
+                                                        } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);message
+                                        if(ex){
+                                            bootbox.dialog({
+                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                title: "Excel Generada Correctamente",
+//                                                                onEscape: function() {
+//                                                                window.location.href = "http://172.23.5.5/Simulacion/BandaImpositiva.php";
+//                                                                }
+                                                            });
+                                                            //                                            
+//                                              bootbox.alert("Registro Guardado Correctamente");
+                                              
+                                        }
+                                        else{
+                                            bootbox.alert("Fallo al Generar Ecxel");
+                                            alert(error+" "+ex);
+                                            alert(query1);
+                                        }
+                                      
+
+                    } 
+    } catch (e) {
+        alert("!Error "+e);
+    }
+ }          

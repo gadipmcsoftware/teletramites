@@ -1,0 +1,149 @@
+// Call the dataTables jQuery plugin
+var rowDatau=[];
+var rowDatar=[];
+var error ="";
+var query1="";
+
+$(document).ready(function() {
+    
+    try {
+
+         $("#Frm_Bandas").validate();
+          var tableu = $('#TBL_BANDASU').DataTable( {
+                    "paging":   false,
+                    "ordering": false,
+                    "info":     false,
+                    "searching": false
+           });
+           var tabler = $('#TBL_BANDASR').DataTable( {
+                    "paging":   false,
+                    "ordering": false,
+                    "info":     false,
+                    "searching": false
+           });
+          $('#TBL_BANDASU tbody').on( 'click', 'tr', function () {
+                     rowDatau = tableu.row( this ).data();
+           });
+           $('#TBL_BANDASR tbody').on( 'click', 'tr', function () {
+                     rowDatar = tabler.row( this ).data();
+           });
+        $('#Btn_GuarBandau').click(function() { 
+                cadena="#TXT_BANDAU"+rowDatau[0];
+                var cod_rango=parseInt(rowDatau[0]);
+                var cadena=$(cadena).val();
+                var ban_imposi=parseFloat(cadena);
+                if(isNaN(ban_imposi)){
+                    bootbox.alert("El Valor Ingresado en el campo "+rowDatau[0]+" debe ser Numerico");
+                }
+                else{
+                    var ban_desde=0;
+                    var ban_hasta=0;
+                    var ban_estado='A';
+                    var tipo_banda='U';
+                    var accion=4;
+                   GuardarBanda(cod_rango,ban_desde,ban_hasta,ban_imposi,ban_estado,tipo_banda,accion);
+                }
+
+            }); 
+$('#Btn_GuarBandar').click(function() { 
+               var cadenar="#TXT_BANDAR"+rowDatar[0];
+               var cod_rango=parseInt(rowDatar[0]);
+               var valor=$(cadenar).val()
+               var ban_imposi=parseFloat(valor);
+               if(isNaN(ban_imposi)){
+                    bootbox.alert("El Valor Ingresado en el campo "+rowDatar[0]+" debe ser Numerico");
+                }
+                else{
+                    var ban_desde=0;
+                    var ban_hasta=0;
+                    var ban_estado='A';
+                    var tipo_banda='R';
+                    var accion=4;
+                   GuardarBanda(cod_rango,ban_desde,ban_hasta,ban_imposi,ban_estado,tipo_banda,accion);
+                }
+               
+//                var cod_tasa=parseInt(rowData[0]);
+//                var cadena=$(cadena).val();
+//                var valor=parseFloat(cadena);
+//                if(isNaN(valor)){
+//                    bootbox.alert("El Valor Ingresado en el campo "+rowData[0]+" debe ser Numerico");
+//                }
+//                else{
+//                   GuardarTasa(cod_tasa,valor);
+//                }
+// bootbox.alert("pasooo2");
+            });  
+          
+    } catch (e) {
+        alert("error"+e);
+    }
+});
+function GuardarBanda(cod_rango,ban_desde,ban_hasta,ban_imposi,ban_estado,tipo_banda,accion){    
+ var ex=0;    
+    try {
+            var ind_form = $("#Frm_Bandas").valid();
+                                if(ind_form){
+                                        var parametros={
+                                                "cod_rango":cod_rango,
+                                                "ban_desde":ban_desde,
+                                                "ban_hasta":ban_hasta,
+                                                "ban_imposi":ban_imposi,
+                                                "ban_estado":ban_estado,
+                                                "tipo_banda":tipo_banda,
+                                                "accion":accion
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Simulacion/logica/GuardarBandas.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind;
+
+                                                        } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);message
+                                        if(ex){
+                                            bootbox.dialog({
+                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                title: "Registro Guardado Correctamente",
+                                                                onEscape: function() {
+                                                                window.location.href = "http://172.23.5.5/Simulacion/BandaImpositiva.php";
+                                                                }
+                                                            });
+                                                            //                                            
+//                                              bootbox.alert("Registro Guardado Correctamente");
+                                              
+                                        }
+                                        else{
+                                            bootbox.alert("Fallo al Guardar Registro");
+                                            alert(error+" "+ex);
+                                            alert(query1);
+                                        }
+                                      
+
+                    } 
+    } catch (e) {
+        alert("!Error "+e);
+    }
+ }
+ 
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+

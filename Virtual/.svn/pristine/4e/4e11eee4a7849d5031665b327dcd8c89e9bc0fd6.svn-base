@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<?php 	
+	
+	//ESTABLECE CONEXION
+	require_once('logica/Conexion.php');
+	$link = conectarse();
+        require_once('logica/funciones.php');
+
+?>
+<html lang="es">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <title>SB Admin 2 - Tables</title>
+
+  <!-- Custom fonts for this template -->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="css/sb-admin-2.min.css" rel="stylesheet">
+<!-- <script src="js/Simulacion.js"></script>-->
+  <!-- Custom styles for this page -->
+  <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+  <!-- Page Wrapper -->
+
+<?php include 'menu.php';?>
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          <h1 class="h3 mb-2 text-gray-800">Simulación Rural</h1>
+          <p class="mb-4">Por favor verificar muy bien los datos y cálculos antes de realizar la emisión del impuesto predial .</p>
+       <form method="POST" id="Frm_Simular">
+          <!-- DataTales Example -->
+          <div class="card shadow mb-5">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Catastro 2020</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>Clave Catastral</th>
+                      <th>Cedula</th>
+                      <th>Apellido</th>
+                      <th>Nombre</th>
+                      <th>Dirección</th>
+                      <th>Parroquia</th>
+                      <th>Avaluo</th>
+                      <th>Edificado</th>
+                      <th>Ancianato</th>
+                      <th>Discapacidad</th>
+                      <th>Patrimonio</th>
+                      <th>Base Imponible</th>
+                      <th>Impuesto</th>
+                      <th>Solar</th>
+                      <th>Bomberos</th>
+                      <th>Serv.Admin</th>
+                      <th>A Pagar</th>
+                    </tr>
+                  </thead>
+                  <tfoot>
+                    <tr>
+                       <th>Clave Catastral</th>
+                      <th>Cedula</th>
+                      <th>Apellido</th>
+                      <th>Nombre</th>
+                      <th>Dirección</th>
+                      <th>Parroquia</th>
+                      <th>Avaluo</th>
+                      <th>Exoneración</th>
+                      <th>Ancianato</th>
+                      <th>Discapacidad</th>
+                      <th>Patrimonio</th>
+                      <th>Base Imponible</th>
+                      <th>Impuesto</th>
+                      <th>Solar</th>
+                      <th>Bomberos</th>
+                      <th>Serv.Admin</th>
+                      <th>A Pagar</th>
+                    </tr>
+                  </tfoot>
+                  <tbody>
+
+                       <?php
+                                    $query1="select s6.clave_catastral,
+                                                    s6.identificacion,
+                                                    s6.nombre,
+                                                    s6.apellido,
+                                                    s6.direccion,
+                                                    s6.parroquia,
+                                                    s6.Dominio,
+                                                    s6.avaluo,
+                                                    s6.PATRI,
+                                                    s6.BASE_IMPONIBLE,
+                                                    s6.Exoneracion,
+                                                    s6.TERCERA_EDAD,
+                                                    s6.DISCAPACIDAD,
+                                                    s6.VAL_BOMBE,
+                                                    s6.VAL_IMP,  
+                                                    s6.SRV_ADM,
+                                                    s6.TOTAL_PAGAR 
+                                        from TBL_SIMULACIONV6_RURAL s6 order by s6.Apellido";
+                                    $result1=sqlsrv_query( $link, $query1 );
+                                    if( $result1 === false) {
+                                        die( print_r( sqlsrv_errors(), true) );
+                                    }
+                                    while ( $row = sqlsrv_fetch_array( $result1, SQLSRV_FETCH_ASSOC))
+                                    {                                                                                                                            
+//                                        echo "<option value=".$row1['COD_TIP_EVE']."> ".$row1['DESC_TIP_EVE']." </option>";
+                                        echo "<tr>";
+                                        echo "<td>".$row['clave_catastral']."</td>";
+                                        echo "<td>".$row['identificacion']."</td>";
+                                        echo "<td>".mb_convert_encoding($row['apellido'],"UTF-8")."</td>";
+                                        echo "<td>".mb_convert_encoding($row['nombre'],"UTF-8")."</td>";
+                                        echo "<td>".mb_convert_encoding($row['direccion'],"UTF-8")."</td>";
+                                        echo "<td>".mb_convert_encoding($row['parroquia'],"UTF-8")."</td>";
+                                        echo "<td>".toMoney($row['avaluo'])."</td>";
+                                        echo "<td>".$row['Exoneracion']."</td>";
+                                        echo "<td>".$row['TERCERA_EDAD']."</td>";
+                                        echo "<td>".$row['DISCAPACIDAD']."</td>";
+                                        echo "<td>".toMoney($row['PATRI'])."</td>";
+                                        echo "<td>".toMoney($row['BASE_IMPONIBLE'])."</td>";
+                                        echo "<td>".toMoney($row['VAL_IMP'])."</td>";
+                                        echo "<td>".toMoney($row['VALOR_SOLAR'])."</td>";
+                                        echo "<td>".toMoney($row['VAL_BOMBE'])."</td>";
+                                        echo "<td>".toMoney($row['SRV_ADM'])."</td>";
+                                        echo "<td>".toMoney($row['TOTAL_PAGAR'])."</td>";
+                                        echo "</tr>";
+                                                                                                                       
+                                    }
+                                    sqlsrv_free_stmt($result1);
+                        ?>      
+
+                    
+                  </tbody>
+                </table>
+                  
+              </div>
+               <div class="card-body">   
+<!--                  <a id="Btn_Valorar" href="#" class="btn btn-primary btn-icon-split">
+                    <span class="icon text-white-50">
+                      <i class="fas fa-dollar-sign"></i>
+                    </span>
+                    <span class="text">Valorar</span>
+                  </a>-->
+                   <a id="Btn_simular" href="#" class="btn btn-success btn-icon-split">
+                    <span class="icon text-white-50">
+                      <i class="fab fa-sellsy"></i>
+                    </span>
+                    <span class="text">Simular</span>
+                  </a>
+                   <a id="Btn_Generar" href="#" class="btn btn-warning btn-icon-split">
+                    <span class="icon text-white-50">
+                      <i class="fas fa-download"></i>
+                    </span>
+                    <span class="text">Generar Archivo</span>
+                  </a>
+                  <a id="Btn_Emitir" href="#" class="btn btn-danger btn-icon-split">
+                    <span class="icon text-white-50">
+                      <i class="fas fa-file-import"></i>
+                    </span>
+                    <span class="text">Emitir</span>
+                  </a>
+               </div>
+                
+                  
+                
+            </div>
+          </div>
+       </form>           
+        </div>
+        <!-- /.container-fluid -->
+
+<!--      </div>-->
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+       <?php include 'PienPagina.php';?>
+      <!-- End of Footer -->
+
+<!--    </div>-->
+    <!-- End of Content Wrapper -->
+
+<!--  </div>-->
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Logout Modal-->
+  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+          <a class="btn btn-primary" href="login.html">Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap core JavaScript-->
+  <script type="text/javascript" src="js/global/jquery-1.4.4.min.js"></script>
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+  <!-- Custom scripts for all pages-->
+  <script src="js/sb-admin-2.min.js"></script>
+ 
+  <!-- Page level plugins -->
+  <script type="text/javascript" src="js/global/jquery.validate.js"></script>
+  <script src="http://code.jquery.com/jquery-migrate-1.0.0.js"></script>
+  <script type="text/javascript" src="js/global/jquery-ui-1.8.11.custom.min.js"></script>
+  <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+  <!-- Page level custom scripts -->
+  <script src="js/Simulacion_r.js?%=Guid.NewGuid()%"></script>
+  <script src = 'js/bootbox.js'></script>
+</body>
+
+</html>

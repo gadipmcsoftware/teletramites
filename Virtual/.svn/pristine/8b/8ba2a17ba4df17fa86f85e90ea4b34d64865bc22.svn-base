@@ -1,0 +1,171 @@
+var tbl_tramite;
+var DataSetNoti;
+var DataSetTramite;
+$(document).ready(function() {
+    try {
+         $('#opt_rectra').on('click', function (e){
+             sessionStorage.setItem('Accion',1);
+      });
+      $('#opt_soltra').on('click', function (e){  
+             sessionStorage.setItem('Accion',1);
+        });
+        tbl_tramite = $('#Tbl_tramite').DataTable({
+                                                                         language: {
+                                                                         "decimal": "",
+                                                                         "emptyTable": "No Tiene Notificaciones Pendientes",
+                                                                         "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                                                                         "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                                                                         "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                                                                         "infoPostFix": "",
+                                                                         "thousands": ",",
+                                                                         "lengthMenu": "Mostrar _MENU_ Entradas",
+                                                                         "loadingRecords": "Cargando...",
+                                                                         "processing": "Procesando...",
+                                                                         "search": "Buscar:",
+                                                                         "zeroRecords": "Sin resultados encontrados",
+                                                                         "paginate": {
+                                                                             "first": "Primero",
+                                                                             "last": "Ultimo",
+                                                                             "next": "Siguiente",
+                                                                             "previous": "Anterior"
+                                                                         }
+                                                                     },
+                                                                     "columnDefs": [
+                                                                                     {
+                                                                                         "targets": [ 8 ],
+                                                                                         "visible": false,
+                                                                                         "searchable": false
+                                                                                     }
+            
+                                                                                  ]
+
+                                                                 });
+      DatosNotificaciones();
+      var Notificaciones=DataSetNoti;
+       $('#Tbl_tramite tbody').on( 'click', 'a', function () {
+             
+             var rowDataNotif = tbl_tramite.row( $(this).parents('tr') ).data();
+               sessionStorage.setItem('Accion',2);
+               DatosTramites(rowDataNotif[0]);
+               sessionStorage.setItem('Tramites',JSON.stringify(DataSetTramite));
+               sessionStorage.setItem('Notificacion',rowDataNotif[8]);
+                window.location.href = "http://172.23.5.5/Virtual/FrmRegistro.php";
+               
+         });
+        for(var i=0; i<Notificaciones.length; i++){
+             tbl_tramite.row.add([
+                                    Notificaciones[i][0],
+                                    Notificaciones[i][1],
+                                    Notificaciones[i][2],
+                                    Notificaciones[i][3],
+                                    Notificaciones[i][4],
+                                    Notificaciones[i][5],
+                                    Notificaciones[i][6],
+                                    "<a id='Btn_resp' href='#' class='btn btn-success btn-circle'><i class='far fa-check-circle'></i>",
+                                    Notificaciones[i][7]
+                                   
+                                  ]).draw();
+        }
+         
+     
+    } catch (e) {
+        alert("error"+e);
+    }
+});
+function DatosNotificaciones(){
+   
+   var ex=0; 
+     try {
+                    
+                var Usr=parseInt(sessionStorage.getItem('Usr_Ext'));
+                if(Usr==0){
+                    var id=sessionStorage.getItem('Name');
+                }
+                else{
+                     if(Usr==1){
+                        var id=sessionStorage.getItem('CED_PROFE');
+                    }
+                    else{
+                         window.location.href = "http://172.23.5.5/Virtual/error.php";
+                    }
+                }
+               
+                              var parametros={
+                                "id":id,
+                                "usr_ext":Usr
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerNotificaciones.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               DataSetNoti=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                     
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function DatosTramites(id){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerTramite.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               DataSetTramite=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}

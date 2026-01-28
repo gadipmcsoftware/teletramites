@@ -1,0 +1,464 @@
+// Call the dataTables jQuery plugin
+var rowData = [];
+var error = "";
+var sel = 1;
+var row;
+var rown;
+var error = "";
+var query1 = "";
+var tip_pred;
+var idconsult;
+var nombresvar;
+var rowData = [];
+var DataSetRecorrido = [];
+var DataSetNombres;
+var tbl_recorrido;
+var tbl_nombres;
+var sumatotal;
+var sumasubtotal = 0.0;
+$(document).ready(function () {
+
+    try {
+        const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0
+        })
+        var UsrExt = parseInt(sessionStorage.getItem('Usr_Ext'));
+        if (isNaN(UsrExt)) {
+            $("#opt_configuracion").css('visibility', 'hidden');
+            $("#opt_rectra").css('visibility', 'hidden');
+            $("#opt_soltra").css('visibility', 'hidden');
+        }
+
+        $("#Frm_Consulta").validate();
+        var table = $('#Tbl_Consulta').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            }
+        });
+
+        tbl_nombres = $('#Tbl_ConsultaNombres').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No Tiene Recorrido",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            }
+//            ,
+//            "columnDefs": [
+//                {
+//                    "targets": [1],
+//                    "visible": false,
+//                    "searchable": false
+//                }
+//
+//            ]
+
+        });
+
+
+
+
+        $('#Btn_cedu').click(function () {
+
+            var select = 1;
+            sel = select;
+//                   $("#Cmb_bus").val("Cédula del Propietario");
+            $("#Txt_Ced1").attr("placeholder", "Cédula de Identidad");
+            //  $("#Txt_Ced2").attr("placeholder", "Cédula de Identidad");
+
+        });
+        $('#Btn_nombres').click(function () {
+            var select = 1;
+            sel = select;
+
+//                $("#Cmb_bus").val("Cédula del Profesional");
+            $("#Txt_Ced1").attr("placeholder", "Nombres y Apellidos");
+            $('#Form_Nombres').modal('show');
+        });
+
+        $('#Btn_persona').click(function () {
+            var select = 1;
+            sel = select;
+
+//                $("#Cmb_bus").val("Cédula del Profesional");
+            $("#Txt_Ced1").attr("placeholder", "Nombres y Apellidos");
+            $('#Form_Nombres').modal('show');
+        });
+
+
+        $('#Btn_ClavCas').click(function () {
+            var select = 2;
+            sel = select;
+//                   $("#Cmb_bus").val("Clave Catastral");
+            $("#Txt_Ced1").attr("placeholder", "Clave Catastral");
+        });
+
+
+        $('#Btn_buscar').click(function () {
+
+            // $("#loading").css('visibility', 'false');
+            //$('#modalcargando').modal('hide');
+            sumatotal = 0;
+            sumasubtotal = 0;
+
+            table.clear().draw();
+            idconsult = $("#Txt_Ced1").val();
+//                  alert(idconsult);
+            buscar(idconsult, sel);
+            for (var i = 0; i <= row.length; i++) {
+                $("#dv_consulta").css('visibility', 'visible');
+                table.row.add([
+                    "<a id='Btn_VerDetalle' href='#' class='btn btn-primary btn-circle'><i class='fas fa-search-plus'></i>",
+                    row[i][0],
+                    row[i][1],
+                    row[i][2],
+                    row[i][3],
+                    row[i][4].toFixed(2),
+                    row[i][5],
+                    row[i][6],
+                    row[i][7],
+                    row[i][8],
+                    row[i][9],
+                    "<a id='Btn_recori' href='#' class='btn btn-primary btn-circle'><i class='fas fa-dollar-sign'></i>",
+                    row[i][10],
+                    row[i][11],
+                    row[i][12],
+                    row[i][13],
+                    row[i][14],
+                    row[i][15],
+                    row[i][16],
+                    row[i][17],
+                    row[i][18],
+                    row[i][19],
+                    row[i][20],
+                    row[i][21],
+                    row[i][22],
+                    row[i][23],
+                    row[i][24],
+                    row[i][25],
+                    row[i][26],
+                    row[i][27],
+                    row[i][28],
+                    row[i][29]
+                ]).draw();
+                sumatotal += parseFloat(row[i][4]);
+                sumasubtotal += parseFloat(row[i][5]);
+                $("#txt_sumatot").attr("placeholder", sumatotal.toFixed(2));
+                $("#txt_sumaSubtotal").attr("placeholder", sumasubtotal.toFixed(2));
+
+            }
+        });
+
+        $('#Btn_buscar1').click(function () {
+
+            sumatotal = 0;
+            sumasubtotal = 0;
+            table.clear().draw();
+            idconsult = $("#Txt_Ced2").val();
+//                  alert(idconsult);
+            buscar(idconsult, sel);
+            for (var i = 0; i <= row.length; i++) {
+                $("#dv_consulta").css('visibility', 'visible');
+                table.row.add([
+                    "<a id='Btn_VerDetalle' href='#' class='btn btn-primary btn-circle'><i class='fas fa-search-plus'></i>",
+                    row[i][0],
+                    row[i][1],
+                    row[i][2],
+                    row[i][3],
+                    row[i][4].toFixed(2),
+                    row[i][5],
+                    row[i][6],
+                    row[i][7],
+                    row[i][8],
+                    row[i][9],
+                    "<a id='Btn_recori' href='#' class='btn btn-primary btn-circle'><i class='fas fa-dollar-sign'></i>",
+                    row[i][10],
+                    row[i][11],
+                    row[i][12],
+                    row[i][13],
+                    row[i][14],
+                    row[i][15],
+                    row[i][16],
+                    row[i][17],
+                    row[i][18],
+                    row[i][19],
+                    row[i][20],
+                    row[i][21],
+                    row[i][22],
+                    row[i][23],
+                    row[i][24],
+                    row[i][25],
+                    row[i][26],
+                    row[i][27],
+                    row[i][28],
+                    row[i][29]
+                ]).draw();
+                sumatotal += parseFloat(row[i][4]);
+                sumasubtotal += parseFloat(row[i][5]);
+                $("#txt_sumatot").attr("placeholder", sumatotal);
+                $("#txt_sumaSubtotal").attr("placeholder", sumasubtotal);
+            }
+        });
+        $('#Btn_buscarNOm').click(function () {
+
+            table.clear().draw();
+            nombresvar = $("#Txt_BusqueNom").val();
+            // alert(idconsult);
+
+            DatosNombres(nombresvar);
+            for (var i = 0; i <= DataSetNombres.length; i++) {
+                $("#dv_consultaNom").css('visibility', 'visible');
+                tbl_nombres.row.add([
+                    "<a id='Btn_persona' href='#' class='btn btn-primary btn-circle'><i class='fas fa-user-check'></i>",
+                    DataSetNombres[i][0],
+                    DataSetNombres[i][1]
+
+                ]).draw();
+            }
+        });
+
+        $('#Tbl_ConsultaNombres tbody').on('click', 'a', function () {
+
+            if ($(this).attr('id') == "Btn_persona") {
+                var rowDataNombres = tbl_nombres.row($(this).parents('tr')).data();
+                //DatosNombres(rowDataNotif[0]);
+                //alert(rowDataNombres[1]);
+                sumatotal = 0;
+                sumasubtotal = 0;
+                $('#Form_Nombres').modal('hide');
+                tbl_nombres.clear();
+                $("#Txt_Ced1").attr("placeholder", rowDataNombres[1]);
+                idconsult = rowDataNombres[1];
+                buscar(idconsult, 1);
+                $("#dv_consulta").css('visibility', 'visible');
+                for (var i = 0; i <= row.length; i++) {
+
+                    table.row.add([
+                        "<a id='Btn_VerDetalle' href='#' class='btn btn-primary btn-circle'><i class='fas fa-search-plus'></i>",
+                        row[i][0],
+                        row[i][1],
+                        row[i][2],
+                        row[i][3],
+                        row[i][4].toFixed(2),
+                        row[i][5],
+                        row[i][6],
+                        row[i][7],
+                        row[i][8],
+                        row[i][9],
+                        "<a id='Btn_recori' href='#' class='btn btn-primary btn-circle'><i class='fas fa-dollar-sign'></i>",
+                        row[i][10],
+                        row[i][11],
+                        row[i][12],
+                        row[i][13],
+                        row[i][14],
+                        row[i][15],
+                        row[i][16],
+                        row[i][17],
+                        row[i][18],
+                        row[i][19],
+                        row[i][20],
+                        row[i][21],
+                        row[i][22],
+                        row[i][23],
+                        row[i][24],
+                        row[i][25],
+                        row[i][26],
+                        row[i][27],
+                        row[i][28],
+                        row[i][29]
+
+
+                    ]).draw();
+                    sumatotal += parseFloat(row[i][4]);
+                    sumasubtotal += parseFloat(row[i][5]);
+                    $("#txt_sumatot").attr("placeholder", sumatotal.toFixed(2));
+                    $("#txt_sumaSubtotal").attr("placeholder", sumasubtotal.toFixed(2));
+
+                }
+
+            }
+        });
+
+
+
+
+//detalle
+        $('#Tbl_Consulta tbody').on('click', 'a', function () {
+
+            if ($(this).attr('id') == "Btn_VerDetalle") {
+                var rowDataVerDetalle = table.row($(this).parents('tr')).data();
+
+                $('#Form_DetalleREg').modal('show');
+                $("#txt_nombreimpuesto").attr("value", rowDataVerDetalle[1]);
+                $("#Txt_clavecatastral").attr("placeholder", rowDataVerDetalle[3]);//clave catastral
+                $("#Txt_direccion").attr("value", rowDataVerDetalle[4]);
+                $("#Txt_fechaemi").attr("placeholder", rowDataVerDetalle[2]);//fecha emi
+                // $("#Txt_direccion").attr("placeholder", rowDataVerDetalle[4]);//nombres
+                $("#Txt_total").attr("placeholder", rowDataVerDetalle[5]);//total
+                $("#Txt_subtotal").attr("placeholder", rowDataVerDetalle[6]);//total
+                $("#Txt_nombress").attr("placeholder", rowDataVerDetalle[12]);//total
+                $("#Txt_procodigo").attr("placeholder", rowDataVerDetalle[13]);//total
+                $("#Txt_avaluopropie").attr("placeholder", rowDataVerDetalle[14]);//total
+                $("#Txt_medicina").attr("placeholder", rowDataVerDetalle[15]);//total
+                $("#Txt_educaci").attr("placeholder", rowDataVerDetalle[16]);//total
+                $("#Txt_magisterio").attr("placeholder", rowDataVerDetalle[17]);//total
+                $("#Txt_vivienda").attr("placeholder", rowDataVerDetalle[18]);//total
+                $("#Txt_bordillo").attr("placeholder", rowDataVerDetalle[19]);//total
+                $("#Txt_alcantarilla").attr("placeholder", rowDataVerDetalle[20]);//total
+                $("#Txt_global").attr("placeholder", rowDataVerDetalle[21]);//total
+                $("#Txt_principal").attr("placeholder", rowDataVerDetalle[22]);//total
+                $("#Txt_bomberos").attr("placeholder", rowDataVerDetalle[23]);//bomberos
+                $("#Txt_servadmins").attr("placeholder", rowDataVerDetalle[24]);//servicios administra
+                $("#Txt_solares").attr("placeholder", rowDataVerDetalle[25]);//total
+                $("#Txt_adoquin").attr("placeholder", rowDataVerDetalle[26]);//propiedad OK--- 26
+                $("#Txt_propiedad").attr("placeholder", rowDataVerDetalle[27]);//propiedad OK--- 27
+                $("#txt_numemision").attr("placeholder", rowDataVerDetalle[28]);//propiedad OK--- 28
+                $("#Txt_obra").attr("value", rowDataVerDetalle[29]);
+
+                var valor = $("#txt_nombreimpuesto").val();
+                if (valor == "CEM MEJORAS (M)") {
+                    $("#filadirecc").hide();
+                    $("#filaobra").show();
+                } else
+                {
+                    $("#filaobra").hide();
+                    $("#filadirecc").show();
+                }
+            }
+        });
+
+
+    } catch (e) {
+        alert("error" + e);
+    }
+});
+
+
+
+
+function buscar(id, tip) {
+    var ex = 0;
+    try {
+        var idcons = id;
+        var Tipo_cons = tip;
+        var ind_form = $("#Frm_Consulta").valid();
+        if (ind_form) {
+
+            var parametros = {
+                "id": idcons,
+                "tip_con": Tipo_cons
+            }
+
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                async: false,
+                cache: false,
+                url: "http://172.23.0.3/Virtual/logica/ConsultaImpuesto.php",
+                data: parametros,
+                success: function (response) {
+                    if (JSON.parse(response.ind)) {
+                        ex = response.ind;
+                        row = response.row;
+
+                    } else {
+                        ex = response.ind;
+                        error = response.message;
+                        query1 = response.query1;
+                    }
+                },
+                error: function (xhr, textStatus, errorMessage) {
+                    alert("¡Error (ajax)!" + errorMessage + textStatus + xhr);
+                }
+            });
+
+
+
+//                     alert(row);
+        }
+    } catch (e) {
+        alert("error" + e);
+    }
+
+
+}
+
+
+
+
+function DatosNombres(id) {
+
+    var ex = 0;
+    try {
+        var idcons = id;
+        var parametros = {
+            "id": idcons
+        }
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            async: false,
+            cache: false,
+            url: "http://172.23.5.5/Virtual/logica/BuscaPersona.php",
+            data: parametros,
+            success: function (response) {
+                if (JSON.parse(response.ind)) {
+                    ex = response.ind;
+                    DataSetNombres = response.row;
+
+
+                } else {
+                    ex = response.ind;
+                    error = response.message;
+                    query1 = response.query1;
+                }
+            },
+            error: function (xhr, textStatus, errorMessage) {
+                alert("¡Error (ajax)!" + errorMessage + textStatus + xhr);
+            }
+        });
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+
+
+    } catch (e) {
+        alert("error" + e);
+    }
+
+}

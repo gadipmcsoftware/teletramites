@@ -1,0 +1,198 @@
+<?php
+$consulta = array();
+//ESTABLECE CONEXION
+	 include './Conexion.php';
+         $link =  conectarse();
+$ANIO  = $_REQUEST["anio"];
+$TIP_IMPUE  = $_REQUEST["tip_impue"];
+$MENSANJE='';
+//PARAMETROS SP
+$params = array(     
+                 $ANIO,
+                 $TIP_IMPUE,
+                ); 
+
+if( $TIP_IMPUE == 1) {
+    $MENSANJE='URBANO';
+}
+if( $TIP_IMPUE == 2) {
+    $MENSANJE='RURAL';
+}
+if (PHP_SAPI == 'cli')
+	die('Este programa sólo se puede ejecutar desde un navegador Web');
+/** Incluye PHPExcel */
+    require_once '../Classes/PHPExcel.php';
+// Crear nuevo objeto PHPExcel
+$objPHPExcel = new PHPExcel();
+// Propiedades del documento
+$objPHPExcel->getProperties()->setCreator("Oscar Parraga")
+							 ->setLastModifiedBy("Oscar Parraga")
+							 ->setTitle("Office 2010 XLSX Simulacion de Impuesto Predial")
+							 ->setSubject("Office 2010 XLSX Simulacion de Impuesto Predial")
+							 ->setDescription("Documento de prueba para Office 2010 XLSX, generado usando clases de PHP.")
+							 ->setKeywords("office 2010 openxml php")
+							 ->setCategory("Archivo de Simulacion");
+ // Combino las celdas desde A1 hasta O1
+$objPHPExcel->setActiveSheetIndex(0)->mergeCells('A1:Q1');
+$objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue('A1', 'REPORTE DE SIMULACION IMPUESTO '.$MENSANJE)
+            ->setCellValue('A2', 'CLAVE CATASTRAL')
+            ->setCellValue('B2', 'IDENTIFICACION')
+            ->setCellValue('C2', 'NOMBRE')
+            ->setCellValue('D2', 'APELLIDO')
+            ->setCellValue('E2', 'DIRECCION')
+            ->setCellValue('F2', 'PARROQUIA')
+            ->setCellValue('G2', 'DOMINIO')
+            ->setCellValue('H2', 'AVALUO')
+            ->setCellValue('I2', 'PATRIMONIO')
+            ->setCellValue('J2', 'BASE IMPONIBLE')
+            ->setCellValue('K2', 'EDIFICADO')
+            ->setCellValue('L2', 'VALOR_SOLAR')
+            ->setCellValue('M2', 'EXONERACION')
+            ->setCellValue('N2', 'TERCERA EDAD')
+            ->setCellValue('O2', 'DISCAPACIDAD')
+            ->setCellValue('P2', 'BOMBEROS')
+            ->setCellValue('Q2', 'VALOR IMPUESTO')
+            ->setCellValue('R2', 'SRV.ADMIN')
+            ->setCellValue('S2', 'TOTAL A PAGAR');
+// Fuente de la primera fila en negrita
+$boldArray = array('font' => array('bold' => true,),'alignment' => array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER));
+$objPHPExcel->getActiveSheet()->getStyle('A1:S2')->applyFromArray($boldArray);
+
+//Ancho de las columnas
+$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(30);	
+$objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(30);	
+$objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth(25);	
+$objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth(100);	
+$objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth(100);
+$objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(100);
+$objPHPExcel->getActiveSheet()->getColumnDimension('G')->setWidth(50);
+$objPHPExcel->getActiveSheet()->getColumnDimension('H')->setWidth(30);
+$objPHPExcel->getActiveSheet()->getColumnDimension('I')->setWidth(25);
+$objPHPExcel->getActiveSheet()->getColumnDimension('J')->setWidth(25);
+$objPHPExcel->getActiveSheet()->getColumnDimension('K')->setWidth(25);
+$objPHPExcel->getActiveSheet()->getColumnDimension('L')->setWidth(25);
+$objPHPExcel->getActiveSheet()->getColumnDimension('M')->setWidth(25);
+$objPHPExcel->getActiveSheet()->getColumnDimension('N')->setWidth(25);
+$objPHPExcel->getActiveSheet()->getColumnDimension('O')->setWidth(25);
+$objPHPExcel->getActiveSheet()->getColumnDimension('P')->setWidth(25);
+$objPHPExcel->getActiveSheet()->getColumnDimension('Q')->setWidth(25);
+$objPHPExcel->getActiveSheet()->getColumnDimension('R')->setWidth(25);
+$objPHPExcel->getActiveSheet()->getColumnDimension('S')->setWidth(25);
+////LLAMA STORE PROCEDURE
+$query1 = "{call SP_SIMUDATOS(?,?)}";
+$result1=sqlsrv_query($link,$query1,$params);
+if( $result1 === false) {
+    if( ($errors = sqlsrv_errors() ) != null)  
+            {  
+               foreach( $errors as $error)  
+               {  
+                   $json_data["SQLSTATE"] =$error['SQLSTATE'];
+                   $json_data["code"] =$error['code'];
+                   $json_data["message"] =$error['message'];
+               }  
+            }  
+          $json_data["ind"] = false;
+          echo json_encode($json_data);
+   
+//    die( print_r( sqlsrv_errors(), true) );
+}
+else{
+  
+$cel=3;
+while ( $row = sqlsrv_fetch_array( $result1, SQLSRV_FETCH_ASSOC))
+{  
+    $clavecatastral=$row['CLAVE_GLOBA'];
+    $cedula=$row['CEDULA_PRO'];
+    $Nombre=$row['nombre'];
+    $Apellido=$row['apellido'];
+    $Direccion=$row['direccion'];
+    $Parroquia=$row['parroquia'];
+    $Dominio=$row['CAT_NOMBRE'];
+    $valorpropiedad=$row['VALOR_PROPIEDAD'];
+    $patrimonio=$row['PATRI'];
+    $baseimponible=$row['BASE_IMPONIBLE'];
+    $edificado=$row['EDIFICADO'];
+    $valsol=$row['VALOR_SOLAR'];
+    $exoneracion=$row['EXONERADO'];
+    $terceraedad=$row['TERCERA_EDAD'];
+    $discapacidad=$row['DISCAPACIDAD'];
+    $bomberos=$row['VAL_BOMBE'];
+    $impuesto=$row['VAL_IMP'];
+    $Srv_admin=$row['SRV_ADM'];
+    $totalpagar=$row['TOTAL_PAGAR'];
+    $a="A".$cel;
+    $b="B".$cel;
+    $c="C".$cel;
+    $d="D".$cel;
+    $e="E".$cel;
+    $f="F".$cel;
+    $g="G".$cel;
+    $h="H".$cel;
+    $i="I".$cel;
+    $j="J".$cel;
+    $k="K".$cel;
+    $l="L".$cel;
+    $m="M".$cel;
+    $n="N".$cel;
+    $o="O".$cel;
+    $p="P".$cel;
+    $q="Q".$cel;
+    $r="R".$cel;
+    $s="S".$cel;
+    $objPHPExcel->setActiveSheetIndex(0)
+    ->setCellValue($a, $clavecatastral)
+    ->setCellValue($b, $cedula)
+    ->setCellValue($c, $Nombre)
+    ->setCellValue($d, $Apellido)
+    ->setCellValue($e, $Direccion)
+    ->setCellValue($f, $Parroquia)
+    ->setCellValue($g, $Dominio)
+    ->setCellValue($h, $valorpropiedad)
+    ->setCellValue($i, $patrimonio)
+    ->setCellValue($j, $baseimponible)
+    ->setCellValue($k, $edificado)
+    ->setCellValue($l, $valsol)
+    ->setCellValue($m, $exoneracion)
+    ->setCellValue($n, $terceraedad)
+    ->setCellValue($o, $discapacidad)
+    ->setCellValue($p, $bomberos)
+    ->setCellValue($q,$impuesto)
+    ->setCellValue($r,$Srv_admin)        
+    ->setCellValue($s," ".$totalpagar);
+    
+//    ->setCellValue($o,$totalpagar);
+    $cel+=1;
+}
+$rango="A2:$s";
+$styleArray = array('font' => array( 'name' => 'Arial','size' => 10),
+'borders'=>array('allborders'=>array('style'=> PHPExcel_Style_Border::BORDER_THIN,'color'=>array('argb' => 'FFF')))
+ );
+$objPHPExcel->getActiveSheet()->getStyle($rango)->applyFromArray($styleArray);
+// Cambiar el nombre de hoja de cálculo
+$objPHPExcel->getActiveSheet()->setTitle('REPORTE PREDIAL '.$MENSANJE);
+// Establecer índice de hoja activa a la primera hoja , por lo que Excel abre esto como la primera hoja
+$objPHPExcel->setActiveSheetIndex(0);
+// Redirigir la salida al navegador web de un cliente ( Excel5 )
+header('Content-Type: application/vnd.ms-excel');
+header('Content-Disposition: attachment;filename="reporte.xls"');
+header('Cache-Control: max-age=0');
+// Si usted está sirviendo a IE 9 , a continuación, puede ser necesaria la siguiente
+header('Cache-Control: max-age=1');
+// Redirigir la salida al navegador web de un cliente ( Excel5 )
+header('Content-Type: application/vnd.ms-excel');
+header('Content-Disposition: attachment;filename="reporte.xls"');
+header('Cache-Control: max-age=0');
+// Si usted está sirviendo a IE 9 , a continuación, puede ser necesaria la siguiente
+header('Cache-Control: max-age=1');
+// Si usted está sirviendo a IE a través de SSL , a continuación, puede ser necesaria la siguiente
+header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+header ('Pragma: public'); // HTTP/1.0
+$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+$objWriter->save('php://output');
+ 
+exit;
+}
+?>

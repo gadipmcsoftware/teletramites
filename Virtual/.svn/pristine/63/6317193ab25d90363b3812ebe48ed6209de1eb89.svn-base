@@ -1,0 +1,2421 @@
+var tbl_propie;
+var tbl_profe;
+var Data_SetPropie;
+var Data_SetProfe;
+var Data_SetTipTra;
+var Data_SetSubTra;
+var Data_SetPredio;
+var Data_SetEstado;
+var Data_SetAreas;
+var Data_SetRequisito;
+var rowDataPropie=[];
+var rowDataArchivo=[];
+var Data_SetTipTraPadre;
+var rowPerfiles;
+var rowProvincias;
+var rowCantones;
+var rowParroquias;
+var rowPersoneria;
+var rowProfe;
+var DataSetArchivo=new Array();
+var Data_Seterror;
+var clave;
+var fecha;
+var DataSetArchivos=[];
+var tbl_bandasu;
+var tbl_accion;
+var ex;
+var Archivos;
+var valiArchivos;
+var DataSetFuncionarios;
+var siezeMegaByte;
+var dir_ip;
+var rowAcciones_re=[];
+var rowResultadoAc=[];
+$(document).ready(function() {
+    
+    try {
+
+     $('#Tbl_Propie tbody').on( 'dblclick', 'tr', function () {
+        rowDataPropie = tbl_propie.row( this ).data();
+         $("#prodId").val(rowDataPropie[0]);
+         $("#Txt_identicacionCiu").val(rowDataPropie[1]);
+         $("#Txt_NombreCiu").val(rowDataPropie[2]);
+         $("#Txt_TelefonoCiu").val(rowDataPropie[3]);
+         $("#Txt_emailCui").val(rowDataPropie[4]);
+         $("#Txt_Direc").val('');
+         $("#Txt_TipPre").val('');
+//         limpiarCombos("Cmb_Predio");
+//        $("#Cmb_Predio").empty;
+         $('#Cmb_Predio').children('option:not(:first)').remove();
+         DatosPredio(rowDataPropie[0]);
+//         Cargar_Predios();
+         
+//           $("#Form_BusPro .close").click();
+//        $("#Form_BusPro").modal('hide');//ocultamos el modal
+//        $('body').removeClass('modal-open');//eliminamos la clase del body para poder hacer scroll
+//        $('.modal-backdrop').remove();//eliminamos el backdrop del modal
+
+     }); 
+      
+     $('#Tbl_Profe tbody').on( 'dblclick', 'tr', function () {
+        rowDataProfe = tbl_profe.row( this ).data();
+         $("#Txt_identicacionProfe").val(rowDataProfe[0]);
+         $("#Txt_NombreProfe").val(rowDataProfe[1]);
+         $("#Txt_TelefonoProfe").val(rowDataProfe[2]);
+         $("#Txt_emailProfe").val(rowDataProfe[3]);
+         $("#enviasn").val(rowDataProfe[5]);
+//           $("#Form_BusPro .close").click();
+//        $("#Form_BusPro").modal('hide');//ocultamos el modal
+//        $('body').removeClass('modal-open');//eliminamos la clase del body para poder hacer scroll
+//        $('.modal-backdrop').remove();//eliminamos el backdrop del modal
+
+     }); 
+      $('#Btn_GuaPro').click(function() { 
+            var notifi=false;
+            var identificacion = $("#Txt_IngCed").val();
+            var nombres = $("#Txt_IngNom").val();
+            var direccion = $("#Txt_IngDir").val();
+            var telefono = $("#Txt_IngTel").val();
+            var email = $("#Txt_IngEmail").val();
+            var notifi = $("#Chk_Noti").val();
+          if ($('#Chk_Noti').is(":checked"))
+            {
+                    notifi=true;
+            }
+            else
+            {
+                 notifi=false;
+            }
+            var chek=true;
+            if(identificacion==''){
+                
+                chek=false;
+            }
+             if(nombres==''){
+                
+                chek=false;
+            }
+            if(direccion==''){
+                
+                chek=false;
+            }
+            var cam_clave=true;
+            clave=randomico();
+           
+            if(email==''){
+                
+                 bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-warning btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "No se encontro la direccion de correo electronico por favor informe al profesional su clave de acceso la clave es: "+clave,
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            });
+            }
+            else{
+                EnviarEmail(email,'Clave de Ingreso A Plataforma de Teletramites','Estimad(o) :'+nombres+' \n\
+Se a registrado sus datos en la plataforma virtual de Teletramites\n\
+para ingresar a la plataforma debe hacerlo a la direccion electronica : http://impuestos.gadipmc.gob.ec/Virtual/Login.php\n\
+su Usuario es su cedula de Identidad  \n\
+su clave es: '+clave+' \n\
+Recuerde que en esta plataforma puede dar seguimiento a sus tramites Municipales.');
+            }
+           
+          if(chek){
+                    var valid_profe=1;
+                    var tit_profe="";
+                    var cui_domi="";
+                    var snsit = "";
+                    GuardarPropie(identificacion,nombres,direccion,telefono,email,notifi,cam_clave,clave,tit_profe,cui_domi,valid_profe,snsit);
+                     Profesionales(1);
+                     tbl_profe.clear();
+                     tbl_profe.rows.add(Data_SetProfe);
+                     tbl_profe.draw();
+           }
+           else{
+                bootbox.alert("Debe LLenar campos Obligatorios");
+           }
+//          bootbox.alert("Pasooo");
+      });
+    
+$('#Btn_GuaProExt').click(function() {
+            var valid_profe=0;
+            var index_usr = document.getElementById("Cmb_TipUsr");
+            var indice_usr=parseInt(index_usr.selectedIndex)-1;
+            var DataSetPerfil=JSON.parse(sessionStorage.getItem('Perfiles'));
+            var es_contri=parseInt(sessionStorage.getItem('Cod_ust'));
+            var pro_codigo=parseInt(sessionStorage.getItem('pro_codigo'));
+            var notifi=false;
+            var acept=false;
+            var identificacion = $("#Txt_IngCed").val();
+            var nombres = $("#Txt_IngNom").val();
+            var apellidos=$("#Txt_IngApelli").val();
+            var direccion = $("#Txt_IngDir").val();
+            var telefono =$("#Txt_IngTel").val();
+            var email = $("#Txt_IngEmail").val();
+            var notifi = $("#Chk_Noti").val();
+            var titulo = $("#Txt_tit").val();
+            var combo = document.getElementById("Cmb_Canton");
+            var selected = combo.options[combo.selectedIndex].text;
+            var cuidad = selected;
+            var snsit = $("#Txt_snsit").val();
+            var cod_perfil = $("#Cmb_TipUsr").val();
+            var cre_pro=DataSetPerfil[indice_usr][7];
+            var cod_provincia=$("#Cmb_Provi").val();
+            var cod_canton=$("#Cmb_Canton").val();
+            var cod_parroquia=$("#Cmb_Parro").val();
+            var personeria=$("#Cmb_Personeria").val();
+            var fecha_nac=$("#fech_nac").val();
+          if ($('#Chk_Noti').is(":checked"))
+            {
+                    notifi=true;
+            }
+            else
+            {
+                 notifi=false;
+            }
+            if ($('#Chk_Decla').is(":checked"))
+            {
+                        acept=true;
+            }
+            else
+            {
+                    acept=false;
+            }
+            var chek=true;
+            if(identificacion==''){
+                
+                chek=false;
+            }
+             if(nombres==''){
+                
+                chek=false;
+            }
+            if(direccion==''){
+                
+                chek=false;
+            }
+            var cam_clave=true;
+            clave=randomico();
+           
+            if(email==''){
+                chek=false;
+                alert("Se debe proporcionar un correo electrónico para poder notificar la clave a su correo electrónico ");
+//                 bootbox.dialog({
+//                                                                title: '<a href="#" class="btn btn-warning btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+//                                                                message: "Se debe proporcionar un correo electrónico para poder notificar la clave a su correo electrónico ",
+//                                                                onEscape: function() {
+////                                                                
+//                                                                }
+//                                                            });
+            }
+           if(cod_perfil=='Seleccione una Opción')
+                    {
+                       chek=false;
+                       alert("Debe Seleccionar un Tipo de Usuario");
+
+                    }
+            if(cod_provincia=='Seleccione una Opción')
+                    {
+                       chek=false;
+                       alert("Debe Seleccionar una Provincia");
+
+                    }
+            if(cod_canton=='Seleccione una Opción')
+                    {
+                       chek=false;
+                       alert("Debe Seleccionar un Canton");
+
+                    }
+            if(cod_parroquia=='Seleccione una Opción')
+                    {
+                       chek=false;
+                       alert("Debe Seleccionar una Parroquia");
+
+                    }
+            if(personeria=='Seleccione una Opción')
+                    {
+                       chek=false;
+                       alert("Debe Seleccionar la Personeria");
+
+                    }
+                 
+           if (DataSetPerfil[indice_usr][4]==1&&titulo==''){
+                    chek=false;
+            }
+            if (DataSetPerfil[indice_usr][5]==1&&snsit==''){
+                    chek=false;
+            }
+          if(chek){
+                   
+                     var UsrExt=parseInt(sessionStorage.getItem('Usr_Ext'));
+                    if(isNaN(UsrExt)){
+                                 TraerIP();
+                                 if(isNaN(pro_codigo)){
+                                     pro_codigo='0';
+                                 }
+                                 
+                                 if (DataSetPerfil[indice_usr][5]==1){
+//                                     alert(identificacion+","+nombres+","+apellidos+","+direccion+","+telefono+","+email+","+notifi+","+cam_clave+","+clave+","+titulo+","+cuidad+","+valid_profe+","+snsit+","+cod_perfil+","+es_contri+","+pro_codigo+","+dir_ip+","+cre_pro+","+cod_provincia+","+cod_canton+","+cod_parroquia+","+personeria+","+acept);
+                                        var valid_profe=0;
+                                        GuardarPropie(identificacion,nombres,apellidos,direccion,telefono,email,notifi,cam_clave,clave,titulo,cuidad,valid_profe,snsit,cod_perfil,es_contri,pro_codigo,dir_ip,cre_pro,cod_provincia,cod_canton,cod_parroquia,personeria,acept,fecha_nac);
+                                        window.location.href = "http://172.23.5.5/Virtual/Login.php";
+                                }
+                                else{
+                                     var valid_profe=1;
+                                     GuardarPropie(identificacion,nombres,apellidos,direccion,telefono,email,notifi,cam_clave,clave,titulo,cuidad,valid_profe,snsit,cod_perfil,es_contri,pro_codigo,dir_ip,cre_pro,cod_provincia,cod_canton,cod_parroquia,personeria,acept,fecha_nac);
+                                     if(Data_Seterror.length==0){                                        
+                                         EnviarEmail(email,'Clave de Ingreso A Plataforma de Teletramites','Estimad(o) :'+nombres+" "+apellidos+' \n\
+Se a registrado sus datos en la plataforma virtual de Teletramites\n\
+para ingresar a la plataforma debe hacerlo a la direccion electronica : http://impuestos.gadipmc.gob.ec/Virtual/Login.php\n\
+su Usuario es su cedula de Identidad  \n\
+su clave es: '+clave+' \n\
+Recuerde que en esta plataforma puede dar seguimiento a sus tramites Municipales.');
+                                    window.location.href = "http://172.23.5.5/Virtual/Login.php";
+                                   }
+
+                                }
+
+                    }
+                    else{
+                             if(UsrExt==0){
+                                    var valid_profe=1;
+                                    TraerIP();
+                                    if(isNaN(pro_codigo)){
+                                        pro_codigo='0';
+                                    }
+                                    GuardarPropie(identificacion,nombres,apellidos,direccion,telefono,email,notifi,cam_clave,clave,titulo,cuidad,valid_profe,snsit,cod_perfil,es_contri,pro_codigo,dir_ip,cre_pro,cod_provincia,cod_canton,cod_parroquia,personeria,acept);
+                                         EnviarEmail(email,'Clave de Ingreso A Plataforma de Teletramites','Estimad(o) :'+nombres+" "+apellidos+' \n\
+Se a registrado sus datos en la plataforma virtual de Teletramites\n\
+para ingresar a la plataforma debe hacerlo a la direccion electronica : http://impuestos.gadipmc.gob.ec/Virtual/Login.php\n\
+su Usuario es su cedula de Identidad  \n\
+su clave es: '+clave+' \n\
+Recuerde que en esta plataforma puede dar seguimiento a sus tramites Municipales.');
+                                    window.location.href = "http://172.23.5.5/Virtual/register.php";
+                             }          
+                    }
+                             
+           }
+           else{
+                bootbox.alert("Debe LLenar campos Obligatorios");
+           }
+           
+            
+      });
+      $('#Btn_Cargar').on('click', function (e){
+            e.preventDefault();
+            var val=ValidarAdj();
+//          var ex;
+            if (val){
+                        bootbox.dialog({ message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Transfiriendo Datos Espere Por Favor...</div>' });
+                          var paqueteDeDatos = new FormData();
+                            try{
+                                paqueteDeDatos.append('archivo', $('#Txt_arcgos')[0].files[0]);
+                                 $.ajax({
+
+                                                                url: "http://172.23.5.5/Virtual/logica/Subir.php",
+                                                                type: 'POST', // Siempre que se envíen ficheros, por POST, no por GET.
+                                                                contentType: false,
+                                                                data: paqueteDeDatos, // Al atributo data se le asigna el objeto FormData.
+                                                                processData: false,
+                                                                cache: false, 
+                                                                success: function(response){ // En caso de que todo salga
+                                                                        ex=response;
+                                                                       bootbox.hideAll();
+                                                                        bootbox.dialog({
+                                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                                title: "Archivo Subido Correctamente",
+                                                                                onEscape: function() {
+                                                                                
+                                                                                }
+                                                                            });
+                                                                             var f = new Date();
+                                                                             fecha=f.getDate() + "/" + (f.getMonth() +1) + "/" + f.getFullYear();
+                                                                            var NomArch = $("#Txt_IngNomAdj").val();
+                                                                            var DescArch = $("#Txt_IngDesc").val();
+                                                                            var Arch = $("#Txt_archivo").val();
+                                                                            LimpiarAdj();
+                                                                            tbl_bandasu.row.add([
+                                                                                NomArch.toString(),
+                                                                                DescArch.toString(),
+                                                                                fecha.toString(),
+                                                                                 Arch.toString(),
+                                                                                "<a id='Btn_eli' href='#' class='btn btn-danger btn-circle'><i class='fas fa-window-close'></i>\n\
+                                                                                <a id='Btn_descar' href='#' class='btn btn-success btn-circle'><i class='fas fa-download'></i>"
+
+                                                                                ]).draw();
+                                                                               var tableEnumerable = tbl_bandasu.AsEnumerable();
+                                                                               var tableArray = tableEnumerable.ToArray();
+                                                                               alert(tableArray);
+                                                                },
+                                                                error: function(xhr, textStatus, errorMessage) {
+                                                                               bootbox.hideAll();
+                                                                                bootbox.dialog({
+                                                                                title: '<a href="#" class="btn btn-danger btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                                message: "Erro! "+errorMessage + textStatus + xhr,
+                                                                                onEscape: function() {
+
+                                                                                }
+                                                                            });
+                //                                                                alert("¡Error (ajax)! "+" "+errorMessage + textStatus + xhr);
+
+
+                                                                            }
+                                                        });
+
+
+
+
+                            }
+                            catch (exception) {
+                                 alert(exception);
+                            }
+
+          }
+
+      });
+      $('#TBL_BANDASU tbody').on( 'click', 'a', function () {
+               
+                       if($(this).attr('id')=="Btn_eli"){
+                          rowDataArchivo = tbl_bandasu.row( $(this).parents('tr') ).data();                        
+                                   EliminarArchivo(rowDataArchivo[3]);
+                                                       tbl_bandasu
+                                                                .row( $(this).parents('tr') )
+                                                                .remove()
+                                                                .draw();
+                                  
+                                
+                                
+                       }
+                        if($(this).attr('id')=="Btn_descar"){
+                             rowDataArchivo = tbl_bandasu.row( $(this).parents('tr') ).data();
+                              window.location.href ="http://172.23.5.5/Virtual/logica/descarga.php?file="+rowDataArchivo[3];
+                       }
+        });
+         $('#Btn_enviar').on('click', function (e){
+             var rowArchivo=new Array ();
+             for(var i=0; i<=tbl_bandasu.rows().count(); i++){   
+                      rowArchivo = tbl_bandasu.row(i).data();
+                    DataSetArchivos[i] = rowArchivo;
+                    
+             }
+          sessionStorage.setItem('Archivos',JSON.stringify(DataSetArchivos));
+            
+            
+         });
+         $('#Btn_agrega').on('click',function(){
+             var UsrExt=parseInt(sessionStorage.getItem('Usr_Ext'));
+             var personeria=sessionStorage.getItem('PERSONERIA');
+             var DataSetTipTra=JSON.parse(sessionStorage.getItem('Tip_tramites'));
+             var index = document.getElementById("cmb_TipTramite");
+             var indice=parseInt(index.selectedIndex)-1;
+             if(DataSetTipTra[indice][8]==0){
+                 var Cod_tip_tra=parseInt($("#cmb_TipTramite").val());
+             }
+             else{
+                 var Cod_tip_tra=parseInt($("#cmb_SubTramite").val());
+             }
+             Requisitos(Cod_tip_tra,personeria);
+//             alert(personeria);
+            
+             if(UsrExt==1&&Data_SetRequisito.length>0&&tbl_bandasu.rows().count()==0){
+                 sessionStorage.setItem('Requisitos',JSON.stringify(Data_SetRequisito));
+                 
+                 $('#Modal_body').load('http://172.23.5.5/Virtual/wizar.php',function(){
+                    
+                });
+               $('#WRequi').modal('show');
+             }
+             else{
+                 $('#Form_Adjun').modal('show');
+             }
+                
+        });
+        $('#opt_rectra').on('click', function (e){  
+             sessionStorage.setItem('Accion',1);
+        });
+        $('#opt_soltra').on('click', function (e){  
+             sessionStorage.setItem('Accion',1);
+        });
+           $('#Btn_Reacc').on('click', function (e){
+             var NumTram  = $("#Txt_Tramite").val();
+             var Usr=$("#Cmb_reacc").val();
+             var clave_catastral=$("#Cmb_Predio").val();
+             var DataSetTramite=JSON.parse(sessionStorage.getItem('Tramites'));
+             if ($("#Txt_detalle").val()==''){
+                  var Obse_Tramite  = DataSetTramite[0][17];
+             }
+             else{
+                 var Obse_Tramite  = $("#Txt_detalle").val();
+             }
+             var num_notifi=parseInt(JSON.parse(sessionStorage.getItem('Notificacion')));
+//             alert(NumTram+","+Usr+","+clave_catastral+","+Obse_Tramite+","+num_notifi);
+            if(DataSetTramite[0][24]!=null){
+                var sub_tram=0;
+            }
+            else{
+                var sub_tram=$("#cmb_SubTramite").val();
+                if(sub_tram=='Seleccione una Opción')
+                    {
+                              sub_tram=0;                                                                                          
+                    }
+            }
+            var validaFunci=$("#Cmb_reacc").val();
+            if(validaFunci=='Seleccione una Opción')
+            {
+                      alert("Debe Seleccionar Un Funcionario Para Reasignar el Tramite"); 
+                      var vali=false;                                                                                             
+            }
+            else{
+                        
+                         var vali=Reasignar(NumTram,Usr,clave_catastral,Obse_Tramite,num_notifi,sub_tram);
+                         if(vali){
+                                            bootbox.dialog({
+                                                                                           message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                                           title: "Registro Guardado Correctamente",
+                                                                                           onEscape: function() {
+                           //                                                                
+                                                                                           }
+                                                                                       });
+                                        }
+                        else{
+                                             bootbox.dialog({
+                                                                                           title: '<a href="#" class="btn btn-danger btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                                           message: "Erro al Reasignar a Usuario ",
+                                                                                           onEscape: function() {
+
+                                                                                           }
+                                                                                       });
+                            }
+                            sessionStorage.setItem('Accion',1);
+                            window.location.href ="http://172.23.5.5/Virtual/index.php";
+                }
+             
+            
+         });
+         $('#Btn_Info').on('click', function (e){
+            Cargar_aviso();
+         });
+         $('#TBL_ACCION tbody').on( 'click', 'div', function () {
+             var rowDataAccion = tbl_accion.row( $(this).parents('tr') ).data();
+             if($(this).attr('id')=="chck_valida"){
+                  var check=document.getElementById('chck_accion_'+rowDataAccion[8]);
+                  if (check.checked){
+                      document.getElementById("chck_accion_"+rowDataAccion[8]).checked = true;
+                  }
+                  else{
+                       document.getElementById("chck_accion_"+rowDataAccion[8]).checked = false;
+                  }
+             }
+             if($(this).attr('id')=="Btn_accion"){
+                 if(rowDataAccion[3]==null){
+                     sessionStorage.setItem('cod_pro',$("#Txt_identicacionCiu").val());
+                     $(rowDataAccion[6]).load(rowDataAccion[4],function(){});
+                     $(rowDataAccion[5]).modal('show');
+                      sessionStorage.setItem('tit_accion',rowDataAccion[7]);
+                      sessionStorage.setItem('cod_accion',rowDataAccion[8]);
+                 }
+                 else{
+                     EjecutaAcciones(rowDataAccion[3],$("#Txt_identicacionCiu").val());
+                      $('#descacc_'+rowDataAccion[8]).text(rowResultadoAc[0][1]);
+//                    alert(rowResultadoAc[0][0]);                     
+                    if(rowResultadoAc[0][0]==1){
+                         document.getElementById("chck_accion_"+rowDataAccion[8]).checked = true;
+                     }
+                     else{
+                         document.getElementById("chck_accion_"+rowDataAccion[8]).checked = false;
+                     }
+                 }
+             }
+             
+            
+         });
+    
+    } catch (e) {
+        alert("error"+e);
+    }
+});
+function Cargar(){
+  try{
+     
+    tbl_bandasu = $('#TBL_BANDASU').DataTable({
+                                                        language: {
+                                                            "decimal": "",
+                                                            "emptyTable": "No hay información",
+                                                            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                                                            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                                                            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                                                            "infoPostFix": "",
+                                                            "thousands": ",",
+                                                            "lengthMenu": "Mostrar _MENU_ Entradas",
+                                                            "loadingRecords": "Cargando...",
+                                                            "processing": "Procesando...",
+                                                            "search": "Buscar:",
+                                                            "zeroRecords": "Sin resultados encontrados",
+                                                            "paginate": {
+                                                                "first": "Primero",
+                                                                "last": "Ultimo",
+                                                                "next": "Siguiente",
+                                                                "previous": "Anterior"
+                                                            }
+                                                        }
+
+
+                                                    });
+ tbl_accion = $('#TBL_ACCION').DataTable({
+                                                                         language: {
+                                                                         "decimal": "",
+                                                                         "emptyTable": "No Tiene Acciones a Realizar",
+                                                                         "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                                                                         "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                                                                         "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                                                                         "infoPostFix": "",
+                                                                         "thousands": ",",
+                                                                         "lengthMenu": "Mostrar _MENU_ Entradas",
+                                                                         "loadingRecords": "Cargando...",
+                                                                         "processing": "Procesando...",
+                                                                         "search": "Buscar:",
+                                                                         "zeroRecords": "Sin resultados encontrados",
+                                                                         "paginate": {
+                                                                             "first": "Primero",
+                                                                             "last": "Ultimo",
+                                                                             "next": "Siguiente",
+                                                                             "previous": "Anterior"
+                                                                         }
+                                                                     },
+                                                                     "columnDefs": [
+                                                                                     {
+                                                                                         "targets": [ 3,4,5,6,7,8],
+                                                                                         "visible": false,
+                                                                                         "searchable": false
+                                                                                     }
+            
+                                                                                  ]
+                                                                     
+                                                                 });
+var UsrExt=parseInt(sessionStorage.getItem('Usr_Ext'));
+var Accion=parseInt(sessionStorage.getItem('Accion'));
+try{
+    var DataSetNotifi=JSON.parse(sessionStorage.getItem('Notificaciones'));
+       if(DataSetNotifi.length>0)
+       {
+            for(var i=0; i<DataSetNotifi.length; i++){
+                  $("#Frm_alertCenter").append("<a class='dropdown-item d-flex align-items-center' href='#'>\n\
+                                                   <div class='mr-3'>\n\
+                                                       <div class='icon-circle bg-primary'>\n\
+                                                           <i class='fas fa-file-alt text-white'></i>\n\
+                                                       </div>\n\
+                                                   </div>\n\
+                                                   <div><div class='small text-gray-500'>\n\
+                                                       <span>"+DataSetNotifi[i][6]+"</span>\n\
+                                                   </div>\n\
+                                                   <span class='font-weight-bold'>"+DataSetNotifi[i][5]+" Tramite: "+DataSetNotifi[i][0]+"</span>\n\
+                                                   </div></a>");
+            }
+            $("#Num_Noti").append(DataSetNotifi[0][8]+"+");
+       }
+}
+catch (e) {
+      
+}
+
+//    alert(Accion);
+if(isNaN(UsrExt)){
+      window.location.href = "http://172.23.5.5/Virtual/error.php";
+}
+else{
+        Cargar_Estados();
+        var area=$("#area").val();
+        Cargar_Tramites(UsrExt,area,Accion);
+        if (area!=0) {
+                TraerAreas(area);
+             $('.bg-gradient-primary').removeClass("bg-gradient-primary").addClass(Data_SetAreas[0][2]);
+             $('.fa-mobile-alt').removeClass("fa-mobile-alt").addClass(Data_SetAreas[0][4]);
+             document.getElementById("div_tit").innerHTML = Data_SetAreas[0][3];
+        }
+        if(UsrExt==0){ 
+            $("#opt_configuracion").css('visibility', 'visible');
+            $("#opt_rectra").css('visibility', 'visible');
+            $("#opt_soltra").css('visibility', 'hidden');
+            var validapro=parseInt(sessionStorage.getItem('PER_VALIDA'));
+                if (validapro==1) {
+                     $("#optval_profe").css('visibility', 'visible');
+                }
+                    if(Accion==1){
+                            CrearCamposProfe(UsrExt);
+                             $("#btn_add").remove();
+                            Propietarios();
+                            tbl_propie = $('#Tbl_Propie').DataTable({
+                                                                                 data:Data_SetPropie,
+                                                                                 language: {
+                                                                                     "decimal": "",
+                                                                                     "emptyTable": "No hay información",
+                                                                                     "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                                                                                     "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                                                                                     "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                                                                                     "infoPostFix": "",
+                                                                                     "thousands": ",",
+                                                                                     "lengthMenu": "Mostrar _MENU_ Entradas",
+                                                                                     "loadingRecords": "Cargando...",
+                                                                                     "processing": "Procesando...",
+                                                                                     "search": "Buscar:",
+                                                                                     "zeroRecords": "Sin resultados encontrados",
+                                                                                     "paginate": {
+                                                                                         "first": "Primero",
+                                                                                         "last": "Ultimo",
+                                                                                         "next": "Siguiente",
+                                                                                         "previous": "Anterior"
+                                                                                     }
+                                                                                 },
+
+
+
+                                                                             });
+                             Profesionales(1);
+                             tbl_profe = $('#Tbl_Profe').DataTable({
+                                                                                     data:Data_SetProfe,
+                                                                                     language: {
+                                                                                     "decimal": "",
+                                                                                     "emptyTable": "No hay información",
+                                                                                     "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                                                                                     "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                                                                                     "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                                                                                     "infoPostFix": "",
+                                                                                     "thousands": ",",
+                                                                                     "lengthMenu": "Mostrar _MENU_ Entradas",
+                                                                                     "loadingRecords": "Cargando...",
+                                                                                     "processing": "Procesando...",
+                                                                                     "search": "Buscar:",
+                                                                                     "zeroRecords": "Sin resultados encontrados",
+                                                                                     "paginate": {
+                                                                                         "first": "Primero",
+                                                                                         "last": "Ultimo",
+                                                                                         "next": "Siguiente",
+                                                                                         "previous": "Anterior"
+                                                                                     }
+                                                                                 },
+                                                                                 "columnDefs": [
+                                                                                                 {
+                                                                                                     "targets": [ 5 ],
+                                                                                                     "visible": false,
+                                                                                                     "searchable": false
+                                                                                                 }
+                                                                                              ]
+
+                                                                             });                                                                                
+                    }
+                    else{
+                            if(Accion==2){
+                                    try{
+                                             
+                                            var DataSetTramiteaux=JSON.parse(sessionStorage.getItem('Tramites'));
+                                            if(DataSetTramiteaux[0][24]!=null){
+                                                 var DataSetTramite=JSON.parse(sessionStorage.getItem('TramitesPadre'));
+                                            }
+                                            else{
+                                                var DataSetTramite=JSON.parse(sessionStorage.getItem('Tramites'));
+                                                
+                                            }
+                                            DatosProfecional(DataSetTramite[0][6]);
+                                            sessionStorage.setItem('TRAM_PER_EDICION',rowProfe[0][6]);
+                                            if(rowProfe[0][6]==0){
+                                                if(DataSetTramite[0][20]==0&&DataSetTramite[0][23]==0){
+                                                        CrearCamposProfe(UsrExt);
+                                                }
+                                            }
+                                           
+                                            
+                                              TraerAreas(DataSetTramite[0][19]);
+//                                 if(Per_tram==0){
+                                      if(DataSetTramite[0][20]==0){
+                                           TraerSubTramite(0,UsrExt,area,DataSetTramite[0][10],Accion);
+                                              var DataSubTramite=JSON.parse(sessionStorage.getItem('Sub_tramites'));
+                                              if (DataSubTramite.length>0)
+                                                {
+                                                    $("#div_subtra").css('visibility', 'visible');
+                                                    $("#cmb_SubTramite").empty();
+                                                    document.getElementById("cmb_SubTramite").innerHTML += "<option value='0'>Seleccione una Opción</option>";
+                                                    Cargar_SubTramites();
+                                                    $("#cmb_SubTramite").val(DataSetTramite[0][22]);
+                                                    
+                                            
+                                            }
+                                            
+                                            if(DataSetTramite[0][23]==0&&Per_tram==0){
+                                                  CrearCamposProfe(UsrExt);
+                                            }
+                                            if (DataSetTramite[0][21]==1){
+                                                    $("#div_cmb_clave").css('visibility', 'visible');
+                                                    $("#div_claves").append("<div class='col-xl-8 col-lg-8' id='div_Direc'>\n\
+                                                        <div class='wrap-input100 bg1'>\n\
+                                                                <span class='label-input100'>Dirección Predio:<span class='text-danger'>*</span></span>\n\
+                                                                 <input class='input100' type='text' name='Txt_Direc' id='Txt_Direc' readonly='readonly'>\n\
+                                                        </div>\n\
+                                                        </div>\n\
+                                                        <div class='col-xl-4 col-lg-8' id='div_TipPre'>\n\
+                                                                    <div class='wrap-input100 bg1'>\n\
+                                                                            <span class='label-input100'>Tipo de Predio:<span class='text-danger'>*</span></span>\n\
+                                                                            <input class='input100' type='text'   name='Txt_TipPre' id='Txt_TipPre' readonly='readonly'>\n\
+                                                                    </div>\n\
+                                                        </div>");
+                                            }
+                                            
+                                                
+                                      }
+                                      else{
+                                          
+                                            if(DataSetTramiteaux[0][23]==0){
+                                                  CrearCamposProfe(UsrExt);
+                                            }
+                                            if (DataSetTramiteaux[0][21]==1){
+                                                    $("#div_cmb_clave").css('visibility', 'visible');
+                                                    $("#div_claves").append("<div class='col-xl-8 col-lg-8' id='div_Direc'>\n\
+                                                        <div class='wrap-input100 bg1'>\n\
+                                                                <span class='label-input100'>Dirección Predio:<span class='text-danger'>*</span></span>\n\
+                                                                 <input class='input100' type='text' name='Txt_Direc' id='Txt_Direc' readonly='readonly'>\n\
+                                                        </div>\n\
+                                                        </div>\n\
+                                                        <div class='col-xl-4 col-lg-8' id='div_TipPre'>\n\
+                                                                    <div class='wrap-input100 bg1'>\n\
+                                                                            <span class='label-input100'>Tipo de Predio:<span class='text-danger'>*</span></span>\n\
+                                                                            <input class='input100' type='text'   name='Txt_TipPre' id='Txt_TipPre' readonly='readonly'>\n\
+                                                                    </div>\n\
+                                                        </div>");
+                                            }
+                                            TraerSubTramite(0,UsrExt,area,DataSetTramite[0][10],Accion);
+                                              var DataSubTramite=JSON.parse(sessionStorage.getItem('Sub_tramites'));
+                                              if (DataSubTramite.length>0)
+                                                {
+                                                    $("#div_subtra").css('visibility', 'visible');
+                                                    $("#cmb_SubTramite").empty();
+                                                    document.getElementById("cmb_SubTramite").innerHTML += "<option value='0'>Seleccione una Opción</option>";
+                                                    Cargar_SubTramites();
+                                                    if(DataSetTramiteaux[0][24]!=null){
+                                                            $("#cmb_SubTramite").val(DataSetTramiteaux[0][10]);
+                                                            $("#cmb_SubTramite").attr('disabled', true);
+                                                    }
+                                                    else{
+                                                        $("#cmb_SubTramite").val(DataSubTramite[0][10]);
+                                                    }
+                                                    
+                                                }
+                                                
+                                            
+                                      }
+                                             $('.bg-gradient-primary').removeClass("bg-gradient-primary").addClass(Data_SetAreas[0][2]);
+                                             $('.fa-mobile-alt').removeClass("fa-mobile-alt").addClass(Data_SetAreas[0][4]);
+                                             document.getElementById("div_tit").innerHTML = Data_SetAreas[0][3];
+                                            TraerAdjuntos(DataSetTramite[0][0]);
+                                             var reasig=parseInt(sessionStorage.getItem('PER_REAC'));
+                                             TraerFuncionarios(DataSetTramite[0][19]);
+                                             Cargar_Funcionarios();
+                                              if(reasig==1){
+                                                            $("#Frm_reasig").css('visibility', 'visible');
+                                              }
+                                              else{
+                                                           $("#Frm_reasig").css('visibility', 'hidden');
+                                              }
+                                               $("#prodId").val(DataSetTramite[0][1]);
+                                               for(var i=0; i<Archivos.length; i++){
+
+                                                    tbl_bandasu.row.add([
+                                                                                      Archivos[i][4],
+                                                                                      Archivos[i][5],
+                                                                                      Archivos[i][7],
+                                                                                      Archivos[i][6],
+                                                                                      "<a id='Btn_descar' href='#' class='btn btn-success btn-circle'><i class='fas fa-download'></i>"
+                                                                                      ]).draw();
+                                               }
+                                           $("#Btn_busprofe").css('visibility', 'hidden');
+                                           $("#Btn_buspro").css('visibility', 'hidden');
+                                           $("#Btn_NueProfe").css('visibility', 'hidden');
+                                           $("#Txt_identicacionProfe").attr('readonly', true);
+                                           $("#Txt_NombreProfe").attr('readonly', true);
+                                           $("#Txt_TelefonoProfe").attr('readonly', true);
+                                           $("#Txt_emailProfe").attr('readonly', true);
+                                           $("#Txt_identicacionProfe").val(DataSetTramite[0][6]);
+                                           $("#enviasn").val(DataSetTramite[0][18]);
+                                           $("#Txt_NombreProfe").val(DataSetTramite[0][7]);
+                                           $("#Txt_TelefonoProfe").val(DataSetTramite[0][8]);
+                                           $("#Txt_emailProfe").val(DataSetTramite[0][9]);
+
+                      //                        alert(Archivos);
+                                              $("#Txt_Tramite").attr('readonly', true);
+                                              $("#Txt_Tramite").val(DataSetTramite[0][0]);
+                                              $("#Txt_identicacionCiu").attr('readonly', true);
+                                              $("#Txt_identicacionCiu").val(DataSetTramite[0][2]);
+                                              $("#Txt_NombreCiu").attr('readonly', true);
+                                              $("#Txt_NombreCiu").val(DataSetTramite[0][3]);
+                                              $("#Txt_TelefonoCiu").attr('readonly', true);
+                                              $("#Txt_TelefonoCiu").val(DataSetTramite[0][4]);
+                                              $("#Txt_emailCui").attr('readonly', true);
+                                              $("#Txt_emailCui").val(DataSetTramite[0][5]);
+                                              $("#cmb_TipTramite").attr('disabled', true);
+                                              $("#cmb_TipTramite").val(parseInt(DataSetTramite[0][10]));
+                                              DatosPredio(DataSetTramite[0][1]);
+                                              $("#Cmb_Predio").attr('disabled', true);
+                                              document.getElementById("Cmb_Predio").innerHTML += "<option value='"+DataSetTramite[0][12]+"'>"+DataSetTramite[0][12]+"</option>";
+                                              $("#Cmb_Predio").val(DataSetTramite[0][12]);
+                                              $("#Txt_Direc").attr('readonly', true);
+                                              $("#Txt_Direc").val(DataSetTramite[0][13]);
+                                              $("#Txt_TipPre").attr('readonly', true);
+                                              $("#Txt_TipPre").val(DataSetTramite[0][14]);
+                                              $("#Txt_detalle").attr("placeholder", DataSetTramite[0][17]);
+                                    } catch (e) {
+                                        alert("error"+e);
+                                    }
+                                    
+                            }
+                    }
+                            
+                 var Name=sessionStorage.getItem('Descrpcion');
+                 document.getElementById('lbl_user').innerHTML = Name;
+                
+                 
+             }
+             else{
+                      try{      
+                            var Name=sessionStorage.getItem('NOM_PROFE');
+                            var Per_tram=sessionStorage.getItem('PER_TRAM');
+                            document.getElementById('lbl_user').innerHTML = Name;
+                            $("#opt_configuracion").css('visibility', 'hidden');
+                            $("#opt_rectra").css('visibility', 'hidden');
+                            $("#opt_soltra").css('visibility', 'visible');
+                            $("#Btn_busprofe").css('visibility', 'hidden');
+                            $("#Btn_buspro").css('visibility', 'hidden');
+                            $("#Btn_NueProfe").css('visibility', 'hidden');
+//                            alert(Per_tram);
+                            if(Per_tram==1){
+                                $("#Txt_identicacionCiu").attr('readonly', true);
+                                $("#Txt_NombreCiu").attr('readonly', true);
+                                $("#Txt_TelefonoCiu").attr('readonly', true);
+                                $("#Txt_emailCui").attr('readonly', true);
+                                $("#Txt_identicacionCiu").val(sessionStorage.getItem('CED_PROFE'));
+                                $("#Txt_NombreCiu").val(sessionStorage.getItem('NOM_PROFE'));
+                                $("#Txt_TelefonoCiu").val(sessionStorage.getItem('TELEF_PROFE'));
+                                $("#Txt_emailCui").val(sessionStorage.getItem('EMAIL_PROFE'));
+                               
+                            }
+//                            else{
+//                                $("#Txt_identicacionProfe").attr('readonly', true);
+//                                $("#Txt_NombreProfe").attr('readonly', true);
+//                                $("#Txt_TelefonoProfe").attr('readonly', true);
+//                                $("#Txt_emailProfe").attr('readonly', true);
+//                                $("#Txt_identicacionProfe").val(sessionStorage.getItem('CED_PROFE'));
+//                                $("#Txt_NombreProfe").val(sessionStorage.getItem('NOM_PROFE'));
+//                                $("#Txt_TelefonoProfe").val(sessionStorage.getItem('TELEF_PROFE'));
+//                                $("#Txt_emailProfe").val(sessionStorage.getItem('EMAIL_PROFE'));
+//                            }
+                            
+                              
+         //                    alert(Accion);
+                             if(Accion==2){
+                                 var DataSetTramiteaux=JSON.parse(sessionStorage.getItem('Tramites'));
+                              if(DataSetTramiteaux[0][24]!=null){
+                                      var DataSetTramite=JSON.parse(sessionStorage.getItem('TramitesPadre'));
+                               }
+                               else{
+                                     var DataSetTramite=JSON.parse(sessionStorage.getItem('Tramites'));         
+                                   }
+                                 TraerAdjuntos(DataSetTramite[0][0]);
+                                  $("#prodId").val(DataSetTramite[0][1]);
+                                  for(var i=0; i<Archivos.length; i++){
+
+                                       tbl_bandasu.row.add([
+                                                                         Archivos[i][4],
+                                                                         Archivos[i][5],
+                                                                         Archivos[i][7],
+                                                                         Archivos[i][6],
+                                                                         "<a id='Btn_descar' href='#' class='btn btn-success btn-circle'><i class='fas fa-download'></i>"
+                                                                         ]).draw();
+                                  }
+         //                        alert(Archivos);
+                                 $("#Txt_Tramite").attr('readonly', true);
+                                 $("#Txt_Tramite").val(DataSetTramite[0][0]);
+                                 $("#Txt_identicacionCiu").attr('readonly', true);
+                                 $("#Txt_identicacionCiu").val(DataSetTramite[0][2]);
+                                 $("#Txt_NombreCiu").attr('readonly', true);
+                                 $("#Txt_NombreCiu").val(DataSetTramite[0][3]);
+                                 $("#Txt_TelefonoCiu").attr('readonly', true);
+                                 $("#Txt_TelefonoCiu").val(DataSetTramite[0][4]);
+                                 $("#Txt_emailCui").attr('readonly', true);
+                                 $("#Txt_emailCui").val(DataSetTramite[0][5]);
+                                   TraerAreas(DataSetTramite[0][19]);
+//                                 if(Per_tram==0){
+                                      if(DataSetTramite[0][20]==0){
+                                            if(DataSetTramite[0][23]==0&&Per_tram==0){
+                                                  CrearCamposProfe(UsrExt);
+                                            }
+                                            if (DataSetTramite[0][21]==1){
+                                                    $("#div_cmb_clave").css('visibility', 'visible');
+                                                    $("#div_claves").append("<div class='col-xl-8 col-lg-8' id='div_Direc'>\n\
+                                                        <div class='wrap-input100 bg1'>\n\
+                                                                <span class='label-input100'>Dirección Predio:<span class='text-danger'>*</span></span>\n\
+                                                                 <input class='input100' type='text' name='Txt_Direc' id='Txt_Direc' readonly='readonly'>\n\
+                                                        </div>\n\
+                                                        </div>\n\
+                                                        <div class='col-xl-4 col-lg-8' id='div_TipPre'>\n\
+                                                                    <div class='wrap-input100 bg1'>\n\
+                                                                            <span class='label-input100'>Tipo de Predio:<span class='text-danger'>*</span></span>\n\
+                                                                            <input class='input100' type='text'   name='Txt_TipPre' id='Txt_TipPre' readonly='readonly'>\n\
+                                                                    </div>\n\
+                                                        </div>");
+                                            }
+                                            
+                                                var cod_tip_tra=$("#cmb_TipTramite").val();
+                                                TraeAcciones_re(cod_tip_tra,4);
+                                                if(rowAcciones_re.length>0){
+                                                    sessionStorage.setItem('GenerarAcciones',JSON.stringify(rowAcciones_re));
+                                                    GenerarAcciones(); 
+                                                }
+                                                        
+                                      }
+                                      else{
+                                          
+                                            if(DataSetTramiteaux[0][23]==0){
+                                                  CrearCamposProfe(UsrExt);
+                                            }
+                                            if (DataSetTramiteaux[0][21]==1){
+                                                    $("#div_cmb_clave").css('visibility', 'visible');
+                                                    $("#div_claves").append("<div class='col-xl-8 col-lg-8' id='div_Direc'>\n\
+                                                        <div class='wrap-input100 bg1'>\n\
+                                                                <span class='label-input100'>Dirección Predio:<span class='text-danger'>*</span></span>\n\
+                                                                 <input class='input100' type='text' name='Txt_Direc' id='Txt_Direc' readonly='readonly'>\n\
+                                                        </div>\n\
+                                                        </div>\n\
+                                                        <div class='col-xl-4 col-lg-8' id='div_TipPre'>\n\
+                                                                    <div class='wrap-input100 bg1'>\n\
+                                                                            <span class='label-input100'>Tipo de Predio:<span class='text-danger'>*</span></span>\n\
+                                                                            <input class='input100' type='text'   name='Txt_TipPre' id='Txt_TipPre' readonly='readonly'>\n\
+                                                                    </div>\n\
+                                                        </div>");
+                                            }
+                                            TraerSubTramite(0,UsrExt,area,DataSetTramite[0][10],Accion);
+                                              var DataSubTramite=JSON.parse(sessionStorage.getItem('Sub_tramites'));
+                                              if (DataSubTramite.length>0)
+                                                {
+                                                    $("#div_subtra").css('visibility', 'visible');
+                                                    $("#cmb_SubTramite").empty();
+                                                    document.getElementById("cmb_SubTramite").innerHTML += "<option value='0'>Seleccione una Opción</option>";
+                                                    Cargar_SubTramites();
+                                                    if(DataSetTramiteaux[0][24]!=null){
+                                                            $("#cmb_SubTramite").val(DataSetTramiteaux[0][10]);
+                                                            $("#cmb_SubTramite").attr('disabled', true);
+                                                    }
+                                                    else{
+                                                        $("#cmb_SubTramite").val(DataSubTramite[0][10]);
+                                                    }
+                                                    
+                                                }
+                                                var cod_tip_tra=$("#cmb_SubTramite").val();
+                                                TraeAcciones_re(cod_tip_tra,4);
+                                                if(rowAcciones_re.length>0){
+                                                    sessionStorage.setItem('GenerarAcciones',JSON.stringify(rowAcciones_re));
+                                                    GenerarAcciones();
+                                                }
+                                                
+                                            
+                                      }
+
+                                            
+                                 $('.bg-gradient-primary').removeClass("bg-gradient-primary").addClass(Data_SetAreas[0][2]);
+                                 $('.fa-mobile-alt').removeClass("fa-mobile-alt").addClass(Data_SetAreas[0][4]);
+                                  document.getElementById("div_tit").innerHTML = Data_SetAreas[0][3];   
+                                 $("#cmb_TipTramite").attr('disabled', true);
+//                                 alert(DataSetTramite[0][10]);
+                                 $("#cmb_TipTramite").val(parseInt(DataSetTramite[0][10]));
+                                 DatosPredio(DataSetTramite[0][1]);
+                                 $("#Cmb_Predio").attr('disabled', true);
+                                 document.getElementById("Cmb_Predio").innerHTML += "<option value='"+DataSetTramite[0][12]+"'>"+DataSetTramite[0][12]+"</option>";
+                                 $("#Cmb_Predio").val(DataSetTramite[0][12]);
+                                 $("#Txt_Direc").attr('readonly', true);
+                                 $("#Txt_Direc").val(DataSetTramite[0][13]);
+                                 $("#Txt_TipPre").attr('readonly', true);
+                                 $("#Txt_TipPre").val(DataSetTramite[0][14]);
+                                 $("#Cmb_Estado").attr('disabled', true);
+                                 $("#Cmb_Estado").val(4);
+                                 $("#Txt_detalle").attr("placeholder", DataSetTramite[0][17]);
+         //                      
+
+                             }
+                      }  catch (e) {
+                             alert("error"+e);
+                      }
+                      
+
+             }
+  } 
+
+    } catch (e) {
+        alert("error"+e);
+    }
+}
+function Propietarios(){
+   
+   var ex=0; 
+     try {
+
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerPropie.php",
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                              Data_SetPropie=response.row;
+ 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Profesionales(id){
+   
+   var ex=0; 
+     try {
+                              var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerProfesional.php",
+                                        data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                              Data_SetProfe=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Cargar_Tramites(Usrext,area,accion) {
+ var perfil=sessionStorage.getItem('COD_PERFIL');
+//    alert(perfil+","+Usrext)
+ TraerTipTramite(perfil,Usrext,area,accion);
+  sessionStorage.setItem('Tip_tramites',JSON.stringify(Data_SetTipTra));
+  for(var i in Data_SetTipTra)
+            { 
+               
+                    document.getElementById("cmb_TipTramite").innerHTML += "<option value='"+Data_SetTipTra[i][0]+"'>"+Data_SetTipTra[i][1]+"</option>"; 
+
+            }
+ 
+}
+function TraerTipTramite(perfil,Usrext,area,accion){
+   var ex=0; 
+     try {
+               
+                                    var parametros={
+                                            "id":perfil,
+                                            "usrext":Usrext,
+                                            "cod_area":area,
+                                            "accion":accion
+                                    }
+                                    $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerTipTramite.php",
+                                        data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                              Data_SetTipTra=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function DatosPredio(id){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/ConsPredio.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_SetPredio=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Cargar_Predios() {
+ $("#Cmb_Predio").empty();
+ document.getElementById("Cmb_Predio").innerHTML += "<option value='-1'>Seleccione una Opción</option>";
+  for(var i in Data_SetPredio)
+            { 
+               
+                    document.getElementById("Cmb_Predio").innerHTML += "<option value='"+i+"'>"+Data_SetPredio[i][0]+"</option>"; 
+
+            }
+ sessionStorage.setItem('Predios',JSON.stringify(Data_SetPredio));
+}
+function Cargar_Funcionarios() {
+
+  for(var i in DataSetFuncionarios)
+            { 
+               
+                    document.getElementById("Cmb_reacc").innerHTML += "<option value='"+DataSetFuncionarios[i][1]+"'>"+DataSetFuncionarios[i][2]+"</option>"; 
+
+            }
+ sessionStorage.setItem('Predios',JSON.stringify(Data_SetPredio));
+}
+function DatosEstados(){
+   
+   var ex=0; 
+     try {
+                    var idcons=sessionStorage.getItem('Usr_Ext');
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/ConsEstado.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_SetEstado=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Cargar_Estados() {
+DatosEstados();
+  for(var i in Data_SetEstado)
+            { 
+               
+                    document.getElementById("Cmb_Estado").innerHTML += "<option value='"+Data_SetEstado[i][0]+"'>"+Data_SetEstado[i][1]+"</option>"; 
+
+            }
+ 
+}
+function randomico() {
+    var caracteres = "abcdefghijkmnpqrtuvwxyzABCDEFGHJKMNPQRTUVWXYZ2346789";
+       var contraseña = "";
+       for (i=0; i<5; i++) contraseña +=caracteres.charAt(Math.floor(Math.random()*caracteres.length));
+       return contraseña;
+}
+function GuardarPropie(identificacion,nombres,apellidos,direccion,telefono,email,notifi,cam_clave,clave,titulo,cuidad,valid_profe,snsit,cod_perfil,es_contri,pro_codigo,ip,crea_pro,cod_provi,cod_canton,cod_parroq,personeria,acept_serv,fecha_nac){    
+
+    var ex=0;    
+    try {
+           
+                                        var id=identificacion;
+                                        var nom=nombres;
+                                        var apell=apellidos;
+                                        var dir=direccion;
+                                        var tele=telefono;
+                                        var correo=email;
+                                        var notif=notifi;
+                                        var cambio_clave=cam_clave;
+                                        var claveing=clave;
+                                        var parametros={
+                                                "ced_profe":id,
+                                                "nom_profe":nom,
+                                                "apelli_profe":apell,
+                                                "direc_profe":dir,                                                
+                                                "telef_profe":tele,
+                                                "email_profe":correo,
+                                                "noti_email":notif,
+                                                "cambi_clave":cambio_clave,
+                                                "clave":claveing,
+                                                "tit_profe":titulo,
+                                                "cui_domi":cuidad,
+                                                "valid_profe":valid_profe,
+                                                "snsit_profe":snsit,
+                                                "cod_perfil":cod_perfil,
+                                                "es_contri":es_contri,
+                                                "pro_codigo":pro_codigo,
+                                                "dir_ip":ip,
+                                                "crea_pro":crea_pro,
+                                                "cod_provi":cod_provi,
+                                                "cod_canton":cod_canton,
+                                                "cod_parroq":cod_parroq,
+                                                "personeria":personeria,
+                                                "acept_serv":acept_serv,
+                                                "fecha_nac":fecha_nac
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Virtual/logica/GrabarProfe.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_Seterror=response.row;
+                                                        } else {
+                                                                ex=0;
+                                                                alert(response.message);
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+                                        if(Data_Seterror.length==0){
+                                            alert("Registro Guardado Correctamente");
+//                                            bootbox.dialog({
+//                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+//                                                                title: "Registro Guardado Correctamente",
+//                                                                onEscape: function() {                                                              
+//                                                                }
+//                                                            });
+       
+                                        }
+                                        else{
+                                            alert("Fallo al Guardar Registro");
+                                            alert(Data_Seterror);
+                                        }
+                                      
+
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function EnviarEmail(AddAddress,Subject,Body){    
+
+    var ex=0;    
+    try {
+           
+                                        
+                                        var parametros={
+                                                "email":AddAddress,
+                                                "subject":Subject,
+                                                "message":Body
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Virtual/logica/Send.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               
+                                                        } else {
+                                                                ex=false;
+                                                               
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+                                        if(ex==false){
+                                             bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-warning btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "No se encontro la direccion de correo electronico por favor informe al profesional su clave de acceso la clave es: "+clave,
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            });
+                                        }
+                                        
+//                                       bootbox.alert(Data_Seterror);
+                                      
+
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function bs_input_file() {
+	$(".input-file").before(
+		function() {                       
+			if ( ! $(this).prev().hasClass('input-ghost') ) {
+				var element = $("<input type='file' class='input-ghost' style='visibility:hidden; height:0' id='Txt_arcgos' name='Txt_arcgos'>");
+				element.attr("name",$(this).attr("Txt_arcgos"));
+				element.change(function(){
+                                          var sizeByte = this.files[0].size;
+                                          var siezekiloByte = parseInt(sizeByte / 1024);
+                                          siezeMegaByte = parseInt(siezekiloByte / 1024);
+					element.next(element).find('input').val((element.val()).split('\\').pop());
+				});
+				$(this).find("button.btn-choose").click(function(){ 
+                                    element.click();
+				});
+				$(this).find("button.btn-reset").click(function(){
+					element.val(null);
+					$(this).parents(".input-file").find('input').val('');
+				});
+				$(this).find('input').css("cursor","pointer");
+				$(this).find('input').mousedown(function() {
+					$(this).parents('.input-file').prev().click();
+					return false;
+				});
+				return element;
+			}
+		}
+	);
+}
+$(function() {
+	bs_input_file();
+});
+function EliminarArchivo(Archivo){
+
+   var ex=0; 
+     try {
+                  
+                              var parametros={
+                                "file":Archivo
+                                }
+                              $.ajax({
+					type: "POST",
+//					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/Eliminar.php",
+					data: parametros,
+//                                        error: function(xhr, textStatus, errorMessage) {
+//                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+//                                        }
+				});
+                               
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function TraerAdjuntos(id){
+   
+    
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerAdjuntos.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Archivos=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function TraerFuncionarios(id){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerFuncionarios.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               DataSetFuncionarios=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Reasignar(NumTram,Usr,clave_catastral,Obse_Tramite,num_notifi,sub_tram){    
+ var Data_Seterror,ex;
+    try {
+           
+                                       
+                                        var parametros={
+                                                "num_trami":NumTram,
+                                                "name":Usr,
+                                                "clave_catastral":clave_catastral,
+                                                "obse_tramite":Obse_Tramite,
+                                                "num_notifi":num_notifi,
+                                                "cod_sub_tra":sub_tram
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Virtual/logica/Reasignar.php",
+                                                data: parametros,
+                                                 success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_Seterror=response.row;
+                                                        } else {
+                                                                ex=0;
+                                                                alert(response.message);
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);
+                                       if(Data_Seterror.length==0){
+                                                
+                                                
+                                                  return true;
+                                             
+                                               
+                                        }
+                                        else{
+                                            alert("Fallo al Guardar Tramite");
+                                            alert(Data_Seterror);
+                                             return false;
+                                        }
+                                      
+           
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function LimpiarAdj() {
+    $("#Txt_IngNomAdj").val('');
+    $("#Txt_IngDesc").val('');
+    $("#Txt_archivo").val(''); 
+}
+function ValidarAdj() {
+ 
+    var valida=true;
+    if ($("#Txt_IngNomAdj").val()=='') {
+         bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-warning btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "Debe cologar un Nombre del Archivo",
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            });
+       valida=false;
+    }
+    if ($("#Txt_IngDesc").val()=='') {
+         bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-warning btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "Debe Ingresar una Descripción del Archivo",
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            });
+       valida=false;
+    }
+    if ($("#Txt_archivo").val()=='') {
+         bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-warning btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "Debe Seleccionar un Archivo",
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            });
+       valida=false;
+    }
+    else{
+        try {    
+            var arch=$("#Txt_archivo").val();
+                 if(tbl_bandasu.rows().count()>0){
+                      var rowArchivo=new Array ();
+                      for(var i=0; i<=tbl_bandasu.rows().count()-1; i++){   
+                               rowArchivo = tbl_bandasu.row(i).data();
+                               if(rowArchivo[3]==arch){
+                                   valida=false;
+                                   bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-warning btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "Ya existe un archivo "+arch+" por favor seleccione otro",
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            });
+                               }
+
+                      }
+                  }
+         } catch (e) {
+                alert(e);
+         }
+    }
+    if ($("#Txt_Tramite").val()=='') {
+         bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-warning btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "Debe llenar el tramite antes de colocar Archivos Adjuntos",
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            });
+         valida=false;
+    }
+    TraerArchivos($("#Txt_archivo").val());
+    if(valiArchivos.length>0){
+        bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-warning btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "Ya existe un Archivo en la base de datos con el Nombre "+$("#Txt_archivo").val()+" por favor renombre el Archivo",
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            }); 
+        valida=false;
+    }
+     if(siezeMegaByte>=60){
+          bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-warning btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "Su Archivo Pesa "+siezeMegaByte+"MB No se permiten Achivos Mayores a 60MB",
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            }); 
+        valida=false;
+     }
+   
+  return valida;  
+}
+function TraerArchivos(id){
+   
+    
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerArchivos.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               valiArchivos=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                         
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Perfiles(){
+   
+   var ex=0; 
+     try {
+
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraePerfil.php",
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowPerfiles=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Cargar_Perfiles() {
+   Perfiles();
+  for(var i in rowPerfiles)
+            { 
+               
+                    document.getElementById("Cmb_TipUsr").innerHTML += "<option value='"+rowPerfiles[i][0]+"'>"+rowPerfiles[i][1]+"</option>"; 
+
+            }
+  sessionStorage.setItem('Perfiles',JSON.stringify(rowPerfiles));
+}
+function Cargar_aviso() {
+//     $('#Frm_anuncio').modal('show');
+     var Mensaje="<u class='text-primary'>Profesional. -</u>Estos usuarios podrán relazar Tramites Catastrales o de Rentas de Terceras Personas, se requieren tener un título avalado por el Senecyt. La información que será validada por los Funcionarios de GADIP Municipio de Cayambe para poder Transaccional en la plataforma.<br><br><u class='text-primary'>Contribuyentes. -</u>Son usuarios que poseen Predios, Patentes o Activos en el Cantón Cayambe, podrán realizar solo trámites personales y se le enviara su clave de acceso al correo electrónico automáticamente, no requiere validación de los Funcionarios de GADIP Municipio de Cayambe.<br><br><u class='text-primary'>Ambos. -</u>Son Usuarios que poseen Predios, Patentes o Activos en el Cantón Cayambe, estos usuarios podrán relazar Tramites Catastrales o de Rentas de Terceras Personas; requieren tener un título avalado por el Senecyt, información que será validada por los Funcionarios de GADIP Municipio de Cayambe para poder Transaccional en la plataforma."
+                   bootbox.dialog({
+                                                                                message: '<div class="container">\n\
+                                                                                            <div align="center">\n\
+                                                                                                 <img src="imagenes/cyber-security.jpg" width="400" height="200">\n\
+                                                                                            </div>\n\
+                                                                                            <div class="row">\n\
+                                                                                                 <p align="justify"><h8 id="lbl_varan" class="m-0 font-weight-bold text-gray-700">'+Mensaje+'</h8></p>\n\
+                                                                                            </div>\n\
+                                                                                          </div>',
+                                                                                title: "¿Que Tipo de Usuario debo Escojer?",
+                                                                                className: 'rubberBand animated',
+                                                                                onEscape: function() {                                                           
+                                                                                }
+                                                                            });
+            
+}
+function TraerIP(){
+   
+   var ex=0; 
+     try {
+
+                              $.ajax({
+					
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/ObtenerIP.php",
+					success: function(response){                                           
+                                                               dir_ip=response.ip_cliente     
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Provincias(){
+   
+   var ex=0; 
+     try {
+
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerProvincia.php",
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowProvincias=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Cargar_Provincias() {
+    Provincias();
+  for(var i in rowProvincias)
+            { 
+               
+                    document.getElementById("Cmb_Provi").innerHTML += "<option value='"+rowProvincias[i][0]+"'>"+rowProvincias[i][1]+"</option>"; 
+
+            }
+}
+function TraerCantones(id){
+   
+    
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerCantones.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowCantones=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                         
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Cargar_Cantones() {
+  for(var i in rowCantones)
+            { 
+               
+                    document.getElementById("Cmb_Canton").innerHTML += "<option value='"+rowCantones[i][1]+"'>"+rowCantones[i][2]+"</option>"; 
+
+            }
+}
+function TraerParroquias(provincia,canton){
+   
+    
+   var ex=0; 
+     try {
+
+                              var parametros={
+                                "provincia":provincia,
+                                "canton":canton
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraeParroquia.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowParroquias=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                         
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Cargar_Parroquia() {
+  for(var i in rowParroquias)
+            { 
+               
+                    document.getElementById("Cmb_Parro").innerHTML += "<option value='"+rowParroquias[i][2]+"'>"+rowParroquias[i][3]+"</option>"; 
+
+            }
+}
+function Personeria(){
+   
+   var ex=0; 
+     try {
+
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraePersoneria.php",
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowPersoneria=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Cargar_Personeria() {
+    Personeria();
+  for(var i in rowPersoneria)
+            { 
+               
+                    document.getElementById("Cmb_Personeria").innerHTML += "<option value='"+rowPersoneria[i][0]+"'>"+rowPersoneria[i][1]+"</option>"; 
+
+            }
+}
+function TraerAreas(id){
+   
+   var ex=0; 
+     try {
+                              var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraeAreas.php",
+                                        data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                              Data_SetAreas=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function TraerSubTramite(perfil,Usrext,area,tip_tra,accion){
+   var ex=0; 
+     try {
+               
+                                    var parametros={
+                                            "id":perfil,
+                                            "usrext":Usrext,
+                                            "cod_area":area,
+                                            "cod_tip_tra":tip_tra,
+                                            "accion":accion
+                                    }
+                                    $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraeSubTramite.php",
+                                        data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                              Data_SetSubTra=response.row;
+                                                              sessionStorage.setItem('Sub_tramites',JSON.stringify(Data_SetSubTra));
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Cargar_SubTramites() {
+
+
+  for(var i in Data_SetSubTra)
+            { 
+               
+                    document.getElementById("cmb_SubTramite").innerHTML += "<option value='"+Data_SetSubTra[i][0]+"'>"+Data_SetSubTra[i][1]+"</option>"; 
+
+            }
+ 
+}
+function CrearCamposProfe(UsrExt){
+    $("#div_profecional").remove();
+    $("#div_formprofe").append("<div class='input-group' id='div_profecional'>\n\
+                                         <div id='div_identicacionProfe' class='col-sm-5 mb-3 mb-sm-0'>\n\
+                                                 <div class='wrap-input100 validate-input bg1' data-validate='Ingrese Identificación'>\n\
+                                                        <span class='label-input100'>Cedula Profesional<span class='text-danger'>*</span></span>\n\
+                                                        <input class='input100' type='text' name='Txt_identicacionProfe' id='Txt_identicacionProfe' placeholder='Nro. Identificación CC/Pasaporte'>\n\
+                                                         <input id='enviasn' name='enviasn' type='hidden'>\n\
+                                                 </div>\n\
+                                         </div>\n\
+                                        <div class='col-sm-1 mb-3 mb-sm-0'>\n\
+                                            <div class='container-contact100-form-btn' id='div_btnpro'>\n\
+                                                    <a href='#' class='btn btn-outline-info btn-circle btn-block' data-toggle='modal' data-target='#Form_BusProfe' id='Btn_busprofe'>\n\
+                                                        <i class='fas fa-search'></i>\n\
+                                                    </a>\n\
+                                                    <div id='btn_add' class='container-contact1000-form-btn'>\n\
+                                                        <a href='#' class='btn btn-outline-warning btn-circle btn-block' data-toggle='modal' data-target='#Form_Propie' id='Btn_NueProfe'>\n\
+                                                                <i class='fas fa-plus'></i>\n\
+                                                        </a>\n\
+                                                    </div>\n\
+                                            </div>\n\
+                                        </div>\n\
+                                        <div id='div_NombreProfe' class='col-sm-6 mb-3 mb-sm-0'>\n\
+                                                <div class='wrap-input100 validate-input bg1' data-validate='Por favor Ingrese Información'>\n\
+                                                        <span class='label-input100'>Nombre y Apellidos Profesional<span class='text-danger'>*</span></span>\n\
+                                                        <input class='input100' type='text' name='Txt_NombreProfe' id='Txt_NombreProfe' placeholder='APELLLIDOS NOMBRES COMPLETOS' readonly='readonly'>\n\
+                                                </div>\n\
+                                        </div>\n\
+                                        <div id='div_TelefonoProfe' class='col-sm-6 mb-3 mb-sm-0'>\n\
+                                            <div class='wrap-input100 bg1' >\n\
+                                                <span class='label-input100'>Teléfono Profesional</span>\n\
+                                                <input class='input100' type='text' name='Txt_TelefonoProfe' id='Txt_TelefonoProfe' placeholder='Teléfono'>\n\
+                                            </div>\n\
+                                        </div>\n\
+                                        <div id='div_emailProfe' class='col-sm-6 mb-3 mb-sm-0'>\n\
+                                                <div class='wrap-input100 validate-input bg1' data-validate='Por favor Ingrese un email correcto'>\n\
+                                                         <span class='label-input100'>Correo electrónico Profesional</span>\n\
+                                                         <input class='input100' type='email' name='Txt_emailProfe' id='Txt_emailProfe' placeholder='Correo electrónico'>\n\
+                                                </div>\n\
+                                        </div>\n\
+                                </div>");
+    if(UsrExt==1){
+                 $("#div_btnpro").remove();
+                 $("#Txt_identicacionProfe").attr('readonly', true);
+                 $("#Txt_NombreProfe").attr('readonly', true);
+                 $("#Txt_TelefonoProfe").attr('readonly', true);
+                 $("#Txt_emailProfe").attr('readonly', true);
+                 $("#Txt_identicacionProfe").val(sessionStorage.getItem('CED_PROFE'));
+                 $("#Txt_NombreProfe").val(sessionStorage.getItem('NOM_PROFE'));
+                 $("#Txt_TelefonoProfe").val(sessionStorage.getItem('TELEF_PROFE'));
+                 $("#Txt_emailProfe").val(sessionStorage.getItem('EMAIL_PROFE'));
+    }
+}
+function DatosProfecional(id){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/ConsuProfe.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowProfe=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Requisitos(cod_tra,personeria){
+   
+   var ex=0; 
+     try {
+
+                              var parametros={
+                                "Cod_tip_tra":cod_tra,
+                                "pro_personeria":personeria
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraeRequisitos.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_SetRequisito=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function GenerarWisard(){
+   try {  
+//    var DataSetRequisitos=JSON.parse(sessionStorage.getItem('Requisitos'));
+//            alert("pasoooo2");
+//             $("#sp1").append("hlaaa");
+               $("#h20").remove();
+               $("#sec20").remove();
+               $("#p20").remove();
+ $("#div20").remove();
+ $("#sec20").remove();
+  $("#h20").remove();
+             
+//      for(var i=0; i<DataSetRequisitos.length; i++){
+//          $("#form-total").append("<h2><p class='step-icon'><span>1</span></p><div class='step-text'><span class='step-inner-1'>Account Setup</span><span class='step-inner-2'>Adjunte Documento</span></div></h2><section><div class='inner'><div class='wizard-header'><h3 class='heading'>Account Setup</h3></div><div class='form-row'><div class='form-holder form-holder-2'><div class='col-xl-12 col-lg-8'><div class='wrap-input100 validate-input bg1' data-validate = 'Ingrese sus Descripcion'><span class='label-input100'>Descripción del Archivo<span class='text-danger'>*</span></span></span><textarea class='input100' name='Txt_IngDesc' id='Txt_IngDesc' placeholder='Describa el adjunto Ingresado'></textarea></div></div></div></div><div class='form-row'><div class='col-md-12 col-md-offset-2'><div class='form-group'><div class='input-group input-file' name='Fichier2'><span class='input-group-btn'><button class='btn btn-outline-info btn-choose' type='button'><i class='fas fa-file-upload'></i> Selecionar</button></span><input type='text' class='form-control' placeholder='Seleccione un Archivo...' id='Txt_archivo2' name='Txt_archivo2'><span class='input-group-btn'><button class='btn btn-warning btn-reset' type='button'>Borrar</button></span></div></div></div><div class='col-sm-11 mb-3 mb-sm-0'><h8 id='lbl_varan' class='m-0 font-weight-bold text-danger '><p align='justify' class='m-0 font-weight-bold text-danger '>Por favor el tamaño de los archivos no debe superar los 60MB y su nombre debe ser corto y sin espacios en blanco.</p></h8></div></div></div></section>");
+//      }
+   } catch (e) {
+        alert("error"+e);
+    }
+}
+function SubirAdjWizar(NomArch,DescArch,fecha,Arch){
+   
+   tbl_bandasu.row.add([
+                       NomArch.toString(),
+                       DescArch.toString(),
+                       fecha.toString(),
+                       Arch.toString(),
+                       "<a id='Btn_eli' href='#' class='btn btn-danger btn-circle'><i class='fas fa-window-close'></i>\n\
+                       <a id='Btn_descar' href='#' class='btn btn-success btn-circle'><i class='fas fa-download'></i>"
+
+     ]).draw();
+}
+function TraeAcciones_re(cod_tip_tra,cod_esta_tra){
+   
+   var ex=0; 
+     try {
+                              var parametros={
+                                "cod_esta_tra":cod_esta_tra,
+                                "cod_tip_tra":cod_tip_tra
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerAcciones.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowAcciones_re=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                       
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function GenerarAcciones(){
+    tbl_accion.clear();
+    $('#Frm_Acciones').css('display','none');
+//    $("#tbl_accion").remove();
+    var DataSetAcciones=JSON.parse(sessionStorage.getItem('GenerarAcciones'));
+    if(DataSetAcciones.length>0){
+         $('#Frm_Acciones').css('display','block');
+        
+        for(var i=0; i<DataSetAcciones.length; i++){
+                     tbl_accion.row.add([
+
+                                      "<div class='col-xl-12 col-lg-8' id='Btn_accion'>\n\
+                                                <div class='container-contact100-form-btn'>\n\
+                                                    <a href='#' class='btn btn-info btn-user btn-block' data-toggle='modal'  >\n\
+                                                        <i class='"+DataSetAcciones[i][8]+"'></i> "+DataSetAcciones[i][7]+"\n\
+                                                    </a>\n\
+                                                </div>\n\
+                                            </div>",
+                                            "<a id='descacc_"+DataSetAcciones[i][0]+"'>"+DataSetAcciones[i][3]+"</a>",
+                                            " <div class='custom-switch pl-0' id='chck_valida'>\n\
+                                                <input class='custom-switch-input' id='chck_accion_"+DataSetAcciones[i][0]+"' type='checkbox'>\n\
+                                                <label class='custom-switch-btn' for='chck_accion'></label>\n\
+                                              </div>",
+                                            DataSetAcciones[i][5],
+                                            DataSetAcciones[i][4],
+                                            DataSetAcciones[i][9],
+                                            DataSetAcciones[i][10],
+                                            DataSetAcciones[i][7],
+                                            DataSetAcciones[i][0]
+                                        ]).draw();
+        }
+    }
+}
+function EjecutaAcciones(nom_sp,id){
+     var ex=0; 
+     try {
+                              var parametros={
+                                "nom_sp":nom_sp,
+                                "id":id
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/GeneraAcciones.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowResultadoAc=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                       
+
+    } catch (e) {
+        alert("error"+e);
+    }
+      
+}

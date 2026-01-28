@@ -1,0 +1,57 @@
+<?php
+$consulta = array();
+//ESTABLECE CONEXION
+	 include './Conexion.php';
+         $link =  conectarse();
+//PARAMETROS WEB_SERVICE
+$TIP_ACCION     = $_REQUEST["TIP_ACCION"];
+$USUARIO        = $_REQUEST["USUARIO"];
+$ID             = $_REQUEST["ID"];
+$TIP_DOC        = $_REQUEST["TIP_DOC"];
+$ANIO_RELIQ     = $_REQUEST["ANIO_RELIQ"];
+$OBSER_PROCESO  = $_REQUEST["OBSER_PROCESO"];
+//PARAMETROS SP
+
+$params = array(     
+                 $TIP_ACCION,
+                 $USUARIO,
+                 $ID,
+                 $TIP_DOC,
+                 $ANIO_RELIQ,
+                 $OBSER_PROCESO
+               ); 
+$query1 = "{call SP_SIMULACION(?,?,?,?,?,?)}";
+$result1=sqlsrv_query($link,$query1,$params);
+if( $result1 === false) {
+    if( ($errors = sqlsrv_errors() ) != null)  
+            {  
+               foreach( $errors as $error)  
+               {  
+                   $json_data["SQLSTATE"] =$error['SQLSTATE'];
+                   $json_data["code"] =$error['code'];
+                   $json_data["message"] =$error['message'];
+                  
+               }  
+            }  
+          $json_data["ind"] = false;
+          echo json_encode($json_data);
+   
+
+}
+        else {
+            
+             
+                while ( $row = sqlsrv_fetch_array( $result1, SQLSRV_FETCH_ASSOC))
+                {                                                                                                                            
+                      array_push($consulta, array($row["COD_AUDITA"],$row["DEC_AUDITA"],$row["TIP_ACCION"],$row["ERROR_NUMBER"],$row["ERROR_SEVERITY"],$row["ERROR_STATE"],$row["ERROR_PROCEDURE"],$row["ERROR_LINE"],$row["ERROR_MESSAGE"],$row["USUARIO_PROCE"],$row["FECHA_PROCESA"],$row["CLAVE_GLOBA"],$row["COD_PROCESO"]));
+
+                }
+            
+            
+            $json_data["ind"] = true;
+            $json_data["row"] = $consulta;
+            echo json_encode($json_data);
+        }
+       
+       
+?>

@@ -1,0 +1,632 @@
+var error;
+var control;
+var row;
+var rowProfe;
+var select;
+var cod_pro;
+var familiar;
+var procedencia;
+var coorX;
+var evento;
+
+(function ($) {
+    "use strict";
+
+
+    /*==================================================================
+    [ Validate after type ]*/
+    $('.input100-select .js-select2').each(function(){
+         $(this).on('change', function(){
+             control=$(this).attr('id');
+            
+             if(control=='Cmb_Predio')
+                {
+                    var indise = document.getElementById("Cmb_Predio");
+                    var pre = indise.options[indise.selectedIndex].value;
+                    var DataSetPre=JSON.parse(sessionStorage.getItem('Predios'));
+                    $("#Txt_Direc").val(DataSetPre[pre][1]);
+                    $("#Txt_TipPre").val(DataSetPre[pre][2]);
+                    sessionStorage.setItem('SigTra',DataSetPre[pre][3]);
+                    var Sectra=parseInt(sessionStorage.getItem('Sectra'))+1;
+                    var Inicial=sessionStorage.getItem('Intra');
+                    var Siglas=sessionStorage.getItem('SigTra');
+                    var NumTra=Inicial+Siglas+zfill(Sectra,5).toString();
+                     $("#Txt_Tramite").val(NumTra);
+                 
+                    
+                }
+                if(control=='cmb_TipTramite')
+                {
+                    var index = document.getElementById("cmb_TipTramite");
+                    var tra = index.options[index.selectedIndex].value;
+                    var DataSetTipTra=JSON.parse(sessionStorage.getItem('Tip_tramites'));
+                    sessionStorage.setItem('Intra',DataSetTipTra[tra][2]);
+                    sessionStorage.setItem('Sectra',DataSetTipTra[tra][3]);
+                     
+                }
+               
+         }) 
+        
+    })
+    $('.validate-input .input100').each(function(){
+        $(this).on('blur', function(){
+            evento='blur';
+            if(validate(this) == false){
+               
+                showValidate(this);
+            }
+            else {
+                control=$(this).attr('id');
+                if(control=='Txt_identicacionCiu')
+                {
+                      
+                    var id = $("#Txt_identicacionCiu").val();
+                     DatosCotacto(id);
+                     DatosPredio(row[0][0]);
+                     Cargar_Predios();
+                     $("#prodId").val(row[0][0]);
+                     $("#Txt_NombreCiu").val(row[0][1]+" "+row[0][2]);
+                     if(row[0][3]!==null)
+                     {
+                          $("#Txt_TelefonoCiu").val(row[0][3]);
+                     }
+//                    
+                     if(row[0][4]!==null)
+                     {
+                          $("#Txt_emailCui").val(row[0][4]);
+                     }
+//                      if(row[0][5]!==null)
+//                     {
+//                          $("#Txt_direccion").val(row[0][5]);
+//                     }
+                     
+                }
+                 if(control=='Txt_identicacionProfe')
+                {
+                      
+                    var idpro = $("#Txt_identicacionProfe").val();
+                     DatosProfecional(idpro);
+//                     $("#prodId").val(rowProfe[0][0]);
+                     $("#Txt_NombreProfe").val(rowProfe[0][1]);
+                     if(rowProfe[0][2]!==null)
+                     {
+                          $("#Txt_TelefonoProfe").val(rowProfe[0][2]);
+                     }
+////                    
+                     if(rowProfe[0][3]!==null)
+                     {
+                          $("#Txt_emailProfe").val(rowProfe[0][3]);
+                     }
+                     
+                }
+               
+                $(this).parent().addClass('true-validate');
+               
+            }
+        })    
+    })
+  
+  
+    /*==================================================================
+    [ Validate ]*/
+    var input = $('.validate-input .input100');
+    
+    $('.validate-form').on('submit',function(){
+        evento='submit';
+       
+        var check = true;
+        for(var i=0; i<input.length; i++) {
+            if(validate(input[i]) == false){
+                  control=$(input[i]).attr('id');
+//                       if(control=='Txt_IngCed'||control=='Txt_IngNom'||control=='Txt_IngDir'||control=='Txt_IngTel'||control=='Txt_IngEmail'||control=='Txt_IngNomAdj'||control=='Txt_IngNomAdj')
+//                       {
+//                           check=true;
+//                       }
+//                       else{
+                           if(control=='Txt_emailCui')
+                            {
+                              var correo = $("#Txt_emailCui").val();
+                            }
+                            if(correo!==''||correo!==null){
+                                showValidate(input[i]);
+                                check=false;
+                            }
+                            else{
+
+                                        showValidate(input[i]);
+                                        check=false;
+
+    //                     
+                            }
+//                       }
+                       
+                
+            }
+        }
+        error=check;
+//        alert(check);
+        return check;
+        
+    });
+$('.validate-form').on('submit',function(){
+    
+    if(error == true){
+         try{
+                var valida=0;
+                 var DataSetArchivos=JSON.parse(sessionStorage.getItem('Archivos'));
+                 var Accion=sessionStorage.getItem('Accion');
+                 var NumTram  = $("#Txt_Tramite").val();
+                 var CedProfe = $("#Txt_identicacionProfe").val();
+                 var Cod_tip_tra=parseInt($("#cmb_TipTramite").val())+1;
+                 var Pro_Codigo = $("#prodId").val();
+                 var Cod_est_tra=parseInt($("#Cmb_Estado").val());
+                 
+                 var Usr=sessionStorage.getItem('Name');
+                 var Ext=sessionStorage.getItem('Usr_Ext');
+//                 alert(Usr);
+                 var Obse_Tramite  = $("#Txt_detalle").val();
+                 var email = $("#Txt_emailProfe").val();
+                 var nombres = $("#Txt_NombreProfe").val();
+                 var notifi = $("#enviasn").val();
+                 var comboest = document.getElementById("Cmb_Estado");
+                 var estado = comboest.options[comboest.selectedIndex].text;
+                 var comboTra = document.getElementById("cmb_TipTramite");
+                 var Tramite = comboTra.options[comboTra.selectedIndex].text;
+                if (Accion==2)
+                 {
+                     var clave_catastral=$("#Cmb_Predio").val()
+//                     var DataSetTramite=JSON.parse(sessionStorage.getItem('Notificacion')); 
+                     var num_notifi=parseInt(JSON.parse(sessionStorage.getItem('Notificacion')));
+                 }
+                 else
+                 {
+                     if(Accion==1){
+                        var indise = document.getElementById("Cmb_Predio");
+                        var pre = indise.options[indise.selectedIndex].value;
+                        var DataSetPre=JSON.parse(sessionStorage.getItem('Predios'));
+                        var clave_catastral=DataSetPre[pre][0].toString();  
+                        var num_notifi=0;
+                     }
+
+                 }
+//                    alert(notifi+","+Usr);
+//                 alert(Accion+","+NumTram+","+CedProfe+","+Cod_tip_tra+","+Pro_Codigo+","+Cod_est_tra+","+Usr+","+clave_catastral+","+Obse_Tramite+","+num_notifi);
+//                 alert(NumTram+","+Usr+","+Pro_Codigo+","+DataSetArchivos[0][0].toString()+","+DataSetArchivos[0][1].toString()+","+DataSetArchivos[0][3].toString())
+                 var ValGuarTra=GuardarTramite(Accion,NumTram,CedProfe,Cod_tip_tra,Pro_Codigo,Cod_est_tra,Usr,clave_catastral,Obse_Tramite,num_notifi);
+                 if(ValGuarTra){
+                     for(var i=0; i<DataSetArchivos.length-1; i++){
+
+                         var ValGuarAdj=GuardarAdjuntos(i,NumTram,Usr,Pro_Codigo,DataSetArchivos[i][0].toString(),DataSetArchivos[i][1].toString(),DataSetArchivos[i][3].toString());
+                         if(!ValGuarAdj){                     
+                            valida=valida+1;
+                         }
+                     }
+                     if (valida==0){
+//                         alert("Registro Validado");
+                            if(notifi==1&&Ext==0){
+//                              alert("Enviando Correo.....");  
+                         EnviarEmail(email,'Notificacion de Respuesta de Tele Tramites ','Estimad(o) :'+nombres+' \n\
+Por medio de la presente se le informa que se a '+estado+'\n\
+su tramite de: '+Tramite+' \n\
+del predio '+clave_catastral+' en la plataforma virtual de Teletramites para mayor detalles \n\
+ingresar a la plataforma en la siguiente direccion electronica : http://impuestos.gadipmc.gob.ec/Virtual/Login.php\n\
+Recuerde que en esta plataforma puede dar seguimiento a sus tramites Municipales.');
+                    }
+                  sessionStorage.setItem('Accion',1);
+                alert("Tramite Guadado Correctamente");
+             }   
+         }
+        
+        } catch (e) {
+                alert("error"+e);
+        }
+        
+    }
+        
+});
+
+    $('.validate-form .input100').each(function(){
+        $(this).focus(function(){
+           hideValidate(this);
+           $(this).parent().removeClass('true-validate');
+        });
+    });
+
+     function validate (input) {
+//         alert(evento);
+        if($(input).attr('type') == 'email' || $(input).attr('name') == 'email') {
+           if($(input).val().trim()!=='')
+           {
+                if($(input).val().trim().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{1,5}|[0-9]{1,3})(\]?)$/) == null) {
+                   return false;
+               }
+           }
+           else{
+              return true; 
+           }
+        }
+        else {
+            if($(input).val().trim() == ''){
+                if($(input).attr('id')=='Txt_IngCed'||$(input).attr('id')=='Txt_IngNom'||$(input).attr('id')=='Txt_IngDir'||$(input).attr('id')=='Txt_IngTel'||$(input).attr('id')=='Txt_IngEmail'||$(input).attr('id')=='Txt_IngNomAdj'||$(input).attr('id')=='Txt_IngDesc')
+                       {
+                        
+                            if(evento=='submit'){
+                                 
+                                return true;
+                            }
+                            else{
+                                 return false;
+                            }
+                               
+                       }
+                       else{
+                            return false;
+                       }
+                
+            }
+            else{
+                if($(input).attr('id') == 'Txt_identicacionCiu'){
+                    var cedula=$(input).val().trim();
+//                     window.alert(cedula);
+                   return validarCedula(cedula,0);
+                }
+                if($(input).attr('id') == 'Txt_identicacionProfe'){
+                    var cedula=$(input).val().trim();
+//                     window.alert(cedula);
+                   return validarCedula(cedula,1);
+                }
+                if($(input).attr('id') == 'Txt_IngCed'){
+                    
+                     var cedula=$(input).val().trim();
+                    var valida=validarCedula(cedula,1);
+                    if(valida==false){
+                        $("#Txt_IngCed").val('');
+                    }
+//                     window.alert(cedula);
+                   return valida;
+                }
+            }
+            
+        }
+    }
+
+    function showValidate(input) {
+      
+        var thisAlert = $(input).parent();
+       
+        $(thisAlert).addClass('alert-validate');
+
+        $(thisAlert).append('<span class="btn-hide-validate">&#xf136;</span>')
+        $('.btn-hide-validate').each(function(){
+            $(this).on('click',function(){
+               hideValidate(this);
+            });
+        });
+    }
+
+    function hideValidate(input) {
+        var thisAlert = $(input).parent();
+        $(thisAlert).removeClass('alert-validate');
+        $(thisAlert).find('.btn-hide-validate').remove();
+    }
+ function  validarCedula(cedula,valida) {
+       
+        var cad = cedula;
+        var total = 0;
+        var longitud = cad.length;
+        var longcheck = longitud - 1;
+
+        if ((cad !== "" && longitud === 10)||(cad !== ""&&valida==1)){
+            
+         for(var i=0;i<longcheck; i++){
+             
+             if (i%2 === 0) {
+              var aux = cad.charAt(i) * 2;
+              if (aux > 9) aux -= 9;
+              total += aux;
+            } else {
+              total += parseInt(cad.charAt(i)); // parseInt o concatenará en lugar de sumar
+            }
+          }
+
+          total = total % 10 ? 10 - total % 10 : 0;
+            
+          if (cad.charAt(longitud-1) == total) {
+            return true;
+          }else{
+             return false;
+          }
+        }
+        else{
+            return true;
+        }
+      }
+    
+function DatosCotacto(id){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/ConsPropie.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               row=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+ function zfill(number, width) {
+    var numberOutput = Math.abs(number); /* Valor absoluto del número */
+    var length = number.toString().length; /* Largo del número */ 
+    var zero = "0"; /* String de cero */  
+    
+    if (width <= length) {
+        if (number < 0) {
+             return ("-" + numberOutput.toString()); 
+        } else {
+             return numberOutput.toString(); 
+        }
+    } else {
+        if (number < 0) {
+            return ("-" + (zero.repeat(width - length)) + numberOutput.toString()); 
+        } else {
+            return ((zero.repeat(width - length)) + numberOutput.toString()); 
+        }
+    }
+}
+function GuardarTramite(Accion,NumTram,CedProfe,Cod_tip_tra,Pro_Codigo,Cod_est_tra,Usr,clave_catastral,Obse_Tramite){    
+ var Data_Seterror,ex;    
+    try {
+           
+                                       
+                                        var parametros={
+                                                "accion":Accion,
+                                                "num_trami":NumTram,
+                                                "ced_profe":CedProfe,
+                                                "cod_tip_tra":Cod_tip_tra,
+                                                "pro_codigo":Pro_Codigo,
+                                                "cod_est_tra":Cod_est_tra,
+                                                "name":Usr,
+                                                "clave_catastral":clave_catastral,
+                                                "obse_tramite":Obse_Tramite
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Virtual/logica/GrabarTramite.php",
+                                                data: parametros,
+                                                 success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_Seterror=response.row;
+                                                        } else {
+                                                                ex=0;
+                                                                alert(response.message);
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);
+                                       if(Data_Seterror.length==0){
+                                                
+                                                 alert("Tramite Guardado Correctamente");
+                                                  return true;
+                                             
+                                               
+                                        }
+                                        else{
+                                            alert("Fallo al Guardar Tramite");
+                                            alert(Data_Seterror);
+                                             return false;
+                                        }
+                                      
+
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function GuardarTramite(Accion,NumTram,CedProfe,Cod_tip_tra,Pro_Codigo,Cod_est_tra,Usr,clave_catastral,Obse_Tramite,num_notifi){    
+ var Data_Seterror,ex;    
+    try {
+           
+                                       
+                                        var parametros={
+                                                "accion":Accion,
+                                                "num_trami":NumTram,
+                                                "ced_profe":CedProfe,
+                                                "cod_tip_tra":Cod_tip_tra,
+                                                "pro_codigo":Pro_Codigo,
+                                                "cod_est_tra":Cod_est_tra,
+                                                "name":Usr,
+                                                "clave_catastral":clave_catastral,
+                                                "obse_tramite":Obse_Tramite,
+                                                "num_notifi":num_notifi
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Virtual/logica/GrabarTramite.php",
+                                                data: parametros,
+                                                 success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_Seterror=response.row;
+                                                        } else {
+                                                                ex=0;
+                                                                alert(response.message);
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);
+                                       if(Data_Seterror.length==0){
+                                                
+                                                
+                                                  return true;
+                                             
+                                               
+                                        }
+                                        else{
+                                            alert("Fallo al Guardar Tramite");
+                                            alert(Data_Seterror);
+                                             return false;
+                                        }
+                                      
+           
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function GuardarAdjuntos(Indice,NumTram,Usr,Pro_Codigo,Desc_adj,Mensaje,Archivo){    
+ var Data_Seterror,ex;    
+    try {
+           
+                                       
+                                        var parametros={
+                                                "indice":Indice,
+                                                "num_trami":NumTram,
+                                                "name":Usr,
+                                                "pro_codigo":Pro_Codigo,
+                                                "desc_adjunt":Desc_adj,
+                                                "mensaje":Mensaje,
+                                                "archivo":Archivo
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Virtual/logica/GrabarAdjuntos.php",
+                                                data: parametros,
+                                                 success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_Seterror=response.row;
+                                                        } else {
+                                                                ex=0;
+                                                                alert(response.message);
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);
+                                       if(Data_Seterror.length==0){
+                                                
+                                                 
+                                                  return true;
+                                             
+                                               
+                                        }
+                                        else{
+                                            alert("Fallo al Guardar Adjunto "+Desc_adj);
+                                            alert(Data_Seterror);
+                                             return false;
+                                        }
+                                      
+
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function DatosProfecional(id){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/ConsuProfe.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowProfe=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+
+})(jQuery);

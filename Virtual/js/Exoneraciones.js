@@ -1,0 +1,382 @@
+var row;
+var rowConyuge;
+var rowConyugeHistorial;
+var tbl_historial;
+var tit_accion;
+$(document).ready(function(){
+
+ try {
+     var Cod_pro=sessionStorage.getItem('cod_pro');
+     tit_accion=sessionStorage.getItem('tit_accion');
+     DatosContribu(Cod_pro);
+     sessionStorage.setItem('pro_codigo',row[0][0]);
+     CargarConyuge(row[0][0],1);
+     tbl_historial = $('#Tbl_Conyu').DataTable({
+                                                                         language: {
+                                                                         "decimal": "",
+                                                                         "emptyTable": "No Tiene Notificaciones Pendientes",
+                                                                         "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                                                                         "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                                                                         "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                                                                         "infoPostFix": "",
+                                                                         "thousands": ",",
+                                                                         "lengthMenu": "Mostrar _MENU_ Entradas",
+                                                                         "loadingRecords": "Cargando...",
+                                                                         "processing": "Procesando...",
+                                                                         "search": "Buscar:",
+                                                                         "zeroRecords": "Sin resultados encontrados",
+                                                                         "paginate": {
+                                                                             "first": "Primero",
+                                                                             "last": "Ultimo",
+                                                                             "next": "Siguiente",
+                                                                             "previous": "Anterior"
+                                                                         }
+                                                                     }
+                                                                 });
+            var quantitiy=0;
+               $('.quantity-right-plus').click(function(e){
+
+                    // Stop acting like a button
+                    e.preventDefault();
+                    // Get the field name
+                    var quantity = parseInt($('#quantity').val());
+
+                    // If is not undefined
+                        if(quantity<100){
+                            $('#quantity').val(quantity + 1);
+                        }
+
+
+
+                        // Increment
+
+                });
+
+                 $('.quantity-left-minus').click(function(e){
+                    // Stop acting like a button
+                    e.preventDefault();
+                    // Get the field name
+                    var quantity = parseInt($('#quantity').val());
+
+                    // If is not undefined
+
+                        // Increment
+                        if(quantity>0){
+                        $('#quantity').val(quantity - 1);
+                        }
+                });
+                $("#chbxsn_te").click(function (event) {
+                    var check=document.getElementById('chbxsn_te');
+                    if (check.checked){
+                        $("#div_porexo").css('visibility', 'visible');
+                    }
+                    else{
+                         $("#div_porexo").css('visibility', 'hidden');
+                    }
+                });
+                $("#chbx_sol").click(function (event) {
+                     var check=document.getElementById('chbx_sol');
+                     if (check.checked){
+                         $("#Frm_conyuge").css('visibility', 'visible');
+                         if(rowConyugeHistorial.length>0){
+                             $("#botones").css('visibility', 'visible');
+                         }
+                     }
+                     else{
+                         $("#Frm_conyuge").css('visibility', 'hidden');
+                          $("#botones").css('visibility', 'hidden');
+                     }
+
+                });
+                 $("#iden_conyu").blur(function (event) {
+                    var valida=validarCedula($("#iden_conyu").val(),1);
+                    if(valida==false){
+                        bootbox.dialog({
+                                                                                                       title: '<a href="#" class="btn btn-danger btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                                                       message: "La Cédula Ingresada no es Valida ",
+                                                                                                       onEscape: function() {
+
+                                                                                                       }
+                                                                                                   });
+                       $("#iden_conyu").val(''); 
+                    }
+                    else{
+                        DatosConyuge($("#iden_conyu").val());
+                        if(rowConyuge.length>0){
+                             $("#Nom_conyu").val(rowConyuge[0][2]);
+                             $("#Apelli_conyu").val(rowConyuge[0][1]);
+                             $("#Email_conyu").val(rowConyuge[0][6]);
+                             $("#dp1").val(rowConyuge[0][3]);
+                             $("#Edad_conyu").val(rowConyuge[0][4]);
+                             $("#Telf_conyu").val(rowConyuge[0][5]);
+                        }
+                    }
+                 });
+                CargarContri();
+                $("#Btn_nuecon").click(function (event) {
+                    LimpiarConyuge();
+                });
+                $("#Btn_history").click(function (event) {
+                   TraerConyuge(row[0][0],2);
+                    tbl_historial.clear();
+                      for(var i=0; i<rowConyugeHistorial.length; i++){
+                          if(rowConyugeHistorial[i][7]==1){
+                              var estado='Activo';
+                          }
+                          else{
+                              var estado='Separado';
+                          }
+                          tbl_historial.row.add([
+                                                     rowConyugeHistorial[i][0],
+                                                     rowConyugeHistorial[i][2],
+                                                     rowConyugeHistorial[i][1],
+                                                     estado
+                                                   ]).draw();
+                     }
+                     $('#BusCoyuges').modal('show');
+                });
+                $("#Btn_cerraHisto").click(function (event) {
+                     $('#BusCoyuges').modal('hide');
+                });
+    } catch (e) {
+        alert("error"+e);
+    }
+});
+function DatosContribu(id){ 
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.25.6/Virtual/logica/ConsPropie.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               row=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function CargarContri(){
+     $("#Nom_contri").val(row[0][1]);
+     $("#Apelli_contri").val(row[0][2]);
+     $("#Email_contri").val(row[0][4]);
+     $("#indenti_contri").val(row[0][17]);
+     $("#prov_contri").val(row[0][14]);
+     $("#canto_contri").val(row[0][15]);
+     $("#parro_contri").val(row[0][16]);
+     $("#tele_contri").val(row[0][3]);
+     $("#codi_contri").val(row[0][0]);
+      if(tit_accion=='Tercera Edad'){
+        $("#lbl_exo").append("Exonerado Tercera Edad?");
+        if(row[0][10]=='S'){
+          document.getElementById("chbxsn_te").checked = true;
+          $("#div_porexo").css('visibility', 'visible');
+          $("#quantity").val(row[0][11]);
+     }
+     else{
+          document.getElementById("chbxsn_te").checked = false;
+          $("#div_porexo").css('visibility', 'hidden');
+          $("#quantity").val(0);
+          
+     }
+    }
+    else{
+        $("#lbl_exo").append("Exonerado por Discapacidad?");
+        if(row[0][12]=='S'){
+          document.getElementById("chbxsn_te").checked = true;
+          $("#div_porexo").css('visibility', 'visible');
+          $("#quantity").val(row[0][13]);
+     }
+     else{
+          document.getElementById("chbxsn_te").checked = false;
+          $("#div_porexo").css('visibility', 'hidden');
+          $("#quantity").val(0);
+          
+     }
+    }
+     
+    
+     
+     
+}
+function  validarCedula(cedula,valida) {
+       
+        var cad = cedula;
+        var total = 0;
+        var longitud = cad.length;
+        var longcheck = longitud - 1;
+
+        if ((cad !== "" && longitud === 10)||(cad !== ""&&valida==1)){
+            if(longitud==10){
+                for(var i=0;i<longcheck; i++){
+
+                    if (i%2 === 0) {
+                     var aux = cad.charAt(i) * 2;
+                     if (aux > 9) aux -= 9;
+                     total += aux;
+                   } else {
+                     total += parseInt(cad.charAt(i)); // parseInt o concatenará en lugar de sumar
+                   }
+                 }
+
+                 total = total % 10 ? 10 - total % 10 : 0;
+
+                 if (cad.charAt(longitud-1) == total) {
+                   return true;
+                 }else{
+                    return false;
+                 }
+             }
+             else{
+                    if(longitud==13){
+                         return true;
+                    }
+                    else{
+                        return false;
+                    }
+                   
+             }
+        }
+        else{
+            
+            return true;
+        }
+      }
+function DatosConyuge(id){ 
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.25.6/Virtual/logica/TraeConyuge.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowConyuge=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function TraerConyuge(id,mbus){ 
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons,
+                                "mbusqueda":mbus
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.25.6/Virtual/logica/ConsuConyu.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowConyugeHistorial=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function CargarConyuge(id,mbus){ 
+    TraerConyuge(id,mbus);
+    if(rowConyugeHistorial.length>0){
+        document.getElementById("chbx_sol").checked = true;
+         $("#Frm_conyuge").css('visibility', 'visible');
+         $("#iden_conyu").val(rowConyugeHistorial[0][0]);
+         $("#Nom_conyu").val(rowConyugeHistorial[0][2]);
+         $("#Apelli_conyu").val(rowConyugeHistorial[0][1]);
+         $("#Email_conyu").val(rowConyugeHistorial[0][6]);
+         var dp1 = $('#dp1').datepicker().data('datepicker');
+//         alert(rowConyugeHistorial[0][3]);
+         dp1.selectDate(new Date(stringToDate(rowConyugeHistorial[0][3],"dd-mm-yyyy","-")));
+//         $("#dp1").val(rowConyugeHistorial[0][3]);
+         $("#Edad_conyu").val(rowConyugeHistorial[0][4]);
+         $("#Telf_conyu").val(rowConyugeHistorial[0][5]);
+         $("#botones").css('visibility', 'visible');
+    }
+}
+function stringToDate(_date,_format,_delimiter)
+{
+            var formatLowerCase=_format.toLowerCase();
+            var formatItems=formatLowerCase.split(_delimiter);
+            var dateItems=_date.split(_delimiter);
+            var monthIndex=formatItems.indexOf("mm");
+            var dayIndex=formatItems.indexOf("dd");
+            var yearIndex=formatItems.indexOf("yyyy");
+            var month=parseInt(dateItems[monthIndex]);
+            month-=1;
+            var formatedDate = new Date(dateItems[yearIndex],month,dateItems[dayIndex]);
+            return formatedDate;
+}
+function LimpiarConyuge(){ 
+        $("#iden_conyu").val('');
+         $("#Nom_conyu").val('');
+         $("#Apelli_conyu").val('');
+         $("#Email_conyu").val('');
+         $("#dp1").val('');
+         $("#Edad_conyu").val('');
+         $("#Telf_conyu").val('');
+}

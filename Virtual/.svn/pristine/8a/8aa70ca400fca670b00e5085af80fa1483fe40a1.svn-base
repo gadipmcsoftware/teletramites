@@ -1,0 +1,482 @@
+var tbl_tramite;
+var tbl_recorrido;
+var DataSetNoti;
+var DataSetTramite;
+var DataSetTramitePadre;
+var DataSetRecorrido;
+var DataSetEstadisticas;
+var rowMensaje;
+$(document).ready(function() {
+    try {
+         $('#opt_rectra').on('click', function (e){
+             sessionStorage.setItem('Accion',1);
+      });
+      $('#opt_soltra').on('click', function (e){  
+             sessionStorage.setItem('Accion',1);
+        });
+        tbl_tramite = $('#Tbl_tramite').DataTable({
+                                                                         language: {
+                                                                         "decimal": "",
+                                                                         "emptyTable": "No Tiene Notificaciones Pendientes",
+                                                                         "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                                                                         "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                                                                         "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                                                                         "infoPostFix": "",
+                                                                         "thousands": ",",
+                                                                         "lengthMenu": "Mostrar _MENU_ Entradas",
+                                                                         "loadingRecords": "Cargando...",
+                                                                         "processing": "Procesando...",
+                                                                         "search": "Buscar:",
+                                                                         "zeroRecords": "Sin resultados encontrados",
+                                                                         "paginate": {
+                                                                             "first": "Primero",
+                                                                             "last": "Ultimo",
+                                                                             "next": "Siguiente",
+                                                                             "previous": "Anterior"
+                                                                         }
+                                                                     },
+                                                                     "columnDefs": [
+                                                                                     {
+                                                                                         "targets": [ 9 ],
+                                                                                         "visible": false,
+                                                                                         "searchable": false
+                                                                                     }
+            
+                                                                                  ]
+
+                                                                 });
+      tbl_recorrido = $('#Tbl_recor').DataTable({
+                                                                         language: {
+                                                                         "decimal": "",
+                                                                         "emptyTable": "No Tiene Recorrido",
+                                                                         "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                                                                         "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                                                                         "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                                                                         "infoPostFix": "",
+                                                                         "thousands": ",",
+                                                                         "lengthMenu": "Mostrar _MENU_ Entradas",
+                                                                         "loadingRecords": "Cargando...",
+                                                                         "processing": "Procesando...",
+                                                                         "search": "Buscar:",
+                                                                         "zeroRecords": "Sin resultados encontrados",
+                                                                         "paginate": {
+                                                                             "first": "Primero",
+                                                                             "last": "Ultimo",
+                                                                             "next": "Siguiente",
+                                                                             "previous": "Anterior"
+                                                                         }
+                                                                     },
+
+                                                                 });
+      DatosNotificaciones();
+      var Notificaciones=DataSetNoti;
+        if(Notificaciones.length>0)
+        {
+                        sessionStorage.setItem('Notificaciones',JSON.stringify(DataSetNoti));
+                        $('#Tbl_tramite tbody').on( 'click', 'a', function () {
+                            var rowDataNotif = tbl_tramite.row( $(this).parents('tr') ).data();
+                            if($(this).attr('id')=="Btn_resp"){
+                                      sessionStorage.setItem('Accion',2);
+                                      DatosTramites(rowDataNotif[0],rowDataNotif[1]);
+                                      var UsrExt=parseInt(sessionStorage.getItem('Usr_Ext'));
+                                      if(UsrExt==1){
+                                          TraeMensaje(DataSetTramite[0][10]);
+                                          if(rowMensaje.length>0){  
+                                                  for(var i=0; i<rowMensaje.length; i++){
+
+                                                       bootbox.dialog({
+                                                                                                    message: '<div class="container">\n\
+                                                                                                                <div align="center">\n\
+                                                                                                                     <img src="imagenes/'+rowMensaje[i][4]+'" width="200" height="200">\n\
+                                                                                                                </div>\n\
+                                                                                                                <div class="row">\n\
+                                                                                                                     <p align="justify"><h8 id="lbl_varan" class="m-0 font-weight-bold text-gray-700">'+rowMensaje[i][1]+'</h8></p>\n\
+                                                                                                                </div>\n\
+                                                                                                              </div>',
+                                                                                                    title: rowMensaje[i][3],
+                                                                                                    onEscape: function() {                                                           
+                                                                                                    }
+                                                                                                });
+                                                       if(rowMensaje[i][2]==0){
+                                                           sessionStorage.setItem('Tramites',JSON.stringify(DataSetTramite));
+                                                           if(DataSetTramite[0][24]!=null){
+                                                                DatosTramitesPadre(rowDataNotif[0],rowDataNotif[1]);
+                                                                sessionStorage.setItem('TramitesPadre',JSON.stringify(DataSetTramitePadre));
+                                                            }
+                                                           sessionStorage.setItem('Notificacion',rowDataNotif[9]);
+                                                           window.location.href = "http://172.23.5.5/Virtual/FrmRegistro.php?area=0";
+                                                       }
+                                                  }     
+                                          }
+                                          else{
+                                                           sessionStorage.setItem('Tramites',JSON.stringify(DataSetTramite));
+                                                           if(DataSetTramite[0][24]!=null){
+                                                                DatosTramitesPadre(rowDataNotif[0],rowDataNotif[1]);
+                                                                sessionStorage.setItem('TramitesPadre',JSON.stringify(DataSetTramitePadre));
+                                                            }
+                                                           sessionStorage.setItem('Notificacion',rowDataNotif[9]);
+                                                           window.location.href = "http://172.23.5.5/Virtual/FrmRegistro.php?area=0";
+                                          }
+                                      }
+                                    else{
+                                        sessionStorage.setItem('Tramites',JSON.stringify(DataSetTramite));
+                                        if(DataSetTramite[0][24]!=null){
+                                                                
+                                                                DatosTramitesPadre(rowDataNotif[0],rowDataNotif[1]);
+                                                                sessionStorage.setItem('TramitesPadre',JSON.stringify(DataSetTramitePadre));
+                                                            }
+                                        sessionStorage.setItem('Notificacion',rowDataNotif[9]);
+                                        window.location.href = "http://172.23.5.5/Virtual/FrmRegistro.php?area=0";
+                                    }
+                            }
+                            else{
+                                if($(this).attr('id')=="Btn_recori"){
+                                    DatosRecorrido(rowDataNotif[0]);
+                                    tbl_recorrido.clear();
+                                    
+                                    for(var i=0; i<DataSetRecorrido.length; i++){
+                                         tbl_recorrido.row.add([
+                                                     DataSetRecorrido[i][1],
+                                                     DataSetRecorrido[i][2],
+                                                     DataSetRecorrido[i][3],
+                                                     DataSetRecorrido[i][4],
+                                                   ]).column('3:visible').order('desc').draw();
+                                    }
+//                               
+                                    $('#Form_Recorrido').modal('show');
+                                }
+                            }
+                          });
+                         for(var i=0; i<Notificaciones.length; i++){
+                              tbl_tramite.row.add([
+                                                     Notificaciones[i][0],
+                                                     Notificaciones[i][1],
+                                                     Notificaciones[i][2],
+                                                     Notificaciones[i][3],
+                                                     Notificaciones[i][4],
+                                                     Notificaciones[i][5],
+                                                     Notificaciones[i][6],
+                                                     "<a id='Btn_resp' href='#' class='btn btn-success btn-circle'><i class='far fa-check-circle'></i>",
+                                                      "<a id='Btn_recori' href='#' class='btn btn-primary btn-circle'><i class='fa fa-eye'></i>",
+                                                     Notificaciones[i][7]
+
+                                                   ]).draw();
+                                                   $("#Frm_alertCenter").append("<a class='dropdown-item d-flex align-items-center' href='#'>\n\
+                                                         <div class='mr-3'>\n\
+                                                             <div class='icon-circle bg-primary'>\n\
+                                                                 <i class='fas fa-file-alt text-white'></i>\n\
+                                                             </div>\n\
+                                                         </div>\n\
+                                                         <div><div class='small text-gray-500'>\n\
+                                                             <span>"+Notificaciones[i][6]+"</span>\n\
+                                                         </div>\n\
+                                                         <span class='font-weight-bold'>"+Notificaciones[i][5]+" Tramite: "+Notificaciones[i][0]+"</span>\n\
+                                                         </div></a>");
+                         }
+                         $("#Num_Noti").append(Notificaciones[0][8]+"+"); 
+      }
+                           var UsrExt=parseInt(sessionStorage.getItem('Usr_Ext'));
+                           if(UsrExt==0){
+                               var Name=sessionStorage.getItem('Name');
+                           }
+                           else{
+                               if(UsrExt==1){
+                                 var Name=sessionStorage.getItem('CED_PROFE');
+                               }
+                           }
+                         DatosEstadistica(Name,UsrExt);
+                          for(var i=0; i<DataSetEstadisticas.length; i++){
+                                if(DataSetEstadisticas[i][1].toString()=='Realizados'){
+                                    $("#lbl_trarea").append("<a>"+DataSetEstadisticas[i][0]+"</a>");
+                                }
+                                if(DataSetEstadisticas[i][1].toString()=='Aprobado'){
+                                    $("#lbl_trapro").append("<a>"+DataSetEstadisticas[i][0]+"</a>");
+                                }
+                                if(DataSetEstadisticas[i][1].toString()=='Observado'){
+                                    $("#lbl_traobs").append("<a>"+DataSetEstadisticas[i][0]+"</a>");
+                                }
+                                if(DataSetEstadisticas[i][1].toString()=='Negado'){
+                                    $("#lbl_traNega").append("<a>"+DataSetEstadisticas[i][0]+"</a>");
+                                }  
+                                                   
+                         }
+    } catch (e) {
+        alert("error"+e);
+    }
+});
+function DatosNotificaciones(){
+   
+   var ex=0; 
+     try {
+                    
+                var Usr=parseInt(sessionStorage.getItem('Usr_Ext'));
+                if(Usr==0){
+                    var id=sessionStorage.getItem('Name');
+                }
+                else{
+                     if(Usr==1){
+                        var id=sessionStorage.getItem('CED_PROFE');
+                    }
+                    else{
+                         window.location.href = "http://172.23.5.5/Virtual/error.php";
+                    }
+                }
+               
+                              var parametros={
+                                "id":id,
+                                "usr_ext":Usr
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerNotificaciones.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               DataSetNoti=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                     
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function DatosTramites(id,clave){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons,
+                                "clave_catastral":clave
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerTramite.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               DataSetTramite=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function DatosEstadistica(id,usr){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons,
+                                "usr_ext":usr
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/ConsBarBan.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               DataSetEstadisticas=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function TraeMensaje(id){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraeMensajes.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               rowMensaje=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function DatosRecorrido(id){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TraerRecorrido.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               DataSetRecorrido=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function DatosTramitesPadre(id,clave){
+   
+   var ex=0; 
+     try {
+                    var idcons=id;
+                              var parametros={
+                                "id":idcons,
+                                "clave_catastral":clave
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/TrearTramitePadre.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               DataSetTramitePadre=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+//                                try {
+//                                         cod_pro=row[0][0]; 
+//                                    } catch (e) {
+//                                       cod_pro=0;
+//                                    }
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}

@@ -1,0 +1,149 @@
+var row;
+var rowProfe;
+$(document).ready(function() {
+    
+    try {
+        sessionStorage.removeItem('Name');
+        sessionStorage.removeItem('Usr_Ext');
+        sessionStorage.removeItem('CED_PROFE');
+        sessionStorage.clear();
+        $('#Btn_login').click(function() { 
+                 var usuario = $("#Txt_Usuario").val();
+                 var clave   = $("#Txt_clave").val();
+                buscarLogin(usuario,clave);
+                if(row.length>0){
+
+                    sessionStorage.setItem('Name',row[0][0]);
+                    sessionStorage.setItem('Descrpcion',row[0][1]);
+                    sessionStorage.setItem('PER_REAC',row[0][2]);
+                    sessionStorage.setItem('PER_RESP',row[0][3]);
+                    sessionStorage.setItem('PER_VALIDA',row[0][4]);
+                    sessionStorage.setItem('COD_AREA',row[0][5]);
+                    sessionStorage.setItem('PER_PROPIE',row[0][6]);
+                    sessionStorage.setItem('PRE_REPSIMULA',row[0][7]);
+                    sessionStorage.setItem('PRE_SIMULA',row[0][8]);
+                    sessionStorage.setItem('Usr_Ext',0);
+                     window.location.href = "http://172.23.5.5/Virtual/index.php";
+                }
+                else{
+                    buscarLoginProfe(usuario,clave);
+                     if(rowProfe.length>0){
+                            sessionStorage.setItem('CED_PROFE',rowProfe[0][0]);
+                            sessionStorage.setItem('NOM_PROFE',rowProfe[0][1]);
+                            sessionStorage.setItem('DIREC_PROFE',rowProfe[0][2]);
+                            sessionStorage.setItem('TELEF_PROFE',rowProfe[0][3]);
+                            sessionStorage.setItem('EMAIL_PROFE',rowProfe[0][4]);
+                            sessionStorage.setItem('TIT_PROFE',rowProfe[0][6]);
+                            sessionStorage.setItem('CUI_DOMI',rowProfe[0][7]);
+                            sessionStorage.setItem('COD_PERFIL',rowProfe[0][8]);
+                            sessionStorage.setItem('PER_TRAM',rowProfe[0][9]);
+                            sessionStorage.setItem('PERSONERIA',rowProfe[0][10]);
+                            sessionStorage.setItem('Usr_Ext',1);
+                            sessionStorage.setItem('Name','S/U');
+                            var cam_clave=parseInt(rowProfe[0][5].toString());
+                           if(cam_clave==1){
+                               window.location.href = "http://172.23.5.5/Virtual/CambioClave.php";
+                           }
+                           else{
+                                window.location.href = "http://172.23.5.5/Virtual/index.php";
+                           }
+       
+                    }
+                    else{
+                         bootbox.alert("Usuario Incorrecto");
+                    }
+                   
+                       
+                }
+            }); 
+          
+    } catch (e) {
+        alert("error"+e);
+    }
+});
+function buscarLogin(usuario,clave){
+    var ex=0; 
+     try {
+                    var usr=usuario;
+                    var password=clave;
+//                    var ind_form = $("#Frm_Login").valid();
+//                        if(ind_form){
+                                var parametros={
+                                "usuario":usr,
+                                "clave":password
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/ObtenerLogin.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind;
+                                                               row=response.row;
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+//                    alert(row);
+//                      }
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+   } 
+   function buscarLoginProfe(usuario,clave){
+    var ex=0; 
+     try {
+                    var usr=usuario;
+                    var password=clave;
+                    var ind_form = $("#Frm_Login").valid();
+                        if(ind_form){
+                                var parametros={
+                                "usuario":usr,
+                                "clave":password
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/ObtenerLoginProfe.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind;
+                                                               rowProfe=response.row;
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+//                    alert(row);
+                      }
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+   } 

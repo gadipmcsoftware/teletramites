@@ -1,0 +1,64 @@
+<?php
+$consulta = array();
+//ESTABLECE CONEXION
+	 include './Conexion.php';
+         $link =  conectarse();
+//PARAMETROS WEB_SERVICE
+$CED_PROFE       = $_REQUEST["ced_profe"];
+$NOM_PROFE       = $_REQUEST["nom_profe"];
+$DIREC_PROFE     = $_REQUEST["direc_profe"];
+$TELEF_PROFE     = $_REQUEST["telef_profe"];
+$EMAIL_PROFE     = $_REQUEST["email_profe"];
+$NOTI_EMAIL      = $_REQUEST["noti_email"];
+$CAMBI_CLAVE     = $_REQUEST["cambi_clave"];
+$CLAVE           = $_REQUEST["clave"];
+//PARAMETROS SP
+
+$params = array(   
+                 $CED_PROFE,      
+                 $NOM_PROFE ,     
+                 $DIREC_PROFE,    
+                 $TELEF_PROFE ,    
+                 $EMAIL_PROFE  ,  
+                 $NOTI_EMAIL ,
+                 $CAMBI_CLAVE,
+                 $CLAVE
+               ); 
+////LLAMA STORE PROCEDURE
+
+$query1 = "{call SP_GUARDARPROFE( ?,?,?,?,?,?,?,?)}";
+$result1=sqlsrv_query($link, $query1, $params);
+
+if( $result1 === false) {
+    if( ($errors = sqlsrv_errors() ) != null)  
+            {  
+               foreach( $errors as $error)  
+               {  
+                   $json_data["SQLSTATE"] =$error['SQLSTATE'];
+                   $json_data["code"] =$error['code'];
+                   $json_data["message"] =$error['message'];
+                  
+               }  
+            }  
+          $json_data["ind"] = false;
+          echo json_encode($json_data);
+   
+//    die( print_r( sqlsrv_errors(), true) );
+}
+        else {
+            
+             
+                while ( $row = sqlsrv_fetch_array( $result1, SQLSRV_FETCH_ASSOC))
+                {                                                                                                                            
+                      array_push($consulta, array($row["errNumber"],$row["errSeverity"],$row["errState"],$row["errProcedure"],$row["errLine"],$row["errMessage"]));
+//                        echo $row["clave_catastral"];
+                }
+            
+            
+            $json_data["ind"] = true;
+            $json_data["row"] = $consulta;
+            echo json_encode($json_data);
+        }
+       
+       
+?>

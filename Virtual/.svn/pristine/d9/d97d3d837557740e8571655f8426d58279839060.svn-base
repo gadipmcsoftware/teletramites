@@ -1,0 +1,24 @@
+<?php
+function conectarseODBC(){
+    // Configuration Settings for connection to Database
+//    $host = 'localhost\SQLEXPRESS';
+    $user = 'sim2001';
+    $pass = 'cayambe';
+//    $db   = 'sim2001';
+    $conn = "Base_sim";
+
+    // Open connection
+    $db_connect = odbc_connect($conn, $user, $pass);
+
+    // Check for successful connection
+    if ( $db_connect ) {
+        return $db_connect; 
+//        echo 'Beer time!';
+    } else {
+//        die('Error connecting...');
+        header("Location: http://172.23.5.5/Simulacion/error.php");
+    }
+}
+
+
+?>

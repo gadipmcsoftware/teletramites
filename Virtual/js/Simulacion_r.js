@@ -1,0 +1,499 @@
+// Call the dataTables jQuery plugin
+var error ="";
+var query1="";
+var SimDatos;
+var RepError;
+var ConteoPredios;
+var tbl_DatosSim;
+var currentTime = new Date
+var TraeFechaServe;
+var ErrorEmi;
+$(document).ready(function() {
+    
+    try {
+         TraeFecha();
+//         alert(TraeFechaServe[0][2]);
+    var contador = 0;
+    var intervalo;
+             intervalo = setInterval(function() {
+                            TraeCuentaPredios(TraeFechaServe[0][2]+1);
+                            contador=ConteoPredios;
+                            $('#contador').text(contador);
+               }, 100);
+//        sessionStorage.setItem('Name',row[0][0]);
+//        sessionStorage.setItem('Descrpcion',row[0][1]);
+            Cargar_Anio();
+            CargarDatos();
+         $("#Btn_simular").click(function(){
+             var Usuario=sessionStorage.getItem('Name');
+             $('#Wait').modal('show');
+             Simular(1,Usuario,1,1,1,1);
+             
+          });
+//           $("#Btn_Valorar").click(function(){
+//             bootbox.dialog({ message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Espere por favor...</div>' })
+//             Valorar();   
+//             
+//          });
+           $("#Btn_Generar").click(function(){
+               var anio=$("#cmb_AnioSimula").val();
+               var tip_impu=$("#cmb_impuesto").val();
+               window.location.href = "http://172.23.25.6/Virtual/logica/ExelSimulacion_r.php?anio="+anio+"&tip_impue="+tip_impu;
+               bootbox.dialog({ message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Espere por favor...</div>' })
+               bootbox.hideAll();
+//             GenerarExcel();   
+             
+          });
+           $("#Btn_Emitir").click(function(){
+                TraeFecha();
+                if(TraeFechaServe[0][0]>=11&&TraeFechaServe[0][1]==12){
+                            bootbox.confirm({
+                                        title:"¡Advertencia!",
+                                        message: '<div class="container">\n\
+                                                                                                    <div align="center">\n\
+                                                                                                         <img src="imagenes/Adverten.jpg" width="200" height="200">\n\
+                                                                                                    </div>\n\
+                                                                                                    <div class="row">\n\
+                                                                                                         <p align="justify"><h8 id="lbl_varan" class="m-0 font-weight-bold text-gray-700">En este momento se va a iniciar el proceso de Emisión de Impuestos antes de Iniciar debe tomar en cuenta lo siguiente:<br><br>-Antes de Emitir tesorería debe Tener parametrizada la tabla de recargos y descuentos<br>-Es posible que esta acción cause lentitud en los sistemas de recaudación<br><br>¿DESEA CONTINUAR CON LA EMISIÓN?</h8></p>\n\
+                                                                                                    </div>\n\
+                                                                                                  </div>',
+                                        buttons: {
+                                          confirm: {
+                                            label: 'Yes',
+                                            className: 'btn-class-here'
+                                          },
+                                          cancel: {
+                                            label: 'No',
+                                            className: 'btn-class-here'
+                                          }
+                                        },
+                                        callback: function (result) {
+                                          if (result) {
+                                                        var Usuario=sessionStorage.getItem('Name');
+                                                        var anio=parseInt(TraeFechaServe[0][2])+1;
+                                                        $('#Wait').modal('show'); 
+//                                                         window.location.href = "http://172.23.25.6/Virtual/logica/Emitir.php?TIP_ACCION=1&USUARIO="+Usuario+"&ANIO="+anio+"&PROCESO=";
+                                                        Emitir(1,Usuario,anio,'');
+                                                        
+                                            }
+
+                                        }
+                            });
+                }
+                else{
+                            bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-warning btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "El boton de Emision de Impuestos estara disponible a partir de 26 de Diciembre",
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            }); 
+                }
+ 
+
+          });
+              $("#Btn_versimula").click(function(){
+                    var anio=$("#cmb_AnioSimula").val();
+                    var tip_impu=$("#cmb_impuesto").val();
+                    sessionStorage.setItem('anio',anio);
+                    sessionStorage.setItem('tip_impu',tip_impu);
+                    window.location.href = "http://172.23.25.6/Virtual/tables_r.php";
+                    
+              });
+    } catch (e) {
+        alert(e);
+    }
+});
+function Simular(accion,usuario,id,tip_doc,anio_reliq,obser_proceso){    
+ var ex=0;    
+    try {
+                                        var parametros={
+                                                "TIP_ACCION":accion,
+                                                "USUARIO":usuario,
+                                                "ID":id,
+                                                "TIP_DOC":tip_doc,
+                                                "ANIO_RELIQ":anio_reliq,
+                                                "OBSER_PROCESO":obser_proceso,
+                                        }
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                cache: false,
+                                                url: "http://172.23.25.6/Virtual/logica/Simular_r.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               RepError=response.row;
+
+                                                        } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+//                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);
+  
+                                      
+
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function GenerarExcel(anio,tip_impues){    
+ var ex=0;    
+    try {
+ 
+                                        
+                           var parametros={
+                                "anio":anio,
+                                "tip_impue":tip_impues
+                                }    
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.25.6/Virtual/logica/ExelSimulacion_r.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind;
+
+                                                        } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);message
+                                        if(ex){
+                                            bootbox.dialog({
+                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                title: "Excel Generada Correctamente",
+//                                                                onEscape: function() {
+//                                                                window.location.href = "http://172.23.25.6/Simulacion/BandaImpositiva.php";
+//                                                                }
+                                                            });
+                                                            //                                            
+//                                              bootbox.alert("Registro Guardado Correctamente");
+                                              
+                                        }
+                                        else{
+                                            bootbox.alert("Fallo al Generar Ecxel");
+                                            alert(error+" "+ex);
+                                            alert(query1);
+                                        }
+                                      
+
+//                    } 
+    } catch (e) {
+        alert("!Error "+e);
+    }
+ }
+  function TraeDatos(anio,tip_impue){ 
+    var ex=0; 
+     try {
+                              var parametros={
+                                "anio":anio,
+                                "tip_impue":tip_impue
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.25.6/Virtual/logica/TraeSimDatos.php",
+					data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               SimDatos=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+ }
+  function CargarDatos(){
+      var anio=parseInt(sessionStorage.getItem('anio'));
+      var tip_impu=parseInt(sessionStorage.getItem('tip_impu'));
+//      alert(anio);
+//      alert(tip_impu);
+      if(isNaN(anio)){
+            var year = currentTime.getFullYear();
+              TraeDatos(parseInt(year)+1,'U');
+              
+      }
+      else
+      {
+           $("#cmb_AnioSimula").val(anio);
+           $("#cmb_impuesto").val(tip_impu);
+           if (tip_impu==1)
+           {
+                document.getElementById("Titulo").innerHTML= 'Catastro Urbano';
+           }
+           if (tip_impu==2)
+           {
+                document.getElementById("Titulo").innerHTML= 'Catastro Rural';
+           }
+           if (tip_impu==3)
+           {
+                document.getElementById("Titulo").innerHTML= 'Catastro Derechos y Acciones';
+           }
+//           alert(tip_impu);
+          TraeDatos(anio,tip_impu);
+//           alert("PASOOOOO");
+      }
+//       var data_columns = [
+//            { 'data': 'seleccionado'},
+//            {'data': 'van', "type": "num-fmt"},
+//            {'data': 'inversion_neta', "type": "num-fmt"},
+//         ];
+                            tbl_DatosSim = $('#dataCatastro').DataTable({
+                                                                                       data:SimDatos,
+                                                                                       dataSrc:        "",
+                                                                                       deferRender:true,
+//                                                                                       columns:data_columns,
+                                                                                       pageLength:     25,
+                                                                                       stateSave:      true,
+                                                                                       autoWidth:      true,
+                                                                                       columnDefs: [
+                                                                                                                {
+                                                                                                                   targets:7,
+                                                                                                                   render: $.fn.dataTable.render.number( ',', '.', 2, '$' )             
+                                                                                                                },
+                                                                                                                {
+                                                                                                                   targets:8,
+                                                                                                                   render: $.fn.dataTable.render.number( ',', '.', 2, '$' )             
+                                                                                                                },
+                                                                                                                {
+                                                                                                                   targets:9,
+                                                                                                                   render: $.fn.dataTable.render.number( ',', '.', 2, '$' )             
+                                                                                                                },
+                                                                                                                {
+                                                                                                                   targets:11,
+                                                                                                                   render: $.fn.dataTable.render.number( ',', '.', 2, '$' )             
+                                                                                                                },
+                                                                                                                {
+                                                                                                                   targets:15,
+                                                                                                                   render: $.fn.dataTable.render.number( ',', '.', 2, '$' )             
+                                                                                                                },
+                                                                                                                {
+                                                                                                                   targets:16,
+                                                                                                                   render: $.fn.dataTable.render.number( ',', '.', 2, '$' )             
+                                                                                                                },
+                                                                                                                {
+                                                                                                                   targets:17,
+                                                                                                                   render: $.fn.dataTable.render.number( ',', '.', 2, '$' )             
+                                                                                                                },
+                                                                                                                                                                                                          {
+                                                                                                                   targets:18,
+                                                                                                                   render: $.fn.dataTable.render.number( ',', '.', 2, '$' )             
+                                                                                                                },
+                                                                                                                
+                                                                                                    ],
+                                                                                       language: {
+                                                                                           "decimal":        ",",
+                                                                                           "thousands":      ".",
+                                                                                           "emptyTable": "No hay información",
+                                                                                           "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                                                                                           "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                                                                                           "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                                                                                           "infoPostFix": "",
+                                                                                           "thousands": ",",
+                                                                                           "lengthMenu": "Mostrar _MENU_ Entradas",
+                                                                                           "loadingRecords": "Cargando...",
+                                                                                           "processing": "Procesando...",
+                                                                                           "search": "Buscar:",
+                                                                                           "zeroRecords": "Sin resultados encontrados",
+                                                                                           "paginate": {
+                                                                                               "first": "Primero",
+                                                                                               "last": "Ultimo",
+                                                                                               "next": "Siguiente",
+                                                                                               "previous": "Anterior"
+                                                                                           },
+                                                                                              "aria": {
+                                                                                                        "sortAscending":  ": Activar para ordenar ascedentemente",
+                                                                                                        "sortDescending": ": Activar para ordenar descendentemente"
+                                                                                                },
+                       
+                                                                                       },
+
+
+
+                  });
+       
+  }
+  function TraeAnios(){
+   
+   var ex=0; 
+     try {
+
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.25.6/Virtual/logica/Treaniosimula.php",
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_SetAnio=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function Cargar_Anio() {
+TraeAnios();
+  for(var i in Data_SetAnio)
+            { 
+               
+                    document.getElementById("cmb_AnioSimula").innerHTML += "<option value='"+Data_SetAnio[i][0]+"'>"+Data_SetAnio[i][0]+"</option>"; 
+
+            }
+ 
+}
+ function TraeFecha(){ 
+    var ex=0; 
+     try {
+
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.25.6/Virtual/logica/TraeFecha.php",
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               TraeFechaServe=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+ }
+ function Emitir(accion,usuario,anio,proceso){
+ var ex=0;    
+    try {
+                                        var parametros={
+                                                "TIP_ACCION":accion,
+                                                "USUARIO":usuario,
+                                                "ANIO":anio,
+                                                "PROCESO":proceso
+                                        }
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                url: "http://172.23.25.6/Virtual/logica/Emitir.php",
+                                                data: parametros,
+//                                                success: function(response){                                           
+//                                                           if(JSON.parse(response.ind)){
+//                                                               ex=1;
+//
+//                                                        } else {
+//                                                                ex=0;
+//                                                        }
+//                                                },
+//                                                error: function(xhr, textStatus, errorMessage) {
+//                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+//                                                }
+                                        });
+//                                       bootbox.alert(ex);
+  
+                                      
+
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+ function TraeCuentaPredios(anio){
+   
+   var ex=0; 
+     try {
+                              var parametros={
+                                                
+                                                "ANIO":anio
+                                        }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.25.6/Virtual/logica/TraeConteoPredios.php",
+                                        data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               ConteoPredios=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}

@@ -1,0 +1,49 @@
+<?php
+$consulta = array();
+//ESTABLECE CONEXION
+	 include './Conexion.php';
+         $link =  conectarse();
+//PARAMETROS WEB_SERVICE
+$ANIO        = $_REQUEST["anio"];
+$TIP_IMPUE  = $_REQUEST["tip_impue"];
+//PARAMETROS SP
+$params = array(     
+                 $ANIO,
+                 $TIP_IMPUE,
+                ); 
+////LLAMA STORE PROCEDURE
+$query1 = "{call SP_SIMUDATOS(?,?)}";
+$result1=sqlsrv_query($link,$query1,$params);
+
+if( $result1 === false) {
+    if( ($errors = sqlsrv_errors() ) != null)  
+            {  
+               foreach( $errors as $error)  
+               {  
+                   $json_data["SQLSTATE"] =$error['SQLSTATE'];
+                   $json_data["code"]     =$error['code'];
+                   $json_data["message"]  =$error['message'];
+                  
+               }  
+            }  
+          $json_data["ind"] = false;
+          echo json_encode($json_data);
+   
+
+}
+        else {
+            
+             
+                while ( $row = sqlsrv_fetch_array( $result1, SQLSRV_FETCH_ASSOC))
+                {                                                                                                                            
+                    array_push($consulta, array($row["CLAVE_GLOBA"],$row["CEDULA_PRO"],$row["nombre"],$row["apellido"],$row["direccion"],$row["parroquia"],$row["CAT_NOMBRE"],$row["VALOR_PROPIEDAD"],$row["PATRI"],$row["BASE_IMPONIBLE"],$row["EDIFICADO"],$row["VALOR_SOLAR"],$row["EXONERADO"],$row["TERCERA_EDAD"],$row["DISCAPACIDAD"],$row["VAL_BOMBE"],$row["VAL_IMP"],$row["SRV_ADM"],$row["TOTAL_PAGAR"]));
+                }
+            
+            
+            $json_data["ind"] = true;
+            $json_data["row"] = $consulta;
+            echo json_encode($json_data);
+        }
+       
+       
+?>

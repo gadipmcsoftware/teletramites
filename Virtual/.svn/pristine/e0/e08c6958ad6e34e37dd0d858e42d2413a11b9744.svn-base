@@ -1,0 +1,23 @@
+var map = L.map('map').setView([0.0374, -78.0861], 12);
+var X;
+var Y;
+// Capas base
+var osmLayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap<\/a> contributors'
+}).addTo(map);
+
+
+var popup = L.popup();
+
+function onMapClick(e) {
+    popup
+        .setLatLng(e.latlng) // Sets the geographical point where the popup will open.
+        .setContent("<i class='fas fa-street-view'></i> Has hecho click en la coordenada:<br> " +  e.latlng.lat.toString() + "," +  e.latlng.lng.toString()) // Sets the HTML content of the popup.
+        .openOn(map); // Adds the popup to the map and closes the previous one. 
+X=e.latlng.lat.toString();
+Y= e.latlng.lng.toString();
+$("#lbl_cordenadaX").val(X);
+$("#lbl_cordenadaY").val(Y);  
+}
+
+map.on('click', onMapClick);

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>FormWizard_v8</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="author" content="colorlib.com">
+
+		<!-- MATERIAL DESIGN ICONIC FONT -->
+		<link rel="stylesheet" href="fonts/material-design-iconic-font/css/material-design-iconic-font.css">
+
+		<!-- DATE-PICKER -->
+		<link rel="stylesheet" href="vendor/date-picker/css/datepicker.min.css">
+
+		<!-- STYLE CSS -->
+		<link rel="stylesheet" href="css/style2.css">
+                <style>
+                    .datepicker{z-index:1151 !important;}
+                 </style>
+	</head>
+	<body>
+		<!--<div class="wrapper">-->
+            <form action="" id="wizard">
+        		<!-- SECTION 1 -->
+                <h4></h4>
+                <section>
+                    <h3>Datos del Contribuyente </h3>
+                	<div class="form-fila">
+                        <div class="form-holder">
+                            <i class="zmdi zmdi-account"></i>
+                            <input type="text" class="form-control" placeholder="Nombres" id="Nom_contri" readonly="readonly">
+                        </div>
+                        <div class="form-holder">
+                            <i class="zmdi zmdi-account"></i>
+                            <input type="text" class="form-control" placeholder="Apellidos" id="Apelli_contri" readonly="readonly">
+                        </div>
+                	</div>
+                    <div class="form-fila">
+                        <div class="form-holder">
+                            <i class="zmdi zmdi-email"></i>
+                            <input type="text" class="form-control" placeholder="Correo Electronico" id="Email_contri" readonly="readonly">
+                        </div>
+                        <div class="form-holder">
+                            <i class="zmdi zmdi-account-box-o"></i>
+                            <input type="text" class="form-control" placeholder="Cedula" id="indenti_contri" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="form-fila">
+                        <div class="form-holder">
+                            <i class="zmdi zmdi-map"></i>
+                            <input type="text" class="form-control" placeholder="Provincia" id="prov_contri" readonly="readonly">
+                        </div>
+                        <div class="form-group">
+                            <div class="form-holder">   
+                                <i class="zmdi zmdi-pin"></i>
+                                <input type="text" class="form-control" placeholder="Cantón" id="canto_contri" readonly="readonly">
+                            </div>
+                            <div class="form-holder">
+                                <i class="zmdi zmdi-pin-drop"></i>
+                                <input type="text" class="form-control" placeholder="Parroquia" id="parro_contri" readonly="readonly">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-fila">
+                        <div class="form-holder">
+                            <i class="zmdi zmdi-smartphone-android"></i>
+                            <input type="text" class="form-control" placeholder="Telefono" id="tele_contri" readonly="readonly">
+                        </div>
+                        <div class="form-holder password">
+                            <i class="zmdi zmdi-eye"></i>
+                            <input type="text" class="form-control" placeholder="Código" id="codi_contri" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="form-fila" id='exo_imp'>
+                        <div class="form-group">
+                            <div class="form-holder">
+                                <span><h8 id="lbl_exo"></h8></span>
+
+                            </div>
+                            <div class="form-holder">
+                                <div class="custom-switch custom-switch-label-yesno pl-0">
+                                    <input class="custom-switch-input" id="chbxsn_te" type="checkbox">
+                                    <label class="custom-switch-btn" for="chbxsn_te"></label>
+                                </div>
+                            </div>
+                           
+                        </div> 
+                        <div class="form-group" id="div_porexo" style="visibility:hidden">
+                            <div class="form-holder">
+                                <span><h8>Porcentaje de Exoneración</h8></span>
+
+                            </div>
+                            <div class="form-holder">
+                             <div class="col-lg-12">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="quantity-left-minus btn btn-danger btn-number"  data-type="minus" data-field="">
+<!--                                                    <i class="fas fa-plus"></i>-->
+                                                    <span class="glyphicon glyphicon-minus"><h8>-</h8></span>
+                                                </button>
+                                            </span>
+                                            <input type="number" id="quantity" name="quantity" class="form-control input-number" value="0" min="1" max="100" title="Porcentaje de Exoneración" onchange="handleChange(this);">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="quantity-right-plus btn btn-success btn-number" data-type="plus" data-field="">
+                                                    <span class="glyphicon glyphicon-plus"><h8>+</h8></span>
+                                                </button>
+                                            </span>
+                                       </div>
+                            </div>
+                           
+                        </div>
+                        </div>
+                        
+                    </div>
+                    
+                </section>
+
+				<!-- SECTION 2 -->
+                <h4></h4>
+                <section>
+                	<h3>Datos del Cónyuge</h3>
+                    <div class="form-fila">
+                        <div class="form-group">
+                            <div class="form-holder">
+                                <span><h8>Estado Civil del Contribuyente</h8></span>
+
+                            </div>
+                            <div class="form-holder">
+                                 <div class="custom-switch custom-switch-label-status pl-0">
+                                    <input class="custom-switch-input" id="chbx_sol" type="checkbox">
+                                    <label class="custom-switch-btn" for="chbx_sol"></label>
+                                  </div>
+                            </div>
+                           
+                        </div> 
+                    </div>
+                        <div id='Frm_conyuge' style="visibility:hidden">
+                                    <div class="form-fila">
+                                        <div class="form-group">
+                                            <div class="form-holder">
+                                            <i class="zmdi zmdi-account-box-o text-danger"></i>
+                                            <input type="text" class="form-control" placeholder="Cedula" id="iden_conyu">
+                                        </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-fila">
+                                            <div class="form-holder">
+                                                <i class="zmdi zmdi-account text-danger"></i>
+                                                <input type="text" class="form-control" placeholder="Nombres" id="Nom_conyu">
+                                            </div>
+                                            <div class="form-holder">
+                                                <i class="zmdi zmdi-account text-danger"></i>
+                                                <input type="text" class="form-control" placeholder="Apellidos" id="Apelli_conyu">
+                                            </div>
+                                    </div>
+                                    <div class="form-fila">
+                                         <div class="form-holder">
+                                            <i class="zmdi zmdi-email"></i>
+                                            <input type="text" class="form-control" placeholder="Correo Electronico" id="Email_conyu">
+                                        </div>
+                                        
+                                        <div class="form-holder">
+								 <i class="zmdi zmdi-calendar "></i>
+                                                                <input type="text"class="form-control datepicker-here pl-85" data-language='es' data-date-format="dd-mm-yyyy" id="dp1" placeholder="Fecha de Nacimiento:">
+								<span class="lnr lnr-chevron-down"></span>
+								<span class="placeholder">Fecha de Nacimiento:</span>
+                                                                
+                                        </div>
+                                    </div>
+                                    <div class="form-fila">
+                                       
+                                       
+                                        <div class="form-group">
+                                            <div class="form-holder">
+                                                <i class="zmdi zmdi-face"></i>
+                                                <input type="number" class="form-control" placeholder="Edad" maxlength="9" onKeypress="if (event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" id="Edad_conyu">
+                                            </div>
+                                            <div class="form-holder">
+                                                <i class="zmdi zmdi-phone"></i>
+                                                <input type="text" class="form-control" placeholder="Teléfono" maxlength="15" onKeypress="if (event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;" id="Telf_conyu">
+                                            </div>
+                                        </div>
+                                       
+                                            <div class="form-group" id="botones" style="visibility:hidden">
+                                                <div class="form-holder">
+                                                    <div class="col-xl-12 col-lg-3">
+                                                       <a href="#" class="btn btn-info btn-user btn-block" id="Btn_history">
+                                                                <i class="fas fa-history"></i> Historial de Cónyuges
+                                                       </a>
+                                                    </div>
+                                                </div>
+                                                <div class="form-holder">
+                                                    <div class="col-xl-12 col-lg-3">
+                                                       <a href="#" class="btn btn-warning btn-user btn-block" id="Btn_nuecon">
+                                                                <i class="fas fa-glass-cheers"></i> Nuevo Cónyuge
+                                                       </a>
+                                                    </div>
+                                                </div>
+                                                
+                                           </div>
+                                                  
+                                            
+                                    </div>
+                                     
+                        </div> 
+                </section>
+            </form>
+                
+<div class="modal fade" id="BusCoyuges" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                 
+                <h8 class="modal-title" id="myModalLabel"> <i class="fas fa-history"></i> Historial de Cónyuges </h8>
+<!--                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                    <span class="sr-only">Close</span>
+                </button>-->
+               
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <p class="statusMsg"></p>
+                <form role="form">
+                    <div class="table-responsive">
+                                      <table class="table table-bordered" id="Tbl_Conyu" width="100%" cellspacing="0">
+                                          <thead>
+                                              <tr>
+                                                  <th>Cedula</th> 
+                                                  <th>Nombres</th>
+                                                  <th>Apellidos</th> 
+                                                  <th>Estado</th>
+                                              </tr>
+                                          </thead>
+                                          <tfoot>
+                                              <tr>
+                                                   <tr>
+                                                            <th>Cedula</th> 
+                                                            <th>Nombres</th>
+                                                            <th>Apellidos</th> 
+                                                            <th>Estado</th> 
+                                                  </tr> 
+                                              </tr>
+                                          </tfoot>
+                                          <tbody>
+                                                
+
+                                          </tbody>
+                                      </table>
+                                  </div>
+                </form>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                     <div class="col-xl-4 col-lg-8">
+                        <div class="container-contact100-form-btn">
+                            <button class="contact100-form-btn btn btn-primary" id="Btn_cerraHisto">
+                                <span>
+                                    Aceptar
+                                    <i class="fas fa-user-check" aria-hidden="true"></i>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>        
+		<!--</div>-->
+
+		<!--<script src="js/jquery-3.3.1.min.js"></script>-->
+		
+		<!-- JQUERY STEP -->
+		<!--<script src="js/jquery.pasos.js"></script>-->
+                
+		<script src="js/main_exo.js"></script>
+                <script src="js/Exoneraciones.js"></script>
+                <script>
+                        function handleChange(input) {
+                          if (input.value < 0) input.value = 0;
+                          if (input.value > 100) input.value = 100;
+                        }
+                </script>
+               <script src="vendor/date-picker/js/datepicker.js"></script>
+               <script src="vendor/date-picker/js/datepicker.en.js"></script>
+
+<!-- Template created and distributed by Colorlib -->
+</body>
+</html>

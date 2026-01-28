@@ -1,0 +1,92 @@
+// Call the dataTables jQuery plugin
+var rowData=[];
+var error ="";
+
+$(document).ready(function() {
+    
+    try {
+
+         $("#Frm_Tasas").validate();
+          var table = $('#Tbl_tasas').DataTable( {
+                    "paging":   false,
+                    "ordering": false,
+                    "info":     false,
+                    "searching": false
+           });
+          $('#Tbl_tasas tbody').on( 'click', 'tr', function () {
+                     rowData = table.row( this ).data();
+           } );
+        $('#Btn_GuarTasa').click(function() { 
+                cadena="#Txt_valtasa"+rowData[0];
+                var cod_tasa=parseInt(rowData[0]);
+                var cadena=$(cadena).val();
+                var valor=parseFloat(cadena);
+                if(isNaN(valor)){
+                    bootbox.alert("El Valor Ingresado en el campo "+rowData[0]+" debe ser Numerico");
+                }
+                else{
+                   GuardarTasa(cod_tasa,valor);
+                }    
+            });  
+          
+    } catch (e) {
+        alert("error"+e);
+    }
+});
+function GuardarTasa(cod_tasa,valor){    
+ var ex=0;    
+    try {
+            var ind_form = $("#Frm_Tasas").valid();
+                                if(ind_form){
+                                        var parametros={
+                                                "cod_tasa":cod_tasa,
+                                                "valor":valor
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Simulacion/logica/GuardarTasas.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=1;
+
+                                                        } else {
+                                                                ex=0;
+                                                                error=response.error
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+//                                       bootbox.alert(ex);
+                                        if(ex){
+                                            bootbox.dialog({
+                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                title: "Registro Guardado Correctamente",
+                                                                onEscape: function() {
+                                                                window.location.href = "http://172.23.5.5/Simulacion/FrmTasas.php";
+                                                                }
+                                                            });
+                                                            //                                            
+//                                              bootbox.alert("Registro Guardado Correctamente");
+                                              
+                                        }
+                                        else{
+                                            bootbox.alert("Fallo al Guardar Registro");
+                                            alert(error);
+                                        }
+                                      
+
+                    } 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+

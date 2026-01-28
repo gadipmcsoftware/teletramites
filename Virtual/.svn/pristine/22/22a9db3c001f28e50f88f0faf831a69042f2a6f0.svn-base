@@ -1,0 +1,40 @@
+<?php
+ 
+//librerias
+  require '../PHPMailer/PHPMailerAutoload.php';
+ $enviado=false;
+//Create a new PHPMailer instance
+$mail = new PHPMailer();
+$mail->IsSMTP();
+ 
+//Configuracion servidor mail
+$mail->From = "oscar181285@gmail.com"; //remitente
+$mail->FromName="GADIP Municipio de Cayambe";
+$mail->SMTPAuth = true;
+$mail->SMTPSecure = 'tls'; //seguridad
+$mail->Host = "smtp.gmail.com"; // servidor smtp
+$mail->Port = 587; //puerto
+$mail->Username ='oscar181285@gmail.com'; //nombre usuario
+$mail->Password = 'cerveza181285'; //contraseña
+ 
+//Agregar destinatario
+$mail->AddAddress($_REQUEST["email"]);
+$mail->Subject = $_REQUEST["subject"];
+$mail->Body = $_REQUEST["message"];
+ 
+//Avisar si fue enviado o no y dirigir al index
+if ($mail->Send()) {
+//    echo'<script type="text/javascript">
+//           alert("Enviado Correctamente");
+//        </script>';
+        $enviado=true;
+      
+} else {
+//    echo'<script type="text/javascript">
+//           alert("NO ENVIADO, intentar de nuevo");
+//        </script>';
+     $enviado= false;
+}
+$json_data["ind"] = $enviado;
+echo json_encode($json_data);
+?>

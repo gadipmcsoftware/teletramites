@@ -1,0 +1,123 @@
+$(document).ready(function() {
+     try {
+         $('#Btn_Cambio').click(function() { 
+             var clave= $("#Txt_clave").val();
+             var repclave= $("#Txt_repclave").val();
+             var Nom=$("#Txt_NombresUsr").val();
+             var emi=$("#Txt_EmailUsr").val();
+             var ced=$("#Txt_cedulaUsr").val();
+             var titu=$("#Txt_Titulo").val();
+             var cuid=$("#Txt_Cuidad").val();
+             var dire=$("#Txt_Direcc").val();
+             if(clave==repclave){
+                 if(Nom!==''&&emi!==''&&clave!==''){
+                      ActualizarProfe(ced,Nom,emi,clave,titu,cuid,dire);
+                 }
+                 else{
+                     bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-danger btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "Error! Debe LLenar los Campos Obligatorios",
+                                                                onEscape: function() {
+                                                               
+                                                                }
+                                                            });
+                 }
+                
+             }
+            else{
+                 bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-danger btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "Error! Las Contraseñas Debe Coincidir",
+                                                                onEscape: function() {
+                                                               
+                                                                }
+                                                            });
+            }
+         });
+     }catch (e) {
+        alert("error"+e);
+    }
+     
+});
+function Cargar(){
+    
+    var Cedula=sessionStorage.getItem('CED_PROFE');
+    var Nombre=sessionStorage.getItem('NOM_PROFE');
+    var direccion=sessionStorage.getItem('DIREC_PROFE');
+    var Email=sessionStorage.getItem('EMAIL_PROFE');
+    var Titulo=sessionStorage.getItem('TIT_PROFE');
+    var Ciudad=sessionStorage.getItem('CUI_DOMI');
+   $("#Txt_cedulaUsr").val(Cedula);
+   $("#Txt_NombresUsr").val(Nombre);
+   $("#Txt_Direcc").val(direccion);
+   $("#Txt_EmailUsr").val(Email);
+   $("#Txt_Titulo").val(Titulo);
+   $("#Txt_Cuidad").val(Ciudad);
+    
+}
+function ActualizarProfe(identificacion,nombres,email,clave,titu,cuid,dire){    
+
+    var ex=0;    
+    try {
+           
+                                        var id=identificacion;
+                                        var nom=nombres;
+                                        var correo=email;
+                                        var claveing=clave;
+                                        var parametros={
+                                                "ced_profe":id,
+                                                "nom_profe":nom,
+                                                "email_profe":correo,
+                                                "clave":claveing,
+                                                "tit_profe":titu,
+                                                "cui_domi":cuid,
+                                                "direc_profe":dire
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Virtual/logica/ActualizaProfe.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_Seterror=response.row;
+                                                        } else {
+                                                                ex=0;
+                                                                alert(response.message);
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+                                        if(Data_Seterror.length==0){
+                                            bootbox.dialog({
+                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                title: "Registro Actualizado Correctamente",
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            });
+                                               window.location.href = "http://172.23.5.5/Virtual/Login.php";
+                                                 
+                                             
+                                               
+                                        }
+                                        else{
+                                            alert("Fallo al Actualizar Registro");
+                                            alert(Data_Seterror);
+                                        }
+                                      
+
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}

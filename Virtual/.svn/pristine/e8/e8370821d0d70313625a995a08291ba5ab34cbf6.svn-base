@@ -1,0 +1,209 @@
+var Data_SetProfe;
+$(document).ready(function() {
+    try {
+        $('#Btn_RecContra').click(function() {
+            var ced=$("#Txt_cedulaUsr").val();
+            var correo=$("#Txt_EmailUsr").val();
+            if(ced!==''&&correo!==''){
+                      Profesional(ced,correo);
+                       if(Data_SetProfe.length==0){
+                                 bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-danger btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "Error! Usuario no Existe",
+                                                                onEscape: function() {
+                                                               
+                                                                }
+                                                });
+                        }
+                        else{
+                             var clave=randomico();
+                             var valida=ValidarProfe(ced,clave);
+                              if(valida){
+                                   EnviarEmail(Data_SetProfe[0][3],'Clave de Ingreso A Plataforma de Teletramites','Estimad(o) :'+Data_SetProfe[0][1]+' \n\
+Se a reseteado su clave de la plataforma virtual de Teletramites\n\
+para ingresar a la plataforma debe hacerlo a la direccion electronica : http://impuestos.gadipmc.gob.ec/Virtual/Login.php\n\
+su Usuario es su cedula de Identidad  \n\
+su clave es: '+clave+' \n\
+Recuerde que en esta plataforma puede dar seguimiento a sus tramites Municipales.');
+                        alert("Se ha enviado su contraseña Temporal a su correo electrónico");
+                        window.location.href = "http://172.23.5.5/Virtual/Login.php";
+                              }
+                        }
+                 }
+                 else{
+                     bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-danger btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "Error! Debe Ingresar Datos en todos los campos",
+                                                                onEscape: function() {
+                                                               
+                                                                }
+                                                            });
+                 }
+           
+        });
+    }catch (e) {
+        alert("error"+e);
+    }
+});
+function Profesional(id,correo){
+   
+   var ex=0; 
+     try {
+                              var idcons=id;
+                            
+                              var parametros={
+                                "id":idcons,
+                                "email":correo
+                                }
+                              $.ajax({
+					type: "POST",
+					dataType: "json",
+					async: false,
+					cache: false,
+					url: "http://172.23.5.5/Virtual/logica/BuscaProfesional.php",
+                                        data: parametros,
+					success: function(response){                                           
+						 if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                              Data_SetProfe=response.row;
+                                                                 
+
+                                                } else {
+                                                                ex=response.ind;
+                                                                error=response.message;
+                                                                query1=response.query1;
+                                                }
+					},
+                                        error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                        }
+				});
+                                
+                              
+
+    } catch (e) {
+        alert("error"+e);
+    }
+     
+                   
+}
+function randomico() {
+    var caracteres = "abcdefghijkmnpqrtuvwxyzABCDEFGHJKMNPQRTUVWXYZ2346789";
+       var contraseña = "";
+       for (i=0; i<5; i++) contraseña +=caracteres.charAt(Math.floor(Math.random()*caracteres.length));
+       return contraseña;
+}
+function ValidarProfe(identificacion,clave){    
+
+    var ex=0;    
+    try {
+           
+                                        var id=identificacion;
+                                        var claveing=clave;
+                                        var parametros={
+                                                "ced_profe":id,
+                                                "clave":claveing
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Virtual/logica/ValidarProfe.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               Data_Seterror=response.row;
+                                                        } else {
+                                                                ex=0;
+                                                                alert(response.message);
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+                                        if(Data_Seterror.length==0){
+                                            bootbox.dialog({
+                                                
+                                                                message: '<a href="#" class="btn btn-success btn-circle"> <i class="fas fa-check"></i></a>',
+                                                                title: "Registro Validado Correctamente",
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            });
+                                                 
+                                             return true;
+                                               
+                                        }
+                                        else{
+                                            alert("Fallo al Actualizar Registro");
+                                            alert(Data_Seterror);
+                                            return false;
+                                        }
+                                      
+
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+function EnviarEmail(AddAddress,Subject,Body){    
+
+    var ex=0;    
+    try {
+           
+                                        
+                                        var parametros={
+                                                "email":AddAddress,
+                                                "subject":Subject,
+                                                "message":Body
+                                            }    
+        //                                   
+                                        $.ajax({
+                                                type: "POST",
+                                                dataType: "json",
+                                                async: false,
+                                                cache: false,
+                                                url: "http://172.23.5.5/Virtual/logica/Send.php",
+                                                data: parametros,
+                                                success: function(response){                                           
+                                                        if(JSON.parse(response.ind)){
+                                                               ex=response.ind; 
+                                                               
+                                                        } else {
+                                                                ex=false;
+                                                               
+                                                                 
+                                                        }
+                                                },
+                                                error: function(xhr, textStatus, errorMessage) {
+                                                                alert("¡Error (ajax)!"+ errorMessage + textStatus + xhr);
+                                                }
+                                        });
+                                        if(ex==false){
+                                             bootbox.dialog({
+                                                                title: '<a href="#" class="btn btn-warning btn-circle"> <i class="fas fa-radiation-alt"></i></a>',
+                                                                message: "No se encontro la direccion de correo electronico por favor informe al profesional su clave de acceso la clave es: "+clave,
+                                                                onEscape: function() {
+//                                                                
+                                                                }
+                                                            });
+                                        }
+                                        
+//                                       bootbox.alert(Data_Seterror);
+                                      
+
+                 
+    } catch (e) {
+        alert(e);
+    }
+
+            
+}
+

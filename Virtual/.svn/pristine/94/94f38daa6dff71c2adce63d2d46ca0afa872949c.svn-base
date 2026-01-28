@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Tramites Virtuales</title>
+
+        <!-- Custom fonts for this template-->
+        <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+        <!-- Custom styles for this template-->
+        <link href="css/sb-admin-2.min.css" rel="stylesheet">
+
+    </head>
+
+    <body class="bg-gray-200">
+
+        <?php
+        require_once('Menu.php');
+        ?>
+        <div class="container">
+            <form method="POST" id="Frm_Consulta">
+
+                <div class="card shadow mb-4">
+                    <!-- Card Header - Accordion -->
+                    <a href="#collapseCardExample" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                        <h6 class="m-0 font-weight-bold text-primary">Consulta de Impuestos - Abonos y Convenios de Pago</h6>
+                    </a>
+                    <!-- Card Content - Collapse -->
+                    <div class="collapse show" id="collapseCardExample" >
+                        <div class="card-body">
+                            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                                <!-- Topbar Navbar -->
+                                <ul class="navbar-nav ml-auto">
+                                    <!-- Nav Item - Search Dropdown (Visible Only XS) -->
+                                    <li class="nav-item dropdown no-arrow d-sm-none">
+                                        <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-search fa-fw"></i>
+                                        </a>
+                                        <!-- Dropdown - Messages -->
+                                        <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
+                                            <div class="form-inline mr-auto w-100 navbar-search">
+                                                <div class="input-group">
+                                                    <input id="Txt_Ced2" type="text" class="form-control bg-light border-0 small" placeholder="Ingrese Cédula de Identidad" aria-label="Search" aria-describedby="basic-addon2">
+
+                                                    <div class="input-group-append">
+                                                        <button id="Btn_buscar1" class="btn btn-primary" type="button">
+                                                            <i class="fas fa-search fa-sm"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+
+                                    <li class="nav-item dropdown no-arrow mx-1">
+
+                                        <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <h6 class="dropdown-header">
+                                                Buscar Por
+                                            </h6>
+                                            <i class="fa fa-arrow-circle-down"></i>
+                                        </a>
+                                        <!-- Dropdown - Alerts -->
+                                        <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+                                            <h6 class="dropdown-header">
+                                                Buscar Por
+                                            </h6>
+
+                                            <a id="Btn_cedu" class="dropdown-item d-flex align-items-center">
+                                                <div class="mr-3">
+                                                    <div  class="icon-circle bg-primary">
+                                                        <i class="fas fa-address-card text-white"></i>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    Cédula de Identidad
+                                                </div>
+                                            </a>
+
+                                            <a id="Btn_nombres" class="dropdown-item d-flex align-items-center">
+                                                <div class="mr-3">
+                                                    <div  class="icon-circle bg-secondary">
+                                                        <i class="fas fa-user-friends text-white"></i>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    Nombres y Apellidos
+                                                </div>
+                                            </a>
+
+                                            <a id="Btn_ClavCas" class="dropdown-item d-flex align-items-center" >
+                                                <div class="mr-3">
+                                                    <div class="icon-circle bg-success">
+                                                        <i class="fas fa-donate text-white"></i>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    Clave Catastral
+                                                </div>
+                                            </a>
+
+                                            <a class="dropdown-item text-center small text-gray-500" href="#">Seleccione una Opción</a>
+                                        </div>
+                                    </li>                           
+                                </ul>
+                                <div class="topbar-divider d-none d-sm-block"></div>
+                                <div class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                                    <div class="input-group">
+                                        <input id="Txt_Ced1" type="text" class="form-control bg-light border-0 small" placeholder="Cédula de Identidad" aria-label="Search" aria-describedby="basic-addon2">
+                                        <div class="input-group-append">
+                                            <button id="Btn_buscar" class="btn btn-primary" type="button">
+                                                <i class="fas fa-search fa-sm"></i>
+                                            </button>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+
+                            </nav>
+                            <div id="dv_consulta" class="table-responsive" style="visibility:hidden">
+                                <table class="table table-bordered" id="Tbl_Consulta" width="100%" cellspacing="0"  >
+                                    <thead>
+                                        <tr>
+                                            <th>Ver</th> 
+                                            <th>Nombre Impuesto</th> 
+                                            <th>Fecha</th>
+                                            <th>Clave Catastral</th>
+                                            <th>Sitio</th>
+                                            <th>Total</th>
+                                            <th>Subtotal</th>
+                                            <th>Costas-Ju</th>
+                                            <th>Desc</th>
+                                            <th>Recargo</th>
+                                            <th>Int.Mora</th>
+<!--                                            <th>Pagar</th>-->
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>Ver</th> 
+                                            <th>Nombre Impuesto</th> 
+                                            <th>Fecha</th>
+                                            <th>Clave Catastral</th>
+                                            <th>Sitio</th>
+                                            <th>Total</th>
+                                            <th>Subtotal</th>
+                                            <th>Costas-Ju</th>
+                                            <th>Desc</th>
+                                            <th>Recargo</th>
+                                            <th>Int.Mora</th>
+<!--                                            <th>Pagar</th>-->
+                                        </tr>
+
+                                    </tfoot>
+                                    <tbody> 
+                                    </tbody>
+                                </table>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <div class="collapse show" id="collapseCardExample" >
+                                            <div class="card-body">
+                                                <div class="card border-success mb-3 mb-3" >
+                                                    <div class="card-header">TOTAL A PAGAR</div>
+                                                    <div class="card-body text-primary">
+                                                        <input id="txt_sumatot" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-2">
+                                        <div class="collapse show" id="collapseCardExample" >
+                                            <div class="card-body">
+                                                <div class="card border-primary mb-3" >
+                                                    <div class="card-header">SUBTOTAL</div>
+                                                    <div class="card-body text-primary">
+                                                        <input id="txt_sumaSubtotal" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </form>
+                    </div>
+
+                    <!-- model buscar nombre -->
+
+
+                    <div class="modal fade" id="Form_Nombres" role="dialog">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                    <h8 class="modal-title" id="myModalLabelNombre"> <i class="fas fa-male"></i>  Búsqueda de Nombres </h8>
+                                    <button type="button" class="close" data-dismiss="modal">
+                                        <span aria-hidden="true">×</span>
+                                        <span class="sr-only">Close</span>
+                                    </button>
+                                </div>
+                                <br>
+
+                                <div class="collapse show" id="collapseCardExample" >
+                                    <div class="card-body">
+                                        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+
+                                            <div class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-200 navbar-search">
+                                                <div class="input-group">
+                                                    <h6 class="dropdown-header">
+                                                        Buscar: 
+                                                    </h6>
+                                                    <input id="Txt_BusqueNom" type="text" class="form-control bg-light border-0 small" placeholder="Ingrese el NOMBRE" aria-label="Search" aria-describedby="basic-addon2">
+                                                    <div class="input-group-append">
+                                                        <button id="Btn_buscarNOm" class="btn btn-primary" type="button">
+                                                            <i class="fas fa-search fa-sm"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </nav>
+                                    </div>
+                                </div>
+
+
+
+                                <!-- Modal Body -->
+                                <div class="modal-body">
+                                    <p class="statusMsg"></p>
+                                    <form role="forma">
+                                        <div id="dv_consultaNom" class="table-responsive" style="visibility:hidden">
+                                            <table class="table table-bordered" id="Tbl_ConsultaNombres" width="100%" cellspacing="0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>NOMBRES</th>
+                                                        <th>PRO_CODIGO</th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </form>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div> 
+
+
+                    <div class="modal fade" id="modalcargando" role="dialog">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                    <h8 class="modal-title" id="myModalLabelNombre"> <i class="fas fa-male"></i>  Búsqueda de Nombres </h8>
+                                    <button type="button" class="close" data-dismiss="modal">
+                                        <span aria-hidden="true">×</span>
+                                        <span class="sr-only">Close</span>
+                                    </button>
+                                </div>
+                                <br>
+                                <div class="d-flex align-items-center">
+                                    <strong>Loading...</strong>
+                                    <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+
+
+
+
+                    <!-- model DETALLE -->
+
+                    <div class="modal fade" id="Form_DetalleREg" role="dialog">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                    <h8 class="modal-title" id="myModalLabelNombre" style="color:#0B2F3A"> <i class="far fa-file-alt"></i> <b>  Registro Impuesto </b>  </h8>
+                                    <button type="button" class="close" data-dismiss="modal">
+                                        <span aria-hidden="true">×</span>
+                                        <span class="sr-only">Close</span>
+                                    </button>
+                                </div>
+                                <br>
+
+
+                                <div class="collapse show" id="collapseCardExample" >
+                                    <div class="card-body">
+                                        <div class="card border-primary mb-3" >
+                                            <div class="card-header">Predio</div>
+                                            <div class="card-body text-primary">
+
+
+                                                <div class="row">
+                                                    <div class="col-md-3 mb-2">
+
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Impuesto: 
+                                                            </b>
+                                                        </h6>
+                                                        <div class="input-group-append">
+                                                            <input id="txt_nombreimpuesto" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 mb-2">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Número Emisión: 
+                                                            </b>
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="txt_numemision" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Clave Catastral: 
+                                                            </b>
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_clavecatastral" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-3 mb-2">
+
+                                                        <h6 class="dropdown-header"> <b>
+                                                                Fecha Emisión: 
+                                                            </b>
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_fechaemi" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+
+
+                                                    </div>
+                                                    <div class="col-md-6 mb-2">
+
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Nombres: 
+                                                            </b>
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_nombress" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-3 mb-2">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                ProCodigo: 
+                                                            </b>
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_procodigo" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+
+
+
+                                                </div>
+
+                                                <div class="row" id="filadirecc">
+                                                    <div class="col-md-12 mb-2">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Dirección: 
+                                                            </b>
+
+                                                        </h6>
+
+                                                        <!--                                                        <div class="input-group-append">
+                                                                                                                    <input id="Txt_direccion" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                                                                                </div>-->
+
+                                                        <div class="input-group">
+
+                                                            <textarea class="form-control" id="Txt_direccion" aria-label="With textarea" disabled="true"></textarea>
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+                                                <div class="row" id="filaobra">
+                                                    <div class="col-md-12 mb-2">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Obra: 
+                                                            </b>
+
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+<!--                                                            <input id="Txt_obra" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">-->
+                                                            <textarea class="form-control" id="Txt_obra" aria-label="With textarea" disabled="true"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="card border-success mb-3 mb-3" >
+                                            <div class="card-header">Valores</div>
+                                            <div class="card-body text-primary">
+                                                <div class="row">
+                                                    <div class="col-md-3 mb-2">
+                                                        <h6 class="dropdown-header" style="color:#FFBF00">
+                                                            <b>
+                                                                Avaluo Propiedad: 
+                                                            </b>
+                                                        </h6>
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_avaluopropie" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4 mb-2">
+                                                        <h6 class="dropdown-header" style="color:#FFBF00">
+                                                            <b>
+                                                                Propiedad: 
+                                                            </b>
+                                                        </h6>
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_propiedad" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 mb-2">
+                                                        <h6 class="dropdown-header" style="color:#FFBF00">
+                                                            <b>
+                                                                Imp Principal:
+                                                            </b>
+                                                        </h6>
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_principal" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-3 mb-2">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Bomberos: 
+                                                            </b>
+
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_bomberos" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 mb-2">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Medicina: 
+                                                            </b>
+
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_medicina" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 mb-2">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Solares: 
+                                                            </b>
+
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_solares" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-3 mb-2">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Educación: 
+                                                            </b>
+
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_educaci" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="col-md-3 mb-2">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Servicios Administrativos:
+                                                            </b>
+
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_servadmins" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="col-md-3 mb-2">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Magisterio: 
+                                                            </b>
+
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_magisterio" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-3 mb-2">
+
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Adoqui Nuevo: 
+                                                            </b>
+
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_adoquin" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 mb-2">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Vivienda:
+                                                            </b>
+
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_vivienda" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 mb-2">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Bordillos:
+                                                            </b>
+
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_bordillo" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <div class="row">
+                                                    <!--                                <div class="col-md-3 mb-2">
+                                                                                        <h6 class="dropdown-header">
+                                                                                            <b>
+                                                                                                Dif. Utilidad: 
+                                                                                            </b>
+                                                    
+                                                                                        </h6>
+                                                    
+                                                                                        <div class="input-group-append">
+                                                                                            <input id="Txt_nombreImpuestos" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                                                        </div>
+                                                                                    </div>-->
+                                                    <div class="col-md-3 mb-2">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Alcantarillado:
+                                                            </b>
+
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_alcantarilla" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3 mb-2">
+                                                        <h6 class="dropdown-header">
+                                                            <b>
+                                                                Ado Golbal 2011: 
+                                                            </b>
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_global" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+
+
+
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="card border-primary mb-3" >
+
+                                            <div class="card-body text-primary">
+
+                                                <div class="row">
+                                                    <div class="col-md-3 mb-2">
+
+                                                        <h6 class="dropdown-header" style="color:#31B404">
+                                                            <b>
+                                                                Subtotal:
+                                                            </b>
+
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_subtotal" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="col-md-3 mb-2">
+
+                                                        <h6 class="dropdown-header" style="color:#31B404">
+                                                            <b>
+                                                                Total:
+                                                            </b>
+
+                                                        </h6>
+
+                                                        <div class="input-group-append">
+                                                            <input id="Txt_total" type="text" class="form-control bg-light border-0 small" placeholder="" aria-label="Search" aria-describedby="basic-addon2" disabled="true">
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+
+
+
+
+
+
+
+                                    </div>
+                                    </nav>
+                                </div>
+                            </div>
+
+
+
+
+                            <!-- Bootstrap core JavaScript-->
+                            <script type="text/javascript" src="js/global/jquery-1.4.4.min.js"></script>
+                            <script src="vendor/jquery/jquery.min.js"></script>
+                            <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+                            <!-- Core plugin JavaScript-->
+                            <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+                            <!-- Custom scripts for all pages-->
+                            <script src="js/sb-admin-2.min.js"></script>
+
+                            <!-- Page level plugins -->
+                            <script type="text/javascript" src="js/global/jquery.validate.js"></script>
+                            <script src="http://code.jquery.com/jquery-migrate-1.0.0.js"></script>
+                            <script type="text/javascript" src="js/global/jquery-ui-1.8.11.custom.min.js"></script>
+                            <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+                            <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+                            <!-- Page level custom scripts -->
+                            <script src="js/ConsultaImpuestos.js?%=Guid.NewGuid()%"></script>
+                            <script src = 'js/bootbox.js'></script>
+
+                            </body>
+
+                            </html>
